@@ -1,0 +1,126 @@
+---
+title: "Overlapping Rhythmic Genes"
+author: "Marta del Olmo"
+date: "2/3/2021"
+output: html_document
+---
+
+* <span style="color: red;">**BA's package is not meant for longitudinal data, but rather for experiments in which the sample of each time point comes from a different individual (killing mice for example)**</span>
+    + <span style="color: red;">**Think about a more sophisticated way maybe -> see Hogenesch**</span>
+* <span style="color: red;">**Compare our results to Hogenesch -> We have more data points!**</span>
+* <span style="color: red;">**Compare our results to Juerchott's summary**</span>
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r libraries, include=FALSE}
+library(limma)
+library(magrittr)
+library(VennDiagram)
+library(ggrepel)
+library(ggforce)
+library(tibble)
+library(tidyr)
+library(dplyr) #IDK why I have to load the packages in this chunk again
+library(tidyr)
+library(ggplot2)
+library(grDevices)
+library(ggvenn)
+```
+
+## **1. Overlap of Rhythmic Genes**
+
+Set cutoffs (like in BA's script)
+
+```{r cutoffs}
+fdr_cutoff <- 0.05
+amp_cutoff <- log2(1 + 0.2) 
+```
+
+Load the raw data and the results of the fits ($H_0$ like BA's script, without sex information)
+
+* <span style="color: blue;">We find 206 genes that are rhythmic in dermis & epidermis ($H_0$: tissue & subject indep variables, rhythms in E are the same as rhythms in D)
+    + Juerchott found 132 (same cutoffs)</span>
+
+```{r data}
+yave <- readRDS("visualize/data/rawdata.rds") #raw data after normalization and QC
+
+results <- readRDS("visualize/data/results.rds") #results of fits (after lmFit, eBayes, topTable)
+results %<>% 
+  dplyr::mutate(A_D = sqrt(tissueD_inphase^2 + tissueD_outphase^2), 
+  A_E = sqrt(tissueE_inphase^2 + tissueE_outphase^2),
+  phaseD = atan2(tissueD_outphase, tissueD_inphase)*12/pi, 
+  phaseE = atan2(tissueE_outphase, tissueE_inphase)*12/pi)
+
+both_rhythm <- results %>% dplyr::filter(pmin(A_D, A_E) > amp_cutoff & adj_P_Val < fdr_cutoff) 
+  #coincides with 2-.Rmd
+```
+
+### **1.1. Comparison of amplitudes and phases of genes that are rhythmic in both**
+
+From the plots below we see that:
+
+1. <span style="color: blue;">Amplitudes are typically higher in epidermis (coincides with Juerchott)</span>
+    + <span style="color: blue;">This might be why we find more rhythmic tissues in E (821 in total, see Venn diagram)</span>
+    + <span style="color: blue;">Core clock genes: </span>
+        + <span style="color: blue;">Higher amplitudes in epidermis: PER3 </span>
+        + <span style="color: blue;">Lower amplitudes in epidermis: DBP, NR1D1, NR1D2, ARNTL (BMAL1), PER1 </span>
+        + <span style="color: blue;">Similar amplitudes in D-E: PER2 </span>
+        + <span style="color: blue;">CLOCK, CRY2, RORs below thresholds in both tissues</span>
+        + <span style="color: blue;">CRY1, NPAS2 below amplitude threshold in Dermis</span>
+2. <span style="color: blue;">Peak times are comparable in both tissues.</span>
+    + <span style="color: blue;">Phases cluster mainly in two peaks: +6 and -6 (like the genes that were rhythmic in either-or)</span>
+    + <span style="color: blue;">Clock genes:</span>
+        + <span style="color: blue;">Comparable phases: PER2, (PER1, PER3, REVERB$\beta$, DBP, ARNTL -> maybe a bit earlier phases in E?)</span>
+        + <span style="color: blue;">Slightly earlier phase in E (1-2h): PER1, PER3, REVERB$\beta$, DBP, ARNTL (BMAL1) </span>
+        + <span style="color: blue;">Earlier phase in Epidermis: REVERB$\alpha$ </span>
+        + <span style="color: blue;">CLOCK, CRY2, RORs below thresholds in both tissues</span>
+        + <span style="color: blue;">CRY1, NPAS2 below amplitude threshold in Dermis</span>
+
+```{r comparison_amplitude_phases_both}
+clock_genes <- c("PER1","PER2","PER3", "CRY1", "CRY2", "NR1D1", "NR1D2", "ARNTL", "ARNTL2", "CLOCK", 
+                 "NPAS2","RORA","RORB","RORC", "CSNK1D", "CSNK1E", "DBP")
+
+# ----- Comparison of amplitudes of the 206 rhythmic genes in both dermis & epidermis, emphasis on clock genes ----- 
+plot_Amplitude_compare_both <- ggplot(data = both_rhythm, aes(x=2^A_D-1, y=2^A_E-1)) + #amps are in log2
+  geom_point(aes(color=Symbol %in% clock_genes), size=1) + geom_abline(slope = 1, alpha=0.2) + 
+  geom_text_repel(aes(label=ifelse(Symbol %in% clock_genes, as.character(Symbol), "")), color="red", 
+                  max.overlaps=Inf, box.padding = 0.5) + 
+  scale_color_manual(values=c("black","red")) +
+  theme_bw() + theme(aspect.ratio = 1, legend.position = "none") + coord_cartesian(xlim=c(0,1), ylim = c(0,1)) +
+  xlab("Relative Amplitude -- Dermis") + ylab("Relative Amplitude -- Epidermis") +
+  ggtitle("Amplitudes of genes rhythmic both in D & E")
+
+#if (!file.exists("figures/Amplitude_compare_both.pdf")){ 
+#  plot_Amplitude_compare %>% ggsave("figures/Amplitude_compare_both.pdf", .) 
+#} 
+plot_Amplitude_compare_both
+
+# --- Comparison of phases of the 206 rhythmic genes in both dermis & epidermis, emphasis on clock genes --- 
+plot_Phase_compare_both <- ggplot(data = both_rhythm, aes(x=phaseD, y=phaseE)) + 
+  geom_point(aes(color=Symbol %in% clock_genes), size=1) + 
+  geom_text_repel(aes(label=ifelse(Symbol %in% clock_genes, as.character(Symbol), "")), color="red", 
+                  max.overlaps=Inf, box.padding = 0.5) + 
+  scale_color_manual(values=c("black","red")) +
+  theme_bw() + theme(aspect.ratio = 1, legend.position = "none") + geom_abline(slope = 1, alpha=0.2) + 
+  scale_x_continuous(breaks = seq(-12,12,by = 6)) +
+  scale_y_continuous(breaks = seq(-12,12,by = 6)) + 
+  xlab("Phase -- Dermis") + ylab("Phase -- Epidermis")+
+  ggtitle("Phases of genes rhythmic both in D & E")
+
+#if (!file.exists("figures/Phase_compare_both.pdf")){ 
+#  plot_Phase_compare %>% ggsave("figures/Phase_compare_both.pdf", .) 
+#} 
+plot_Phase_compare_both
+```
+
+**TO DO:**
+
+* How to the rhythms in both look like? Which rhythms are the same? Which change?
+    * differential rhythmicity analysis BA
+* Hogenesch ideas + comparison
+* Think
+
+

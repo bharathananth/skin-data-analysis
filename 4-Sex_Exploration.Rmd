@@ -1,0 +1,115 @@
+---
+title: "Extracting Sex Information"
+author: "Marta del Olmo"
+date: "1/27/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+I followed [this](http://www.bioconductor.org/packages/release/bioc/vignettes/massiR/inst/doc/massiR_Vignette.pdf) tutorial to learn how to use `massiR`. It gives an overview of how to extract sex information from a microarray or an RNA-Seq experiment. In a nutshell:
+
+* Extraction of expression values of probes that correspond to genes on the Y chromosome
+* Calculation of the variance of expression for each probe across all samples
+  + We only keep the probes with highest variance
+* Filter probes, to keep only those probes which we will use for the clustering (K-means clustering to decide sex)
+* Clustering step to classify samples as female or male
+
+***
+
+```{r load_packages, include=FALSE}
+library(massiR)
+library(dplyr)
+library(tibble)
+library(magrittr)
+library(limma)
+```
+
+## **massiR's indications**
+
+Load the included `massiR` Y chromosome probe lists (included with the package) and select the Affymetrix ones. 
+
+```{r load_massiR_y_probes}
+data(y.probes) # load probes list
+names(y.probes) # look at platform names
+
+affy.probes <- data.frame(y.probes["affy_hg_u133_plus_2"]) # extract probes using platform name
+affy.probes_number <- sapply(strsplit(rownames(affy.probes), "_"), "[[", 1) %>% # Separate and get just the probe number
+  as.data.frame() # must be as data frame
+rownames(affy.probes_number) <- affy.probes_number$.
+affy.probes_number %<>% dplyr::select(-.)
+```
+
+<span style="color: red;">Syntax of `affy_hg_u133_plus_2` probes are not the same as the ones I have on the data!!! Why!!!</span>
+
+***
+
+## **Workaround with biomaRt**
+
+1. Load the genes (ENSEMBL ids) in the Y chromosome (downloaded from biomaRt) -> Human genes GRCh38.p13
+2. Load the microarray raw data (after normalization, duplicate removal, background correction, etc). 
+3. Check which Y chromosome ENSEMBL ids appear in our data. 
+
+```{r load_rawdata_Ychrdata, results=FALSE}
+# load Y chromosome ENSEMBL ids (from biomaRt) -> Human genes (GRCh38.p13)
+y_chromosome <- read.csv("resources/genes_chrY_bioMart.csv") %>% 
+  select("Gene.stable.ID") %>% unique %>% 
+  remove_rownames %>% column_to_rownames(var="Gene.stable.ID")
+
+# load raw data (after normalization and QC) and rename columns (ProbeName -> ENSEMBL)
+rawdata <- readRDS("visualize/data/rawdata.rds") 
+ENSEMBL_ids <- rawdata$genes$ENSEMBL
+yave <- rawdata$E %>% as.data.frame() %>% 
+  mutate("ENSEMBL"=ENSEMBL_ids) %>%
+  remove_rownames %>% column_to_rownames("ENSEMBL")
+
+which(rownames(y_chromosome) %in% rownames(yave))
+```
+
+Now we follow the `massiR` [pipeline](http://www.bioconductor.org/packages/release/bioc/vignettes/massiR/inst/doc/massiR_Vignette.pdf):
+
+* Extraction of probes correspond to Y chromosome probes from our data
+* Plot how the expression of these Y chromosome probes varies across all samples
+* We then extract those probes that vary most across samples (taking the 25-50% most variable probes produces good results)
+
+```{r}
+massi.y.out <- massi_y(yave, y_chromosome) #data corresponding to Y chromosome probes from test data set
+quantiles <- massi.y.out$quantiles[1:4] %>% as.data.frame
+massi.y.out <- data.frame(ID = massi.y.out$id, CV = massi.y.out$cv)
+
+plot_Variation_Y_chr_probes <- ggplot(data=massi.y.out) + 
+  geom_bar(aes(x=ID, y=CV), stat='identity', fill='grey') +
+  geom_hline(data=quantiles, aes(yintercept=., color=rownames(quantiles))) +
+  scale_color_manual(name ="Threshold (Quantile)", labels = c("1 (0%)", "2 (25%)", "3 (50%)", "4 (75%)"), 
+                     values = c("black", "red", "blue", "green")) +
+  xlab("") + ylab("Probe CV (%)") +
+  ggtitle("Expression variation of Y chrosmosome\nprobes across all samples") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 90)) 
+
+massi.select.out <- massi_select(yave, y_chromosome, threshold=4) #select genes with highest variance
+
+# PREDICTING SEX OF SAMPLES
+results <- massi_cluster(massi.select.out)
+sample.results <- data.frame(results[[2]])
+head(sample.results)
+
+sample.results %>% filter(grepl("P115", ID)) #check that all P100, 102, 103, 106, 107, 108, 109, 111, 113, 114, 115 are male xD
+
+males   <- sapply(strsplit(sample.results %>% filter(sex=="male") %$% ID, "_"), "[[", 2) %>% unique
+females <- sapply(strsplit(sample.results %>% filter(sex=="female") %$% ID, "_"), "[[", 2) %>% unique 
+```
+
+
+
+
+```{r}
+# VISUALIZING massiR ANALYSIS DATA
+massi_cluster_plot(massi.select.out, results)
+```
+
+
+
+
