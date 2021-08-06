@@ -1069,6 +1069,54 @@ suppfig5C <- ggplot(kegg_2, aes(x=hits, y=term, size=pvalue, color=tissue)) + ge
 
 #################################
 #################################
+#AK's suggestion: how are amplitudes/phases different in Dermis vs Epidermis?
+df = rhy_results[which(rhy_results$Symbol %in% rhy_results[duplicated(rhy_results$Symbol),"Symbol"]),] %>% 
+  arrange(desc(amp_value))
+df_amp   = df %>% dplyr::select(Symbol, tissue, amp_value) %>% spread(tissue, amp_value) %>% 
+  mutate(Symbol_it = paste0("italic('", Symbol, "')")) %>% arrange(desc(dermis))
+df_phase = df %>% dplyr::select(Symbol, tissue, phase_value) %>% spread(tissue, phase_value) %>% 
+  mutate(Symbol_it = paste0("italic('", Symbol, "')"))
+
+suppfig6A <- ggplot(df_amp, aes(x=dermis, y=epidermis)) + 
+  geom_abline(slope=1, intercept=0, lty='dashed', color="gray") + 
+  geom_point(color="grey47", alpha=0.5) +
+  geom_point(data = filter(df_amp, Symbol %in% clock_genes), 
+             aes(x=dermis, y=epidermis), color="red") +
+  geom_text_repel(data = filter(df_amp, Symbol %in% clock_genes), 
+                  aes(x=dermis, y=epidermis, label=Symbol_it), color="red", parse=TRUE) +
+  coord_fixed() + theme_bw() + xlab("amplitude dermis") + ylab("amplitude epidermis") +
+  theme(aspect.ratio=1.0,
+        axis.line = element_line(colour = "black"),
+        panel.border = element_blank(),
+        panel.background = element_blank(),
+        strip.background = element_blank(),
+        #strip.text = element_text(face="bold"))
+        strip.text = element_text(face="bold"),
+        plot.title = element_text(hjust = 0.5, size=10, face='bold')) 
+print(paste0(which(df_amp$epidermis > df_amp$dermis) %>% length(), "/", dim(df_amp)[1], 
+             " genes (rhythmic in both tissues) with higher amplitude in epidermis than dermis"))
+
+suppfig6B <- ggplot(df_phase, aes(x=dermis, y=epidermis)) + 
+  geom_abline(slope=1, intercept=0, lty='dashed', color="gray") + 
+  geom_point(color="grey47", alpha=0.5) +
+  geom_point(data = filter(df_phase, Symbol %in% clock_genes), 
+             aes(x=dermis, y=epidermis), color="red") +
+  geom_text_repel(data = filter(df_phase, Symbol %in% clock_genes), 
+                  aes(x=dermis, y=epidermis, label=Symbol_it), color="red", parse=TRUE) +
+  coord_fixed() + theme_bw() + xlab("acrophase dermis (h)") + ylab("acrophase epidermis (h)") +
+  theme(aspect.ratio=1.0,
+        axis.line = element_line(colour = "black"),
+        panel.border = element_blank(),
+        panel.background = element_blank(),
+        strip.background = element_blank(),
+        #strip.text = element_text(face="bold"))
+        strip.text = element_text(face="bold"),
+        plot.title = element_text(hjust = 0.5, size=10, face='bold')) +
+  scale_x_continuous(breaks=c(-12,-6,0,6,12), labels=c(-12,-6,0,6,12)) +
+  scale_y_continuous(breaks=c(-12,-6,0,6,12), labels=c(-12,-6,0,6,12))
+
+############################
+############################
 
 # ARRANGE PLOTS IN GRID
 # ---------------------
@@ -1113,6 +1161,7 @@ suppfig2 <- plot_grid(suppfig2A, NULL, suppfig2B, nrow=1, ncol=3, rel_widths = c
 suppfig3 <- plot_grid(suppfig3A, NULL, suppfig3B, nrow=1, ncol=3, rel_widths = c(1,0.01,1.15), labels=c("A", "", "B"))
 suppfig4 <- plot_grid(suppfig4A, suppfig4B, suppfig4C, nrow=3, ncol=1, labels=c("A", "B", "C"))
 suppfig5 <- plot_grid(suppfig5A, suppfig5B, suppfig5C, nrow=3, ncol=1, labels=c("A", "B", "C"))
+suppfig6 <- plot_grid(suppfig6A, NULL, suppfig6B, nrow=1, ncol=3, labels=c("A", "", "B"), rel_widths = c(1,0.05,1))
 
 # SAVE FIGURES
 # ------------
@@ -1130,11 +1179,13 @@ if (!file.exists("figures/suppfig2.pdf")){
 if (!file.exists("figures/suppfig3.pdf")){ 
   suppfig3 %>% ggsave("figures/suppfig3.pdf", ., width=11, height=4) 
 }
-if (!file.exists("figures/fig4.pdf")){ 
+if (!file.exists("figures/suppfig4.pdf")){ 
   suppfig4 %>% ggsave("figures/suppfig4.pdf", ., width = 11,height = 15.5) 
 }
-if (!file.exists("figures/fig5.pdf")){ 
+if (!file.exists("figures/suppfig5.pdf")){ 
   suppfig5 %>% ggsave("figures/suppfig5.pdf", ., width = 11,height = 15.5) 
 }
-
+if (!file.exists("figures/suppfig6.pdf")){ 
+  suppfig6 %>% ggsave("figures/suppfig6.pdf", ., width = 11,height = 5.5) 
+}
 
