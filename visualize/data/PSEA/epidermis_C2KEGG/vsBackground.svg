@@ -1,0 +1,370 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" height="111.65416666666665mm" version="1.1" viewBox="0 0 422 422" width="111.65416666666665mm" x="0mm" y="0mm" xmlns="http://www.w3.org/2000/svg">
+  <rect height="1688" style="fill:rgb(255,255,255);stroke:none;" width="1688" x="-844" y="-844"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-width:2;stroke-miterlimit:2;stroke-dasharray:2;" x1="211" x2="242" y1="211" y2="95"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-width:2;stroke-miterlimit:2;stroke-dasharray:2;" x1="211" x2="347" y1="211" y2="142"/>
+  <ellipse cx="211" cy="211" rx="80" ry="80" style="fill:rgb(255,255,255);stroke:none;"/>
+  <path d="M211.0,131.0 C166.81722001353654,131.0 131.0,166.81722001353654 131.0,211.0 C131.0,255.18277998646346 166.8172200135365,291.0 210.99999999999997,291.0 L211.0,211.0 Z" style="fill:rgb(192,192,192);stroke:none;"/>
+  <ellipse cx="211" cy="211" rx="80" ry="80" style="fill:none;stroke:rgb(0,0,0);stroke-width:5;stroke-miterlimit:10;stroke-linecap:square;"/>
+  <g transform="matrix(0.9659258262890684 0.25881904510252024 -0.25881904510252024 0.9659258262890684 211 211)">
+    <rect height="33" style="fill:rgb(255,255,255);stroke:none;" width="44" x="-22" y="-146"/>
+  </g>
+  <g transform="matrix(0.9184660901072991 0.39549973618576634 -0.39549973618576634 0.9184660901072991 211 211)">
+    <rect height="33" style="fill:rgb(255,255,255);stroke:none;" width="43" x="-21" y="-146"/>
+  </g>
+  <g transform="matrix(0.8453150966756049 0.5342680856389541 -0.5342680856389541 0.8453150966756049 211 211)">
+    <rect height="33" style="fill:rgb(255,255,255);stroke:none;" width="47" x="-23" y="-146"/>
+  </g>
+  <g transform="matrix(0.7405638147250588 0.6719860387834473 -0.6719860387834473 0.7405638147250588 211 211)">
+    <rect height="33" style="fill:rgb(255,255,255);stroke:none;" width="47" x="-23" y="-146"/>
+  </g>
+  <g transform="matrix(0.6358401018080659 0.7718208114146109 -0.7718208114146109 0.6358401018080659 211 211)">
+    <rect height="33" style="fill:rgb(255,255,255);stroke:none;" width="40" x="-20" y="-146"/>
+  </g>
+  <g transform="matrix(0.5317292362176256 0.846914410877168 -0.846914410877168 0.5317292362176256 211 211)">
+    <rect height="33" style="fill:rgb(255,255,255);stroke:none;" width="43" x="-21" y="-146"/>
+  </g>
+  <g transform="matrix(0.40021470427583383 0.9164214044212449 -0.9164214044212449 0.40021470427583383 211 211)">
+    <rect height="33" style="fill:rgb(255,255,255);stroke:none;" width="45" x="-22" y="-146"/>
+  </g>
+  <g transform="matrix(0.23625065139641116 0.9716921476037416 -0.9716921476037416 0.23625065139641116 211 211)">
+    <rect height="33" style="fill:rgb(255,255,255);stroke:none;" width="49" x="-24" y="-146"/>
+  </g>
+  <g transform="matrix(0.08543874745629335 0.996343424945987 -0.996343424945987 0.08543874745629335 211 211)">
+    <rect height="33" style="fill:rgb(255,255,255);stroke:none;" width="40" x="-20" y="-146"/>
+  </g>
+  <g transform="matrix(-0.05107788868519915 0.9986946727040564 -0.9986946727040564 -0.05107788868519915 211 211)">
+    <rect height="33" style="fill:rgb(255,255,255);stroke:none;" width="45" x="-22" y="-146"/>
+  </g>
+  <g transform="matrix(-0.19865960103649577 0.9800685501106646 -0.9800685501106646 -0.19865960103649577 211 211)">
+    <rect height="33" style="fill:rgb(255,255,255);stroke:none;" width="43" x="-21" y="-146"/>
+  </g>
+  <g transform="matrix(-0.34184551393740725 0.9397561623106655 -0.9397561623106655 -0.34184551393740725 211 211)">
+    <rect height="33" style="fill:rgb(255,255,255);stroke:none;" width="45" x="-22" y="-146"/>
+  </g>
+  <g transform="matrix(-0.47746731055880076 0.8786495133713702 -0.8786495133713702 -0.47746731055880076 211 211)">
+    <rect height="33" style="fill:rgb(255,255,255);stroke:none;" width="43" x="-21" y="-146"/>
+  </g>
+  <g transform="matrix(-0.5927049398623361 0.8054196758602217 -0.8054196758602217 -0.5927049398623361 211 211)">
+    <rect height="33" style="fill:rgb(255,255,255);stroke:none;" width="42" x="-21" y="-146"/>
+  </g>
+  <g transform="matrix(-0.6968931738279892 0.7171749467681872 -0.7171749467681872 -0.6968931738279892 211 211)">
+    <rect height="33" style="fill:rgb(255,255,255);stroke:none;" width="43" x="-21" y="-146"/>
+  </g>
+  <g transform="matrix(-0.8004742600911217 0.5993671320080635 -0.5993671320080635 -0.8004742600911217 211 211)">
+    <rect height="33" style="fill:rgb(255,255,255);stroke:none;" width="47" x="-23" y="-146"/>
+  </g>
+  <g transform="matrix(-0.8881182958641551 0.45961493943446735 -0.45961493943446735 -0.8881182958641551 211 211)">
+    <rect height="33" style="fill:rgb(255,255,255);stroke:none;" width="45" x="-22" y="-146"/>
+  </g>
+  <g transform="matrix(-0.9424479873010765 0.3343527945630931 -0.3343527945630931 -0.9424479873010765 211 211)">
+    <rect height="33" style="fill:rgb(255,255,255);stroke:none;" width="40" x="-20" y="-146"/>
+  </g>
+  <g transform="matrix(-0.9690342206522964 0.24692646517697658 -0.24692646517697658 -0.9690342206522964 211 211)">
+    <rect height="33" style="fill:rgb(255,255,255);stroke:none;" width="34" x="-17" y="-146"/>
+  </g>
+  <g transform="matrix(-0.9911199834126899 0.13297059253846005 -0.13297059253846005 -0.9911199834126899 211 211)">
+    <rect height="33" style="fill:rgb(255,255,255);stroke:none;" width="46" x="-23" y="-146"/>
+  </g>
+  <g transform="matrix(-0.999807988354213 -0.019595571517610957 0.019595571517610957 -0.999807988354213 211 211)">
+    <rect height="33" style="fill:rgb(255,255,255);stroke:none;" width="43" x="-21" y="-146"/>
+  </g>
+  <g transform="matrix(-0.9871751303809954 -0.15964104095521542 0.15964104095521542 -0.9871751303809954 211 211)">
+    <rect height="33" style="fill:rgb(255,255,255);stroke:none;" width="43" x="-21" y="-146"/>
+  </g>
+  <g transform="matrix(-0.9525721487597153 -0.3043128347725393 0.3043128347725393 -0.9525721487597153 211 211)">
+    <rect height="33" style="fill:rgb(255,255,255);stroke:none;" width="45" x="-22" y="-146"/>
+  </g>
+  <g transform="matrix(-0.8950828374162151 -0.44589989253523876 0.44589989253523876 -0.8950828374162151 211 211)">
+    <rect height="33" style="fill:rgb(255,255,255);stroke:none;" width="44" x="-22" y="-146"/>
+  </g>
+  <g transform="matrix(-0.8166916269793827 -0.5770743335323177 0.5770743335323177 -0.8166916269793827 211 211)">
+    <rect height="33" style="fill:rgb(255,255,255);stroke:none;" width="45" x="-22" y="-146"/>
+  </g>
+  <g transform="matrix(-0.7220525709924639 -0.6918381925878138 0.6918381925878138 -0.7220525709924639 211 211)">
+    <rect height="33" style="fill:rgb(255,255,255);stroke:none;" width="43" x="-21" y="-146"/>
+  </g>
+  <g transform="matrix(-0.6464881332208573 -0.7629240418315647 0.7629240418315647 -0.6464881332208573 211 211)">
+    <rect height="33" style="fill:rgb(255,255,255);stroke:none;" width="34" x="-17" y="-146"/>
+  </g>
+  <g transform="matrix(-0.5502986648536521 -0.8349678912750406 0.8349678912750406 -0.5502986648536521 211 211)">
+    <rect height="33" style="fill:rgb(255,255,255);stroke:none;" width="47" x="-23" y="-146"/>
+  </g>
+  <g transform="matrix(-0.40183687532779977 -0.9157112676093869 0.9157112676093869 -0.40183687532779977 211 211)">
+    <rect height="33" style="fill:rgb(255,255,255);stroke:none;" width="46" x="-23" y="-146"/>
+  </g>
+  <g transform="matrix(0.9659258262890684 0.25881904510252024 -0.25881904510252024 0.9659258262890684 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:27px;" x="-9" y="-120">K</text>
+  </g>
+  <g transform="matrix(0.9184660901072991 0.39549973618576634 -0.39549973618576634 0.9184660901072991 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:27px;" x="-8.5" y="-120">E</text>
+  </g>
+  <g transform="matrix(0.8453150966756049 0.5342680856389541 -0.5342680856389541 0.8453150966756049 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:27px;" x="-10.5" y="-120">G</text>
+  </g>
+  <g transform="matrix(0.7405638147250588 0.6719860387834473 -0.6719860387834473 0.7405638147250588 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:27px;" x="-10.5" y="-120">G</text>
+  </g>
+  <g transform="matrix(0.6358401018080659 0.7718208114146109 -0.7718208114146109 0.6358401018080659 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:27px;" x="-7" y="-120">_</text>
+  </g>
+  <g transform="matrix(0.5317292362176256 0.846914410877168 -0.846914410877168 0.5317292362176256 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:27px;" x="-8.5" y="-120">E</text>
+  </g>
+  <g transform="matrix(0.40021470427583383 0.9164214044212449 -0.9164214044212449 0.40021470427583383 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:27px;" x="-9.5" y="-120">C</text>
+  </g>
+  <g transform="matrix(0.23625065139641116 0.9716921476037416 -0.9716921476037416 0.23625065139641116 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:27px;" x="-11.5" y="-120">M</text>
+  </g>
+  <g transform="matrix(0.08543874745629335 0.996343424945987 -0.996343424945987 0.08543874745629335 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:27px;" x="-7" y="-120">_</text>
+  </g>
+  <g transform="matrix(-0.05107788868519915 0.9986946727040564 -0.9986946727040564 -0.05107788868519915 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:27px;" x="-9.5" y="-120">R</text>
+  </g>
+  <g transform="matrix(-0.19865960103649577 0.9800685501106646 -0.9800685501106646 -0.19865960103649577 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:27px;" x="-8.5" y="-120">E</text>
+  </g>
+  <g transform="matrix(-0.34184551393740725 0.9397561623106655 -0.9397561623106655 -0.34184551393740725 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:27px;" x="-9.5" y="-120">C</text>
+  </g>
+  <g transform="matrix(-0.47746731055880076 0.8786495133713702 -0.8786495133713702 -0.47746731055880076 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:27px;" x="-8.5" y="-120">E</text>
+  </g>
+  <g transform="matrix(-0.5927049398623361 0.8054196758602217 -0.8054196758602217 -0.5927049398623361 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:27px;" x="-8" y="-120">P</text>
+  </g>
+  <g transform="matrix(-0.6968931738279892 0.7171749467681872 -0.7171749467681872 -0.6968931738279892 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:27px;" x="-8.5" y="-120">T</text>
+  </g>
+  <g transform="matrix(-0.8004742600911217 0.5993671320080635 -0.5993671320080635 -0.8004742600911217 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:27px;" x="-10.5" y="-120">O</text>
+  </g>
+  <g transform="matrix(-0.8881182958641551 0.45961493943446735 -0.45961493943446735 -0.8881182958641551 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:27px;" x="-9.5" y="-120">R</text>
+  </g>
+  <g transform="matrix(-0.9424479873010765 0.3343527945630931 -0.3343527945630931 -0.9424479873010765 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:27px;" x="-7" y="-120">_</text>
+  </g>
+  <g transform="matrix(-0.9690342206522964 0.24692646517697658 -0.24692646517697658 -0.9690342206522964 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:27px;" x="-4" y="-120">I</text>
+  </g>
+  <g transform="matrix(-0.9911199834126899 0.13297059253846005 -0.13297059253846005 -0.9911199834126899 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:27px;" x="-10" y="-120">N</text>
+  </g>
+  <g transform="matrix(-0.999807988354213 -0.019595571517610957 0.019595571517610957 -0.999807988354213 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:27px;" x="-8.5" y="-120">T</text>
+  </g>
+  <g transform="matrix(-0.9871751303809954 -0.15964104095521542 0.15964104095521542 -0.9871751303809954 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:27px;" x="-8.5" y="-120">E</text>
+  </g>
+  <g transform="matrix(-0.9525721487597153 -0.3043128347725393 0.3043128347725393 -0.9525721487597153 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:27px;" x="-9.5" y="-120">R</text>
+  </g>
+  <g transform="matrix(-0.8950828374162151 -0.44589989253523876 0.44589989253523876 -0.8950828374162151 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:27px;" x="-9" y="-120">A</text>
+  </g>
+  <g transform="matrix(-0.8166916269793827 -0.5770743335323177 0.5770743335323177 -0.8166916269793827 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:27px;" x="-9.5" y="-120">C</text>
+  </g>
+  <g transform="matrix(-0.7220525709924639 -0.6918381925878138 0.6918381925878138 -0.7220525709924639 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:27px;" x="-8.5" y="-120">T</text>
+  </g>
+  <g transform="matrix(-0.6464881332208573 -0.7629240418315647 0.7629240418315647 -0.6464881332208573 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:27px;" x="-4" y="-120">I</text>
+  </g>
+  <g transform="matrix(-0.5502986648536521 -0.8349678912750406 0.8349678912750406 -0.5502986648536521 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:27px;" x="-10.5" y="-120">O</text>
+  </g>
+  <g transform="matrix(-0.40183687532779977 -0.9157112676093869 0.9157112676093869 -0.40183687532779977 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:27px;" x="-10" y="-120">N</text>
+  </g>
+  <g transform="matrix(0.4456057940118938 0.8952292870226206 -0.8952292870226206 0.4456057940118938 211 211)">
+    <rect height="39" style="fill:rgb(255,255,255);stroke:none;" width="53" x="-26" y="-184"/>
+  </g>
+  <g transform="matrix(0.3166940577586019 0.9485277401217064 -0.9485277401217064 0.3166940577586019 211 211)">
+    <rect height="39" style="fill:rgb(255,255,255);stroke:none;" width="52" x="-25" y="-184"/>
+  </g>
+  <g transform="matrix(0.16902303743626443 0.9856121005830941 -0.9856121005830941 0.16902303743626443 211 211)">
+    <rect height="39" style="fill:rgb(255,255,255);stroke:none;" width="57" x="-28" y="-184"/>
+  </g>
+  <g transform="matrix(0.0015117271141647374 0.9999988573399133 -0.9999988573399133 0.0015117271141647374 211 211)">
+    <rect height="39" style="fill:rgb(255,255,255);stroke:none;" width="57" x="-28" y="-184"/>
+  </g>
+  <g transform="matrix(-0.13765848344528442 0.990479753420303 -0.990479753420303 -0.13765848344528442 211 211)">
+    <rect height="39" style="fill:rgb(255,255,255);stroke:none;" width="48" x="-23" y="-184"/>
+  </g>
+  <g transform="matrix(-0.27415000296517117 0.961686942759543 -0.961686942759543 -0.27415000296517117 211 211)">
+    <rect height="39" style="fill:rgb(255,255,255);stroke:none;" width="57" x="-28" y="-184"/>
+  </g>
+  <g transform="matrix(-0.4082331026232615 0.9128777212324691 -0.9128777212324691 -0.4082331026232615 211 211)">
+    <rect height="39" style="fill:rgb(255,255,255);stroke:none;" width="49" x="-24" y="-184"/>
+  </g>
+  <g transform="matrix(-0.5176210471634198 0.8556099879813492 -0.8556099879813492 -0.5176210471634198 211 211)">
+    <rect height="39" style="fill:rgb(255,255,255);stroke:none;" width="51" x="-25" y="-184"/>
+  </g>
+  <g transform="matrix(-0.6316478369660444 0.775255448259551 -0.775255448259551 -0.6316478369660444 211 211)">
+    <rect height="39" style="fill:rgb(255,255,255);stroke:none;" width="54" x="-26" y="-184"/>
+  </g>
+  <g transform="matrix(-0.7462825788648384 0.6656292605368594 -0.6656292605368594 -0.7462825788648384 211 211)">
+    <rect height="39" style="fill:rgb(255,255,255);stroke:none;" width="57" x="-28" y="-184"/>
+  </g>
+  <g transform="matrix(-0.8334222170728264 0.552636777720606 -0.552636777720606 -0.8334222170728264 211 211)">
+    <rect height="39" style="fill:rgb(255,255,255);stroke:none;" width="49" x="-24" y="-184"/>
+  </g>
+  <g transform="matrix(-0.8951742927559699 0.44571626130179387 -0.44571626130179387 -0.8951742927559699 211 211)">
+    <rect height="39" style="fill:rgb(255,255,255);stroke:none;" width="51" x="-25" y="-184"/>
+  </g>
+  <g transform="matrix(-0.9464367838813846 0.32288916692304986 -0.32288916692304986 -0.9464367838813846 211 211)">
+    <rect height="39" style="fill:rgb(255,255,255);stroke:none;" width="52" x="-25" y="-184"/>
+  </g>
+  <g transform="matrix(-0.9741615573725125 0.22585229717131725 -0.22585229717131725 -0.9741615573725125 211 211)">
+    <rect height="39" style="fill:rgb(255,255,255);stroke:none;" width="41" x="-20" y="-184"/>
+  </g>
+  <g transform="matrix(-0.9919646735210571 0.12651516306855334 -0.12651516306855334 -0.9919646735210571 211 211)">
+    <rect height="39" style="fill:rgb(255,255,255);stroke:none;" width="52" x="-25" y="-184"/>
+  </g>
+  <g transform="matrix(-0.9999945397151186 0.003304624025224534 -0.003304624025224534 -0.9999945397151186 211 211)">
+    <rect height="39" style="fill:rgb(255,255,255);stroke:none;" width="48" x="-23" y="-184"/>
+  </g>
+  <g transform="matrix(-0.9907249695589616 -0.13588242966768932 0.13588242966768932 -0.9907249695589616 211 211)">
+    <rect height="39" style="fill:rgb(255,255,255);stroke:none;" width="57" x="-28" y="-184"/>
+  </g>
+  <g transform="matrix(-0.9612993428478473 -0.27550603158605597 0.27550603158605597 -0.9612993428478473 211 211)">
+    <rect height="39" style="fill:rgb(255,255,255);stroke:none;" width="49" x="-24" y="-184"/>
+  </g>
+  <g transform="matrix(-0.914907074539155 -0.4036645203113658 0.4036645203113658 -0.914907074539155 211 211)">
+    <rect height="39" style="fill:rgb(255,255,255);stroke:none;" width="55" x="-27" y="-184"/>
+  </g>
+  <g transform="matrix(-0.8430202863022926 -0.5378817684982459 0.5378817684982459 -0.8430202863022926 211 211)">
+    <rect height="39" style="fill:rgb(255,255,255);stroke:none;" width="54" x="-26" y="-184"/>
+  </g>
+  <g transform="matrix(-0.7473675986901597 -0.6644107708549768 0.6644107708549768 -0.7473675986901597 211 211)">
+    <rect height="39" style="fill:rgb(255,255,255);stroke:none;" width="57" x="-28" y="-184"/>
+  </g>
+  <g transform="matrix(-0.6279704003336642 -0.7782372236694782 0.7782372236694782 -0.6279704003336642 211 211)">
+    <rect height="39" style="fill:rgb(255,255,255);stroke:none;" width="56" x="-27" y="-184"/>
+  </g>
+  <g transform="matrix(-0.5053029325481493 -0.8629420295467364 0.8629420295467364 -0.5053029325481493 211 211)">
+    <rect height="39" style="fill:rgb(255,255,255);stroke:none;" width="52" x="-25" y="-184"/>
+  </g>
+  <g transform="matrix(-0.36843889671465196 -0.9296519668067669 0.9296519668067669 -0.36843889671465196 211 211)">
+    <rect height="39" style="fill:rgb(255,255,255);stroke:none;" width="57" x="-28" y="-184"/>
+  </g>
+  <g transform="matrix(-0.20748430225707443 -0.9782383473964282 0.9782383473964282 -0.20748430225707443 211 211)">
+    <rect height="39" style="fill:rgb(255,255,255);stroke:none;" width="57" x="-28" y="-184"/>
+  </g>
+  <g transform="matrix(-0.05656863144615192 -0.9983987129079792 0.9983987129079792 -0.05656863144615192 211 211)">
+    <rect height="39" style="fill:rgb(255,255,255);stroke:none;" width="52" x="-25" y="-184"/>
+  </g>
+  <g transform="matrix(0.09247836729384958 -0.9957146938670052 0.9957146938670052 0.09247836729384958 211 211)">
+    <rect height="39" style="fill:rgb(255,255,255);stroke:none;" width="56" x="-27" y="-184"/>
+  </g>
+  <g transform="matrix(0.23947029216970447 -0.9709036920148962 0.9709036920148962 0.23947029216970447 211 211)">
+    <rect height="39" style="fill:rgb(255,255,255);stroke:none;" width="52" x="-25" y="-184"/>
+  </g>
+  <g transform="matrix(0.36926949559081296 -0.9293223550663713 0.9293223550663713 0.36926949559081296 211 211)">
+    <rect height="39" style="fill:rgb(255,255,255);stroke:none;" width="52" x="-25" y="-184"/>
+  </g>
+  <g transform="matrix(0.4610566252409974 -0.8873707163983847 0.8873707163983847 0.4610566252409974 211 211)">
+    <rect height="39" style="fill:rgb(255,255,255);stroke:none;" width="41" x="-20" y="-184"/>
+  </g>
+  <g transform="matrix(0.5481479774643789 -0.8363813692339821 0.8363813692339821 0.5481479774643789 211 211)">
+    <rect height="39" style="fill:rgb(255,255,255);stroke:none;" width="52" x="-25" y="-184"/>
+  </g>
+  <g transform="matrix(0.4456057940118938 0.8952292870226206 -0.8952292870226206 0.4456057940118938 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:33px;" x="-11" y="-153">K</text>
+  </g>
+  <g transform="matrix(0.3166940577586019 0.9485277401217064 -0.9485277401217064 0.3166940577586019 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:33px;" x="-10.5" y="-153">E</text>
+  </g>
+  <g transform="matrix(0.16902303743626443 0.9856121005830941 -0.9856121005830941 0.16902303743626443 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:33px;" x="-13" y="-153">G</text>
+  </g>
+  <g transform="matrix(0.0015117271141647374 0.9999988573399133 -0.9999988573399133 0.0015117271141647374 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:33px;" x="-13" y="-153">G</text>
+  </g>
+  <g transform="matrix(-0.13765848344528442 0.990479753420303 -0.990479753420303 -0.13765848344528442 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:33px;" x="-8.5" y="-153">_</text>
+  </g>
+  <g transform="matrix(-0.27415000296517117 0.961686942759543 -0.961686942759543 -0.27415000296517117 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:33px;" x="-13" y="-153">G</text>
+  </g>
+  <g transform="matrix(-0.4082331026232615 0.9128777212324691 -0.9128777212324691 -0.4082331026232615 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:33px;" x="-9" y="-153">L</text>
+  </g>
+  <g transform="matrix(-0.5176210471634198 0.8556099879813492 -0.8556099879813492 -0.5176210471634198 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:33px;" x="-10" y="-153">Y</text>
+  </g>
+  <g transform="matrix(-0.6316478369660444 0.775255448259551 -0.775255448259551 -0.6316478369660444 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:33px;" x="-11.5" y="-153">C</text>
+  </g>
+  <g transform="matrix(-0.7462825788648384 0.6656292605368594 -0.6656292605368594 -0.7462825788648384 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:33px;" x="-13" y="-153">O</text>
+  </g>
+  <g transform="matrix(-0.8334222170728264 0.552636777720606 -0.552636777720606 -0.8334222170728264 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:33px;" x="-9" y="-153">L</text>
+  </g>
+  <g transform="matrix(-0.8951742927559699 0.44571626130179387 -0.44571626130179387 -0.8951742927559699 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:33px;" x="-10" y="-153">Y</text>
+  </g>
+  <g transform="matrix(-0.9464367838813846 0.32288916692304986 -0.32288916692304986 -0.9464367838813846 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:33px;" x="-10.5" y="-153">S</text>
+  </g>
+  <g transform="matrix(-0.9741615573725125 0.22585229717131725 -0.22585229717131725 -0.9741615573725125 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:33px;" x="-5" y="-153">I</text>
+  </g>
+  <g transform="matrix(-0.9919646735210571 0.12651516306855334 -0.12651516306855334 -0.9919646735210571 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:33px;" x="-10.5" y="-153">S</text>
+  </g>
+  <g transform="matrix(-0.9999945397151186 0.003304624025224534 -0.003304624025224534 -0.9999945397151186 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:33px;" x="-8.5" y="-153">_</text>
+  </g>
+  <g transform="matrix(-0.9907249695589616 -0.13588242966768932 0.13588242966768932 -0.9907249695589616 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:33px;" x="-13" y="-153">G</text>
+  </g>
+  <g transform="matrix(-0.9612993428478473 -0.27550603158605597 0.27550603158605597 -0.9612993428478473 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:33px;" x="-9" y="-153">L</text>
+  </g>
+  <g transform="matrix(-0.914907074539155 -0.4036645203113658 0.4036645203113658 -0.914907074539155 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:33px;" x="-12" y="-153">U</text>
+  </g>
+  <g transform="matrix(-0.8430202863022926 -0.5378817684982459 0.5378817684982459 -0.8430202863022926 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:33px;" x="-11.5" y="-153">C</text>
+  </g>
+  <g transform="matrix(-0.7473675986901597 -0.6644107708549768 0.6644107708549768 -0.7473675986901597 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:33px;" x="-13" y="-153">O</text>
+  </g>
+  <g transform="matrix(-0.6279704003336642 -0.7782372236694782 0.7782372236694782 -0.6279704003336642 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:33px;" x="-12.5" y="-153">N</text>
+  </g>
+  <g transform="matrix(-0.5053029325481493 -0.8629420295467364 0.8629420295467364 -0.5053029325481493 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:33px;" x="-10.5" y="-153">E</text>
+  </g>
+  <g transform="matrix(-0.36843889671465196 -0.9296519668067669 0.9296519668067669 -0.36843889671465196 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:33px;" x="-13" y="-153">O</text>
+  </g>
+  <g transform="matrix(-0.20748430225707443 -0.9782383473964282 0.9782383473964282 -0.20748430225707443 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:33px;" x="-13" y="-153">G</text>
+  </g>
+  <g transform="matrix(-0.05656863144615192 -0.9983987129079792 0.9983987129079792 -0.05656863144615192 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:33px;" x="-10.5" y="-153">E</text>
+  </g>
+  <g transform="matrix(0.09247836729384958 -0.9957146938670052 0.9957146938670052 0.09247836729384958 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:33px;" x="-12.5" y="-153">N</text>
+  </g>
+  <g transform="matrix(0.23947029216970447 -0.9709036920148962 0.9709036920148962 0.23947029216970447 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:33px;" x="-10.5" y="-153">E</text>
+  </g>
+  <g transform="matrix(0.36926949559081296 -0.9293223550663713 0.9293223550663713 0.36926949559081296 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:33px;" x="-10.5" y="-153">S</text>
+  </g>
+  <g transform="matrix(0.4610566252409974 -0.8873707163983847 0.8873707163983847 0.4610566252409974 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:33px;" x="-5" y="-153">I</text>
+  </g>
+  <g transform="matrix(0.5481479774643789 -0.8363813692339821 0.8363813692339821 0.5481479774643789 211 211)">
+    <text style="fill:rgb(128,128,128);stroke:none;font-size:33px;" x="-10.5" y="-153">S</text>
+  </g>
+</svg>
