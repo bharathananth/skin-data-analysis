@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" height="69.85mm" version="1.1" viewBox="0 0 264 264" width="69.85mm" x="0mm" y="0mm" xmlns="http://www.w3.org/2000/svg">
+  <rect height="1056" style="fill:rgb(255,255,255);stroke:none;" width="1056" x="-528" y="-528"/>
+  <ellipse cx="132" cy="132" rx="80" ry="80" style="fill:rgb(255,255,255);stroke:none;"/>
+  <path d="M132.0,52.0 C87.81722001353654,52.0 52.000000000000014,87.81722001353653 52.0,132.0 C52.0,176.18277998646346 87.81722001353651,212.0 131.99999999999997,212.0 L132.0,132.0 Z" style="fill:rgb(192,192,192);stroke:none;"/>
+  <ellipse cx="132" cy="132" rx="80" ry="80" style="fill:none;stroke:rgb(0,0,0);stroke-width:5;stroke-miterlimit:10;stroke-linecap:square;"/>
+</svg>
