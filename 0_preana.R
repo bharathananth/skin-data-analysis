@@ -81,6 +81,35 @@ y0$genes <- y0$genes[, c("ProbeName", "Symbol", "ENSEMBL", "EntrezID")]
 yave <- avereps(y0, y0$genes[, "ENSEMBL"])  # Averaging probes mapping to the same gene
 rownames(yave$E) <- yave$genes$ProbeName
 
+####################
+yD <- y[,c(1:77)]
+yE <- y[,c(78:154)]
+
+# Remove lowly expressed genes with BA's method:
+IsExpr  <- rowSums(yD$other$gIsWellAboveBG>0) >= 39
+y0D <- yD[!Control & !NoID & IsExpr, ]  # Data (expressed, identified, not controls) with gene annotation
+y0D$genes <- y0D$genes[, c("ProbeName", "Symbol", "ENSEMBL", "EntrezID")] 
+yaveD <- avereps(y0D, y0D$genes[, "ENSEMBL"]) 
+
+IsExpr  <- rowSums(yE$other$gIsWellAboveBG>0) >= 39
+y0E <- yE[!Control & !NoID & IsExpr, ]  # Data (expressed, identified, not controls) with gene annotation
+y0E$genes <- y0E$genes[, c("ProbeName", "Symbol", "ENSEMBL", "EntrezID")] 
+yaveE <- avereps(y0E, y0E$genes[, "ENSEMBL"]) 
+
+yaveDE <- list(expr_D = yaveD$genes$ENSEMBL, 
+               expr_E = yaveE$genes$ENSEMBL,
+               expr_whole = yave$genes$ENSEMBL)
+library(ggvenn)
+library(cowplot)
+fig0_1 <- ggvenn(yaveDE[c(1,2)], fill_color = c("#1B9E77", "#D95F02"), text_size = 3,
+                 stroke_size = 0.25, set_name_size = 4) + ggtitle("overlap expressed genes dermis vs epidermis")
+fig0_2 <- ggvenn(yaveDE[c(1,3)], fill_color = c("#1B9E77", "grey"), text_size = 3,
+                 stroke_size = 0.25, set_name_size = 4) + ggtitle("overlap expressed genes dermis vs whole")
+fig0_3 <- ggvenn(yaveDE[c(2,3)], fill_color = c("#D95F02", "grey"), text_size = 3,
+                 stroke_size = 0.25, set_name_size = 4) + ggtitle("overlap expressed genes epidermis vs whole")
+fig0 <- plot_grid(fig0_1, fig0_2, fig0_3, align='v', nrow=3)
+####################
+
 
 # 5. PCA of raw data -> What separates first? Are there outliers?
 # ---------------------------------------------------------------
@@ -108,6 +137,10 @@ outliers = "E32_P109"
 # ---------------------------------------------
 if (!file.exists("visualize/data/rawdata.rds")){ 
   saveRDS(yave, file = "visualize/data/rawdata.rds")
+} 
+if (!file.exists("visualize/data/rawdata_dermis.rds")){ 
+  saveRDS(yaveD, file = "visualize/data/rawdata_dermis.rds")
+  saveRDS(yaveE, file = "visualize/data/rawdata_epidermis.rds")
 } 
   
 
