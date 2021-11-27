@@ -67,10 +67,12 @@ PCA_outliers <- "E32_P109" #see PCA analysis in preana.R
 info_subjects <- read.csv("resources/info_subjects_short.csv") %>% dplyr::select(-X) # read info of subjects
 experiment <- readRDS("visualize/data/experiment.rds") %>% full_join(info_subjects) # read sample details from column names
 yave <- readRDS("visualize/data/rawdata.rds") # read y gene expression data (without outlier removal)
+yave_D <- readRDS("visualize/data/rawdata_dermis.rds") # read y gene expression data (without outlier removal)
+yave_E <- readRDS("visualize/data/rawdata_epidermis.rds") # read y gene expression data (without outlier removal)
 
 # Remove outliers in yave
 ind <- which(colnames(yave) == PCA_outliers)    
-yave <- yave[, -ind] 
+yave <- yave[, -ind] ; yave_E <- yave[,-(ind-77)]
 experiment <- experiment[-ind,]
 nrow(experiment) == ncol(yave)   #input-check
 wts <- NULL #since we are removing PCA-outliers, weights from lmFit (performed later) are set to NULL 
@@ -154,14 +156,23 @@ rhy_results_internaltime <- results_passAmpcutoff_internaltime %>% filter(adj_P_
 
 
 # Supplementary figure 2A: comparison of rhythmic genes with wall vs internal time
-yrhy_internaltime <- list(dermis = yave$genes$ProbeName[yave$genes$Symbol %in% filter(rhy_results_internaltime, 
-                                                                                      tissue=="dermis")$Symbol], 
-                          epidermis = yave$genes$ProbeName[yave$genes$Symbol %in% filter(rhy_results_internaltime, 
-                                                                                         tissue=="epidermis")$Symbol])
-yrhy_walltime <- list(dermis = yave$genes$ProbeName[yave$genes$Symbol %in% filter(rhy_results_walltime, 
-                                                                                  tissue=="dermis")$Symbol], 
-                      epidermis = yave$genes$ProbeName[yave$genes$Symbol %in% filter(rhy_results_walltime, 
-                                                                                     tissue=="epidermis")$Symbol])
+yrhy_internaltime <- list(dermis = yave$genes$ProbeName[yave$genes$Symbol %in% 
+                                                          filter(rhy_results_internaltime, tissue=="dermis")$Symbol], 
+                          epidermis = yave$genes$ProbeName[yave$genes$Symbol %in% 
+                                                             filter(rhy_results_internaltime, tissue=="epidermis")$Symbol])
+yrhy_walltime <- list(dermis = yave$genes$ProbeName[yave$genes$Symbol %in% 
+                                                      filter(rhy_results_walltime, tissue=="dermis")$Symbol], 
+                      epidermis = yave$genes$ProbeName[yave$genes$Symbol %in% 
+                                                         filter(rhy_results_walltime, tissue=="epidermis")$Symbol])
+yrhy_dermis <- list(internal = yave$genes$ProbeName[yave$genes$Symbol %in% 
+                                                       filter(rhy_results_internaltime, tissue=="dermis")$Symbol], 
+                    wall = yave$genes$ProbeName[yave$genes$Symbol %in% 
+                                                       filter(rhy_results_walltime, tissue=="dermis")$Symbol])
+yrhy_epidermis <- list(internal = yave$genes$ProbeName[yave$genes$Symbol %in% 
+                                                      filter(rhy_results_internaltime, tissue=="epidermis")$Symbol], 
+                       wall = yave$genes$ProbeName[yave$genes$Symbol %in% 
+                                                  filter(rhy_results_walltime, tissue=="epidermis")$Symbol])
+
 
 suppfig2A_1 <- ggvenn(yrhy_internaltime, fill_color = c("#1B9E77", "#D95F02"), text_size = 3,
                       stroke_size = 0.25, set_name_size = 4) +
@@ -171,8 +182,21 @@ suppfig2A_2 <- ggvenn(yrhy_walltime, fill_color = c("#1B9E77", "#D95F02"), text_
                       stroke_size = 0.25, set_name_size = 4, stroke_linetype = "dashed") +
   ggtext::geom_richtext(data = tibble(x=-2, y=0, s="Wall\ntime"), aes(x, y, label = s), 
                         angle=90, fill = NA, label.color = NA, size=5, fontface='bold') 
-suppfig2A <- plot_grid(suppfig2A_1, suppfig2A_2, ncol=1, nrow=2, labels=c("A", ""))
+suppfig2A_3 <- ggvenn(yrhy_dermis, fill_color = c("#1B9E77","#1B9E77"), text_size = 3, #stroke_linetype = c("solid", "dashed"), 
+                      stroke_size = 0.25, set_name_size = 4) +
+  ggtext::geom_richtext(data = tibble(x=-2, y=0, s="Dermis"), aes(x, y, label = s), 
+                        angle=90, fill = NA, label.color = NA, size=5, fontface='bold') 
+suppfig2A_4 <- ggvenn(yrhy_epidermis, fill_color = c("#D95F02","#D95F02"), text_size=3, #stroke_linetype = c("solid", "dashed"), 
+                      stroke_size = 0.25, set_name_size = 4) +
+  ggtext::geom_richtext(data = tibble(x=-2, y=0, s="Epidermis"), aes(x, y, label = s), 
+                        angle=90, fill = NA, label.color = NA, size=5, fontface='bold')
 
+suppfig2A <- plot_grid(suppfig2A_1, NULL, suppfig2A_2, NULL, suppfig2A_3, NULL, suppfig2A_4, 
+                       rel_heights = c(1, -0.25, 1, -0.25, 1, -0.25, 1),
+                       ncol=1, nrow=7, labels=c("A", ""))
+
+
+#########
 
 # Supplementary Figure 2B: correlation of amplitudes estimated from wall vs internal time analyses
 rhy_results <- rbind(rhy_results_internaltime %>% mutate(analysis="internal_time"),
@@ -194,8 +218,8 @@ suppfig2B <- ggplot(toplot, aes(x=internal_time, y=wall_time, color=tissue)) +
   facet_wrap(~tissue, scales="free") + guides(color=FALSE) +
   scale_y_continuous(limits=c(0.26,1.2), breaks = seq(0.2, 1.2, by=0.2), trans='log2') +
   scale_x_continuous(limits=c(0.26,1.2), breaks = seq(0.2, 1.2, by=0.2), trans='log2') +
-  xlab(bquote(~log[2]*'(fold amplitude) internal time')) + 
-  ylab(bquote(~log[2]*'(fold amplitude) wall time')) + theme_custom() 
+  xlab(bquote(~log[2]*' (fold amplitude) internal time')) + 
+  ylab(bquote(~log[2]*' (fold amplitude) wall time')) + theme_custom() 
 
 amp_dermis <- filter(toplot, tissue=="dermis") %>% na.omit()
 print(paste0(which(amp_dermis$internal_time > amp_dermis$wall_time) %>% length(), "/", dim(amp_dermis)[1], 
@@ -204,11 +228,9 @@ print(paste0(which(amp_dermis$internal_time > amp_dermis$wall_time) %>% length()
 amp_epidermis <- filter(toplot, tissue=="epidermis")
 print(paste0(which(amp_epidermis$internal_time > amp_epidermis$wall_time) %>% length(), "/", dim(amp_epidermis)[1], 
              " genes (rhythmic in epidermis) have a higher amplitude when estimated from internal time"))
-# TODO 1: Are the genes with higher amplitude in internal time analysis related to some specific functions? 
-#      >  Nothing too interesting (see notes on 09.09.21 in notebook and fig2_TODO2.R)
-# TODO 2: In this plot, where are the ZZ genes located? Do they result in larger A when analysis is done based on internal time?
-#      >  No rule actually... ZZ genes are a bit all over the place (See fig2_TODO2.R)
 
+
+#########
 
 # Supplementary Figure 2C: correlation of phases estimated from wall vs internal time analyses
 toplot <- rhy_results %>% select(Symbol, tissue, phase_value, analysis) %>% 
@@ -230,11 +252,31 @@ suppfig2C <- ggplot(toplot, aes(x=internal_time, y=wall_time, color=tissue)) +
   xlab("Phase (h) internal time") + ylab("Phase (h) wall time") + theme_custom() 
 
 
+#########
+
+# Supplementary Figure 2D: correlation of p values from wall vs internal time analyses
+toplot <- rhy_results %>% select(Symbol, tissue, adj_P_Val, analysis) %>% spread(analysis, adj_P_Val) %>% 
+  mutate(Symbol_it = paste0("italic('", Symbol, "')"))
+
+suppfig2D <- ggplot(toplot, aes(x=-log10(internal_time), y=-log10(wall_time), color=tissue)) +
+  geom_abline(slope=1, intercept=0, lty='dashed', color="gray") + 
+  geom_point(alpha=0.3) + 
+  geom_point(data = filter(toplot, Symbol %in% clock_genes), aes(x=-log10(internal_time), y=-log10(wall_time)), color="black") +
+  geom_text_repel(data = filter(toplot, Symbol %in% clock_genes), aes(label=Symbol_it), 
+                  max.overlaps=Inf, box.padding=1., point.padding=.5,  size=3,
+                  segment.color="black", color="black", parse=TRUE) + guides(color=FALSE) +
+  facet_wrap(~tissue, scales="free") + guides(color=FALSE) +
+  #scale_y_continuous(limits=c(0.0,0.05), trans='log10') +
+  #scale_x_continuous(limits=c(0.26,1.2), trans='log10') +
+  xlab(bquote(~-log[10]*' adjusted'~italic(' p')~'value (internal time)')) + 
+  ylab(bquote(~-log[10]*' adjusted'~italic(' p')~'value (wall time)')) + theme_custom() 
+
 ################
 ################
 
-sfig2_1 <- suppfig2A
-sfig2_2 <- plot_grid(suppfig2B, NULL, suppfig2C, nrow=3, labels = c("B", "", "C"), rel_heights = c(1,0.1,1))
+sfig2_1 <- plot_grid(suppfig2A, nrow=1, labels = c("", ""))
+sfig2_2 <- plot_grid(suppfig2B, NULL, suppfig2C, NULL, suppfig2D, nrow=5, 
+                     labels = c("B", "", "C", "", "D"), rel_heights = c(1,0.1,1,0.1,1))
 sfig2   <- plot_grid(sfig2_1, sfig2_2, ncol=2)
 
-sfig2 %>% ggsave('figures/suppfig2.pdf', ., width = 11, height = 6)
+sfig2 %>% ggsave('figures/suppfig2.pdf', ., width = 11, height = 8.5)
