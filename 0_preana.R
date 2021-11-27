@@ -8,6 +8,8 @@ suppressPackageStartupMessages(library(ggforce))
 suppressPackageStartupMessages(library(dplyr))
 suppressPackageStartupMessages(library(lubridate))
 suppressPackageStartupMessages(library(tidyverse))
+suppressPackageStartupMessages(library(ggvenn))
+suppressPackageStartupMessages(library(cowplot))
 
 setwd("~/Documents/WORK/POSTDOC/projects/skin-data-analysis")
 
@@ -81,11 +83,11 @@ y0$genes <- y0$genes[, c("ProbeName", "Symbol", "ENSEMBL", "EntrezID")]
 yave <- avereps(y0, y0$genes[, "ENSEMBL"])  # Averaging probes mapping to the same gene
 rownames(yave$E) <- yave$genes$ProbeName
 
-####################
+# Find expressed genes in each skin layer separately
 yD <- y[,c(1:77)]
 yE <- y[,c(78:154)]
 
-# Remove lowly expressed genes with BA's method:
+# Remove lowly expressed genes 
 IsExpr  <- rowSums(yD$other$gIsWellAboveBG>0) >= 39
 y0D <- yD[!Control & !NoID & IsExpr, ]  # Data (expressed, identified, not controls) with gene annotation
 y0D$genes <- y0D$genes[, c("ProbeName", "Symbol", "ENSEMBL", "EntrezID")] 
@@ -99,8 +101,8 @@ yaveE <- avereps(y0E, y0E$genes[, "ENSEMBL"])
 yaveDE <- list(expr_D = yaveD$genes$ENSEMBL, 
                expr_E = yaveE$genes$ENSEMBL,
                expr_whole = yave$genes$ENSEMBL)
-library(ggvenn)
-library(cowplot)
+
+# Check overlap between expressed genes in D vs E or whole skin
 fig0_1 <- ggvenn(yaveDE[c(1,2)], fill_color = c("#1B9E77", "#D95F02"), text_size = 3,
                  stroke_size = 0.25, set_name_size = 4) + ggtitle("overlap expressed genes dermis vs epidermis")
 fig0_2 <- ggvenn(yaveDE[c(1,3)], fill_color = c("#1B9E77", "grey"), text_size = 3,
@@ -108,7 +110,6 @@ fig0_2 <- ggvenn(yaveDE[c(1,3)], fill_color = c("#1B9E77", "grey"), text_size = 
 fig0_3 <- ggvenn(yaveDE[c(2,3)], fill_color = c("#D95F02", "grey"), text_size = 3,
                  stroke_size = 0.25, set_name_size = 4) + ggtitle("overlap expressed genes epidermis vs whole")
 fig0 <- plot_grid(fig0_1, fig0_2, fig0_3, align='v', nrow=3)
-####################
 
 
 # 5. PCA of raw data -> What separates first? Are there outliers?
@@ -152,9 +153,3 @@ if (!file.exists("visualize/data/experiment.rds")){
     {strcapture("(\\w)(\\d+)_(\\w+)", colnames(y0$E), ., perl = TRUE)}
   saveRDS(experiment, "visualize/data/experiment.rds")
 } 
-
-
-
-
-
-
