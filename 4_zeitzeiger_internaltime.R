@@ -12,6 +12,8 @@ suppressPackageStartupMessages(library(limma))
 suppressPackageStartupMessages(library(ggthemes))
 suppressPackageStartupMessages(library(viridis))
 suppressPackageStartupMessages(library(cowplot))
+suppressPackageStartupMessages(library(variancePartition))
+
 
 setwd("~/Documents/WORK/POSTDOC/projects/skin-data-analysis")
 
@@ -129,8 +131,8 @@ for (ii in 1:length(sumabsv)) {
   predResultList_E[[ii]] <- zeitzeigerPredictCv(xE, time_E, foldid_E, spcResultList_E[[ii]], nSpc=nSpc)}
 
 
-# Plot the error for each set of parameter values
-# -----------------------------------------------
+# Plot the error for each set of parameter values: Figure 3A
+# ----------------------------------------------------------
 # Before plotting, we need to reorganize the output, making a data.frame with the information for each prediction
 timePredList_D <- lapply(predResultList_D, function(a) a$timePred)
 timePredList_E <- lapply(predResultList_E, function(a) a$timePred)
@@ -165,14 +167,16 @@ cvResultGathGroup_E = cvResultGath_E %>% group_by(sumabsv, nSpc) %>%
 cvResultGathGroup_E[,"tissue"] <- "epidermis"
 cvResultGathGroup <- rbind(cvResultGathGroup_D, cvResultGathGroup_E)
 
-suppfig4A <- ggplot(cvResultGathGroup) + facet_wrap(~tissue, scales='free') + theme_custom() +
-  geom_point(aes(x=nSpc, y=medae, shape=sumabsv, color=sumabsv), size=3) +
-  labs(x='Number of SPCs', y='Median absolute error') + 
+fig3A <- ggplot(cvResultGathGroup) + facet_wrap(~tissue, scales='free') + theme_custom() +
+  geom_point(aes(x=nSpc, y=medae, shape=sumabsv, color=tissue), alpha=0.8, 
+             size=5) +
+  labs(x='Number of SPCs', y='Median absolute error') + guides(color=FALSE) +
   scale_y_continuous(limits=c(0.03, 0.16)) + scale_x_continuous(breaks=c(1,2,3,4,5,6)) + expand_limits(x=c(1,6)) +
   theme(legend.title = element_text(),
         legend.position = "right",
         panel.grid.major = element_line(),
-        axis.line=element_line()) + scale_color_brewer(palette="Set1")
+        axis.line=element_line(),
+        title = element_text()) #+ scale_color_brewer(palette="Set1")
 
 
 # Train a model on the full dataset
@@ -191,18 +195,8 @@ dfVar_E <- data.frame(spc = 1:length(spcResultFinal_E$d), propVar = spcResultFin
 dfVar_D[,"tissue"] <- "dermis"; dfVar_E[,"tissue"] <- "epidermis"
 dfVar <- rbind(dfVar_D, dfVar_E)
 
-suppfig4B <- ggplot(dfVar) + facet_wrap(~tissue, scales='free') + scale_y_continuous(limits=c(0.0,0.7)) +
-  geom_point(aes(x=spc, y=propVar, color=tissue), size=3) +
-  scale_x_continuous(breaks=seq(1, 10)) +
-  labs(x='Number of SPCs', y='Proportion of\nvariance explained') + 
-  theme_custom() + theme(legend.title = element_text(),
-                         legend.position = "none",
-                         panel.grid.major = element_line(),
-                         axis.line=element_line()) #first 3 SPCs explain variance, 
-                                                   #but error is not improved much after 2SPCs (see suppfig4A)
 
-
-# Plot the phase portrait of SPCs over time: Figure 3B
+# Plot the phase portrait of SPCs over time: Figure 3C
 # ----------------------------------------------------
 zD <- xD %*% spcResultFinal_D$v[, 1:2]
 zE <- xE %*% spcResultFinal_E$v[, 1:2]
@@ -213,18 +207,6 @@ zD <- data.frame(zD, obs=1:nObs_D, Time=time_D, check.names=FALSE) %>% mutate(ti
 zE <- data.frame(zE, obs=1:nObs_E, Time=time_E, check.names=FALSE) %>% mutate(tissue="epidermis") %>% 
   tibble::rownames_to_column() %>% tidyr::separate(rowname, c("subject","junk"), sep = "_", convert = TRUE) %>% select(-junk)
 z <- rbind(zD, zE)
-
-#zGath_D <- gather(zD, key=SPC, value=Abundance, -obs, -Time, -tissue, -subject)
-#zGath_E <- gather(zE, key=SPC, value=Abundance, -obs, -Time, -tissue, -subject)
-#zGath_D[,"tissue"] <- "dermis"; zGath_E[,"tissue"] <- "epidermis"
-#zGath <- rbind(zGath_D, zGath_E)
-#
-#ggplot(zGath) + 
-#  facet_wrap(tissue~SPC, scales = 'free_y') +
-#  geom_point(aes(x = Time, y = Abundance, color = tissue), size = 2, shape = 1) + theme_bw()
-##ggplot(zGath) + 
-##  facet_grid(SPC~tissue, scales = 'free_y') +
-##  geom_point(aes(x = Time, y = Abundance, color = tissue), size = 2, shape = 1) + theme_bw()
 
 data.arrow <- data.frame(SPC1_start = max(z %>% filter(tissue=="dermis") %$% SPC1),
                          SPC2_start = (max(z %>% filter(tissue=="dermis") %$% SPC2)-1),
@@ -237,15 +219,41 @@ data.arrow <- data.frame(SPC1_start = max(z %>% filter(tissue=="dermis") %$% SPC
                    SPC2_end   = max(z %>% filter(tissue=="epidermis") %$% SPC2),
                    tissue="epidermis"))
 
-fig3B <- ggplot(z) + 
-  geom_point(aes(x=SPC1, y=SPC2, color=as.character(Time)), size=2) + theme_custom() + scale_color_viridis(discrete=TRUE) +
+fig3C <- ggplot(z) + 
+  geom_point(aes(x=SPC1, y=SPC2, color=as.character(Time)), size=2) + theme_custom() + 
+  scale_color_viridis(discrete=TRUE, option='E') +
   geom_curve(data=data.arrow, aes(x=SPC1_start, y=SPC2_start, xend=SPC1_end, yend=SPC2_end), 
              arrow=arrow(length=unit(0.03, "npc")), lineend="round") + #expand_limits(y=-5) +
-  facet_wrap(.~tissue, scales='free', nrow=2) + theme(legend.position="none") +
+  facet_wrap(tissue~., scales='free', ncol=2) + 
+  theme(legend.position="none", 
+        strip.background = element_rect(fill=alpha("#1B9E77", 0.5), color="white")) +
   scale_y_continuous(expand = c(0.04, 0.75, 0.04, 0.75)) + scale_x_continuous(expand = c(0.04, 0.75, 0.04, 0.75))
 
 
-# Plot coefficients of the features (time-telling genes) for the SPCs: Figure 3A
+# Plot the phase portrait of SPCs over time, but for each subject: supplementary figure 5C
+# -----------------------------------------------------------------------------------------
+suppfig5C_1 <- ggplot(z %>% filter(tissue=="dermis")) + 
+  geom_point(aes(x=SPC1, y=SPC2, color=as.character(Time)), size=2) + theme_custom() + 
+  scale_color_viridis(discrete=TRUE, option='E') +
+  geom_curve(data=data.arrow %>% filter(tissue=="dermis"), aes(x=SPC1_start, y=SPC2_start, xend=SPC1_end, yend=SPC2_end), 
+             arrow=arrow(length=unit(0.03, "npc")), lineend="round") + 
+  facet_wrap(subject~., scales='free') + theme(legend.position="none") +
+  scale_y_continuous(expand = c(0.04, 0.75, 0.04, 0.75)) + scale_x_continuous(expand = c(0.04, 0.75, 0.04, 0.75)) +
+  theme(strip.background = element_rect(fill=alpha("#1B9E77", 0.5))) + xlab("\nSPC1") + ylab("SPC2\n") 
+
+suppfig5C_2 <- ggplot(z %>% filter(tissue=="epidermis")) + 
+  geom_point(aes(x=SPC1, y=SPC2, color=as.character(Time)), size=2) + theme_custom() + 
+  scale_color_viridis(discrete=TRUE, option='E') +
+  geom_curve(data=data.arrow %>% filter(tissue=="epidermis"), aes(x=SPC1_start, y=SPC2_start, xend=SPC1_end, yend=SPC2_end), 
+             arrow=arrow(length=unit(0.03, "npc")), lineend="round") + 
+  facet_wrap(subject~., scales='free') + theme(legend.position="none") +
+  scale_y_continuous(expand = c(0.04, 0.75, 0.04, 0.75)) + scale_x_continuous(expand = c(0.04, 0.75, 0.04, 0.75)) +
+  theme(strip.background = element_rect(fill=alpha("#D95F02", 0.5))) + xlab("\nSPC1") + ylab("SPC2\n") 
+  
+suppfig5C <- plot_grid(NULL, suppfig5C_1, NULL, suppfig5C_2, ncol=4, rel_widths = c(0.1,1,0.1,1))
+
+
+# Plot coefficients of the features (time-telling genes) for the SPCs: Figure 3B
 # ------------------------------------------------------------------------------
 vD <- data.frame(spcResultFinal_D$v[, 1:2])
 vE <- data.frame(spcResultFinal_E$v[, 1:2])
@@ -271,21 +279,39 @@ vGath = rbind(vGath_D, vGath_E)
 vGath <- vGath %>% mutate(sign = ifelse(Coefficient < 0, "-", "+"),
                           Symbol_it = paste0("italic('", Symbol, "')")) %>% filter(!is.na(Coefficient))
 vGath$Coefficient <- abs(vGath$Coefficient)
+if (!file.exists("visualize/data/zeitzeiger_dermis_epidermis_internal.csv")){
+  write.csv(vGath %>% dplyr::select(Symbol, spc, Coefficient, tissue, sign), 
+            "visualize/data/zeitzeiger_dermis_epidermis_internal.csv")}
 
 # Check which ZeitZeiger genes are also found as highly time-variant genes through variance partition
-vp_time.D <- read.csv("visualize/data/variancePartition_top20_timevariantgenes_dermis.csv") %>% 
-  dplyr::select(Symbol, Time) %>% mutate(tissue="dermis")
-vp_time.E <- read.csv("visualize/data/variancePartition_top20_timevariantgenes_epidermis.csv") %>% 
-  dplyr::select(Symbol, Time) %>% mutate(tissue="epidermis")
-vp_time <- rbind(vp_time.D, vp_time.E)
+vp.D <- read.csv("visualize/data/variancePartition_dermis.csv") %>% dplyr::select(-X)
+vp.E <- read.csv("visualize/data/variancePartition_epidermis.csv") %>% dplyr::select(-X)
+vp.full <- read.csv("visualize/data/variancePartition_full.csv") %>% dplyr::select(-X) %>% #NOTE that this is from full!!!
+  rename(c("timetissue"="time.tissue", "timesubject"="time.subject"))
 
-vGath <- vGath %>% left_join(vp_time) %>% mutate(varPart_gene=ifelse(is.na(Time), FALSE, TRUE)) %>% dplyr::select(-Time)
+vp_time.D <- vp.D %>% arrange(desc(time)) %>% dplyr::select(Symbol, time) %>% mutate(tissue="dermis") %>% head(20)
+vp_time.E <- vp.E %>% arrange(desc(time)) %>% dplyr::select(Symbol, time) %>% mutate(tissue="epidermis") %>% head(20)
+vp_time <- rbind(vp_time.D, vp_time.E) %>% rename(c("time_vp" = "time"))
 
+vp_timetissue.full <- vp.full %>% arrange(desc(timetissue)) %>% 
+  dplyr::select(Symbol, timetissue) %>% head(20) %>% rename(c("timetissue_vp" = "timetissue"))
 
-fig3A_1 <- ggplot(vGath %>% filter(tissue=="dermis")) + facet_wrap(~spc, scales="free") +
+vGath <- vGath %>% 
+  left_join(vp_time) %>% mutate(varPart_time_gene=ifelse(is.na(time_vp), FALSE, TRUE)) %>% dplyr::select(-time_vp) %>%
+  left_join(vp_timetissue.full) %>% mutate(varPart_timetissue_gene=ifelse(is.na(timetissue_vp), FALSE, TRUE)) %>% 
+  dplyr::select(-timetissue_vp) 
+vGath$varPart_gene <- ifelse(vGath$varPart_time_gene == FALSE & vGath$varPart_timetissue_gene == TRUE, "time:tissue", 
+                             ifelse(vGath$varPart_time_gene == TRUE  & vGath$varPart_timetissue_gene == FALSE, "time", 
+                                    vGath$varPart_gene <- ifelse(vGath$varPart_time_gene == TRUE  & 
+                                                                   vGath$varPart_timetissue_gene == TRUE, 
+                                                                 "time & time:tissue", FALSE)))
+vGath %<>% select(-varPart_time_gene, -varPart_timetissue_gene)
+
+fig3B_1 <- ggplot(vGath %>% filter(tissue=="dermis")) + facet_wrap(~spc, scales="free") +
   geom_label(aes(x=spc, y=feature, label=Symbol_it, size=Coefficient, color=sign, fill=varPart_gene), 
              label.size=NA, parse=TRUE) + 
-  scale_color_manual(values=c("#d11141", "steelblue3")) + scale_fill_manual(values=c("transparent", "#ffe62f")) +
+  scale_color_manual(values=c("#d11141", "steelblue3")) + 
+  scale_fill_manual(values=c("transparent", "#ffe62f", "tan1", "#00B159")) +
   theme_custom() + labs(size="SPC coefficient\n(absolute)") +
   theme(axis.ticks = element_blank(),
         axis.text = element_blank(),
@@ -300,10 +326,11 @@ fig3A_1 <- ggplot(vGath %>% filter(tissue=="dermis")) + facet_wrap(~spc, scales=
   scale_size(limits = c(NA, NA), range = c(3, 8)) + guides(fill=FALSE)
 # https://stackoverflow.com/questions/63393553/color-legend-key-labels-with-r-ggplot2-and-remove-the-keys
 
-fig3A_2 <- ggplot(vGath %>% filter(tissue=="epidermis")) + facet_wrap(~spc, scales="free") +
+fig3B_2 <- ggplot(vGath %>% filter(tissue=="epidermis")) + facet_wrap(~spc, scales="free") +
   geom_label(aes(x=spc, y=feature, label=Symbol_it, size=Coefficient, color=sign, fill=varPart_gene), 
              label.size=NA, parse=TRUE) +
-  scale_color_manual(values=c("#d11141", "steelblue3")) + scale_fill_manual(values=c("transparent", "#ffe62f")) + 
+  scale_color_manual(values=c("#d11141", "steelblue3")) + 
+  scale_fill_manual(values=c("transparent", "#ffe62f", "tan1", "#00B159")) +
   theme_custom() + labs(size="SPC coefficient\n(absolute)") + 
   theme(axis.ticks = element_blank(),
         axis.text = element_blank(),
@@ -317,31 +344,27 @@ fig3A_2 <- ggplot(vGath %>% filter(tissue=="epidermis")) + facet_wrap(~spc, scal
         aspect.ratio=2.5) + ggtitle(paste0("epidermis, sumabsv=", sumabsv_E)) +
   scale_size(limits = c(NA, NA), range = c(3, 8)) + guides(fill=FALSE)
 
-fig3A <- ggpubr::ggarrange(fig3A_1, NULL, fig3A_2, nrow=1, ncol=3, common.legend=TRUE, legend="right", widths=c(1.,0.1,1))
+fig3B <- ggpubr::ggarrange(fig3B_1, NULL, fig3B_2, nrow=1, ncol=3, common.legend=TRUE, legend="right", widths=c(1.,0.1,1))
 
-## Barplot
-#fig3A_1 <- ggplot(vGath %>% filter(tissue=="dermis")) + facet_grid(~ spc) +
-#  geom_bar(aes(x = Symbol, y = Coefficient), stat = 'identity', fill="#1B9E77") +
-#  labs(x = 'Feature') + coord_flip() +
-#  theme_bw() + ggtitle(paste0("sumabsv_dermis=", sumabsv_D)) +
-#  theme_custom() + theme(panel.grid.major = element_line(),
-#                         axis.text.y = element_text(face="italic"))
-#fig3A_2 <- ggplot(vGath %>% filter(tissue=="epidermis")) + facet_grid(~ spc) +
-#  geom_bar(aes(x = Symbol, y = Coefficient), stat = 'identity', fill="#D95F02") +
-#  labs(x = 'Feature') + coord_flip() +
-#  theme_bw() + ggtitle(paste0("sumabsv_epidermis=", sumabsv_E)) +
-#  theme_custom() + theme(panel.grid.major = element_line(),
-#                         axis.text.y = element_text(face="italic"))
-#
-#fig3A <- plot_grid(fig3A_1, NULL, fig3A_2, nrow=3, ncol=1, rel_heights=c(1,0.1,1))
+ZZ_Wu2018.E <- c("ARNTL", "C2CD4B", "TRIM35", "IFFO2", "GALNT11", "NR1D1", "FKBP5", "HLF", "DBP", "NR1D2", "PER3", "TEF", 
+                 "PER1", "CIART", 'PHTF2', "DYNC1LI2", "RGS3", "FANCL", "TMEM168", "METTL3", "KIAA0907", "TTC14", "NHLH2", 
+                 "BLCAP", "PLLP", "TSC22D3", "RALBP1", "ELOVL6", "ZBTB16")
+ZZ_Wu2020.E <- c("ARNTL", "NR1D2", "TEF", "PER3", "PER1", "CIART", "PER2", "NAMPT", "PAQR3", "FAM117A", "DBP", "NR1D1")
+ZZ_Wu2020.D <- c("NR1D1", "CIART", "TEF", "NR1D2", "TSC22D3", "PER3", "DBP", 'PER1', "HLF", "BHLHE41", "KLF9", "FKBP5",
+                 "ZBTB16", "ARNTL", "IRAK3", "PER2", "PIK3R1", "KLF15", "TACC1", "DSE", "NPAS2")
+
+ourZZgenes_inWu2018.E <- vGath %>% filter(tissue=="epidermis") %>% filter(Symbol %in% ZZ_Wu2018.E)
+ourZZgenes_inWu2020.E <- vGath %>% filter(tissue=="epidermis") %>% filter(Symbol %in% ZZ_Wu2020.E) #they filter genes with 
+ourZZgenes_inWu2020.D <- vGath %>% filter(tissue=="dermis") %>% filter(Symbol %in% ZZ_Wu2020.D) #large time-variation!
 
 
-# Plot timeseries of time-telling genes: Figure 3C
-# ------------------------------------------------
+# Plot timeseries of time-telling genes: Supplementary figure 5A
+# --------------------------------------------------------------
 zz.genes_D <- data.frame(Symbol = vGath %>% filter(tissue=="dermis") %$% Symbol %>% unique())
 zz.genes_D <- zz.genes_D %>% inner_join(yave$genes %>% as.data.frame()) %>% select(-EntrezID, -ENSEMBL)
 zz.genes_E <- data.frame(Symbol = vGath %>% filter(tissue=="epidermis") %$% Symbol %>% unique())
 zz.genes_E <- zz.genes_E %>% inner_join(yave$genes %>% as.data.frame()) %>% select(-EntrezID, -ENSEMBL)
+
 
 yD <- yave$E %>% as.data.frame() %>% filter(rownames(.) %in% zz.genes_D$ProbeName) %>% select(contains("D")) %>%
   tibble::rownames_to_column("ProbeName") %>% full_join(zz.genes_D) %>% select(-ProbeName)
@@ -357,7 +380,7 @@ yGath_E <- yE %>% gather(key, expression, -Symbol) %>%
   tidyr::separate(tissuetime, c("tissue","time"), sep = "(?<=[A-Za-z])(?=[0-9])", convert = TRUE) %>%
   inner_join(experiment %>% select(tissue, time, subject, internal_time))
 
-fig3C_1 <- ggplot(yGath_D) + geom_line(aes(x=internal_time, y=expression, color=subject)) + 
+suppfig5A_1 <- ggplot(yGath_D) + geom_line(aes(x=internal_time, y=expression, color=subject)) + 
   facet_wrap(~Symbol, scales="free", ncol=5, nrow=5) + xlab("internal time") + ylab(bquote(~log[2]*'expression (normalized)')) +
   theme_custom() + theme(strip.text = element_text(face="bold.italic"),
                          legend.position="right",
@@ -368,7 +391,7 @@ fig3C_1 <- ggplot(yGath_D) + geom_line(aes(x=internal_time, y=expression, color=
                          legend.text=element_blank()) + labs(color="subjects\n1 to 11") +
   scale_color_viridis(discrete=TRUE) + scale_x_continuous(breaks=c(8,20,32)) + expand_limits(x=c(6,34)) 
 
-fig3C_2 <- ggplot(yGath_E) + geom_line(aes(x=internal_time, y=expression, color=subject)) + 
+suppfig5A_2 <- ggplot(yGath_E) + geom_line(aes(x=internal_time, y=expression, color=subject)) + 
   facet_wrap(~Symbol, scales="free", ncol=5, nrow=5) + xlab("internal time") + ylab(bquote(~log[2]*'expression (normalized)')) +
   theme_custom() + theme(strip.text = element_text(face="bold.italic"),
                          legend.position="right",
@@ -379,9 +402,29 @@ fig3C_2 <- ggplot(yGath_E) + geom_line(aes(x=internal_time, y=expression, color=
                          legend.text=element_blank()) + labs(color="subjects\n1 to 11") +
   scale_color_viridis(discrete=TRUE) + scale_x_continuous(breaks=c(8,20,32)) + expand_limits(x=c(6,34)) 
 
-fig3C <- ggpubr::ggarrange(fig3C_1, NULL, fig3C_2, ncol=3, nrow=1, common.legend=TRUE, legend="right", heights=c(1.,0.1,0.6))
-#fig3C <- ggpubr::ggarrange(fig3C_1, NULL, fig3C_2, nrow=3, ncol=1, common.legend=TRUE, legend="right", heights=c(1.,0.1,0.6))
+suppfig5A <- ggpubr::ggarrange(suppfig5A_1, NULL, suppfig5A_2, ncol=3, nrow=1, 
+                               common.legend=TRUE, legend="right", heights=c(1.,0.1,0.6))
 
+
+# Zeitzeiger genes should have little inter-subject mean variation (variance Partition):
+# --------------------------------------------------------------------------------------
+zz.genes_D <- vp.D %>% filter(Symbol %in% zz.genes_D$Symbol) %>% column_to_rownames("Symbol")
+zz.genes_E <- vp.E %>% filter(Symbol %in% zz.genes_E$Symbol) %>% column_to_rownames("Symbol")
+
+suppfig5B_1 <- plotVarPart(zz.genes_D) + 
+  theme_custom() + ylab("Percentage of\nvariance explained") + 
+  theme(aspect.ratio=0.7, legend.position = "none", ) +
+  scale_fill_manual(values = c("tissue" = "#d1495b", "subject" = "gray48", "time" = "#1B9E77", "Residuals" = "grey80")) +
+  scale_x_discrete(labels = c("tissue" = "Inter-tissue\nmean\nvariation", "subject" = "Inter-subject\nmean dermis\nvariation", 
+                              "time" = "Dermis\ncircadian\nvariation", "Residuals" = "Residual\ndermis\nvariation"))
+suppfig5B_2 <- plotVarPart(zz.genes_E) + 
+  theme_custom() + ylab("Percentage of\nvariance explained") + 
+  theme(aspect.ratio=0.7, legend.position = "none", ) +
+  scale_fill_manual(values = c("tissue" = "#d1495b", "subject" = "gray48", "time" = "#D95F02", "Residuals" = "grey80")) +
+  scale_x_discrete(labels = c("tissue" = "Inter-tissue\nmean\nvariation", "subject" = "Inter-subject\nmean epidermis\nvariation", 
+                              "time" = "Epidermis\ncircadian\nvariation", "Residuals" = "Residual\nepidermis\nvariation"))
+
+suppfig5B <- plot_grid(NULL, suppfig5B_1, NULL, suppfig5B_2, ncol=4, rel_widths = c(0.1,1,0.1,1))
 
 ###################
 ###################
@@ -389,19 +432,16 @@ fig3C <- ggpubr::ggarrange(fig3C_1, NULL, fig3C_2, ncol=3, nrow=1, common.legend
 
 # Arrange plots in grid
 # ---------------------
-fig3_1 <- plot_grid(fig3A, fig3B, labels=c("", "B"), ncol=2, nrow=1, rel_widths=c(2, 1))
-fig3 <- plot_grid(fig3_1, NULL, fig3C_1, NULL, fig3C_2, nrow=5, ncol=1, 
-                  rel_heights=c(1,0.1,2.,0.1,2.*0.6), labels=c("A", "", "C", ""), align="v", axis="l")
-fig3 %>% ggsave('figures/fig3.pdf', ., width = 11, height = 22.5)
+fig3_1 <- plot_grid(NULL, fig3A, NULL, fig3C, labels=c("A","","","C"), ncol=4, nrow=1, rel_widths=c(0.1,1.15,0.15,1))
+fig3_2 <- plot_grid(NULL, fig3B, labels=c("B", ""), ncol=2, rel_widths=c(0.1,1))
+fig3 <- plot_grid(fig3_1, NULL, fig3_2, nrow=3, ncol=1, 
+                  rel_heights=c(1.2,0.1,2.), labels=c("", "", ""), align="v", axis="l")
+fig3 %>% ggsave('figures/fig3.pdf', ., width = 11, height = 9.5)
 
+sfig5_part1 <- plot_grid(suppfig5A_1, labels="A")
+sfig5_part2 <- plot_grid(suppfig5A_2, labels="")
+sfig5_part3 <- plot_grid(NULL, suppfig5B, suppfig5C, nrow=3, rel_heights=c(0.1, 1, 2), labels=c("B","","C"))
 
-sfig4 <- plot_grid(suppfig4A, NULL, suppfig4B, labels=c("A", "", "B"), nrow=1, ncol=3, rel_widths=c(1,0.05,0.85),
-                   align="h", axis="b")
-sfig4 %>% ggsave('figures/suppfig4.pdf', ., width = 11, height = 3.5)
-
-
-###################
-###################
-
-#TODO 1: supplementary figure with other combinations of #SPCs and sumabsv?
-#TODO 2: Zeitzeiger on D and E together?
+sfig5_part1 %>% ggsave('figures/suppfig5_1.pdf', ., width = 11, height = 10.5)
+sfig5_part2 %>% ggsave('figures/suppfig5_2.pdf', ., width = 11, height = 10.5)
+sfig5_part3 %>% ggsave('figures/suppfig5_3.pdf', ., width = 11, height = 8.5)
