@@ -14,6 +14,7 @@ suppressPackageStartupMessages(library(ggthemes))
 suppressPackageStartupMessages(library(clusterProfiler))
 suppressPackageStartupMessages(library(doParallel))
 suppressPackageStartupMessages(library(tidytext))
+suppressPackageStartupMessages(library(clusterProfiler))
 
 setwd("~/Documents/WORK/POSTDOC/projects/skin-data-analysis")
 
@@ -193,17 +194,21 @@ most_var <- rbind(most_tissuevar[1:number_most_vargenes,], most_subjvar[1:number
 
 go <- NULL
 for (i in unique(most_var$var)){
-  go_i <- goana(most_var %>% filter(var==i) %$% EntrezID, 
-                universe = varPart$EntrezID) 
+  go_i <- enrichGO(most_var %>% filter(var==i) %$% EntrezID, 
+                   universe = varPart$EntrezID, ont="ALL",
+                   'org.Hs.eg.db', pvalueCutoff = 1.0, qvalueCutoff = 1.0, minGSSize = 5) %>% as.data.frame() %>%
+    tidyr::separate(GeneRatio, c("DE","junk"), convert = TRUE, sep = "/") %>% 
+    tidyr::separate(BgRatio, c("N","junk"), convert = TRUE, sep = "/") %>%
+    mutate(P.DE=as.numeric(pvalue))
   go_i <- go_i %>% top_n(20, wt=-P.DE) %>% mutate(hits=DE*100/N) %>% as.data.frame() %>% mutate(var=i, P.DE=round(P.DE,3))
   go <- rbind(go, go_i)
 }
 
 suppfig3C <- ggplot(go %>% filter(var=="Tissue") %>% mutate(P.DE=ifelse(P.DE == 0, 0.00001, P.DE)), 
-                    aes(x=-log10(P.DE), y=reorder_within(Term, -log10(P.DE), var), color=Ont, size=hits)) + 
+                    aes(x=-log10(P.DE), y=reorder_within(Description, -log10(P.DE), var), color=ONTOLOGY, size=hits)) + 
   geom_point() + expand_limits(x=c(1,6)) +
-  labs(x=bquote(~-log[10]*italic(' q')~'value'), y="GO:BP term", size="Percentage of hits\nfrom each term") + 
-  facet_grid(scales="free_y", space="free",rows=vars(Ont), switch="y") + 
+  labs(x=bquote(~-log[10]*italic(' p')~'value'), y="GO:BP term", size="Percentage of hits\nfrom each term") + 
+  facet_grid(scales="free_y", space="free",rows=vars(ONTOLOGY), switch="y") + 
   labs(color="Ontology") + scale_y_reordered() +
   theme_bw() + ggtitle(paste0('GO analysis on top ', number_most_vargenes, ' most layer-variable genes')) +
   theme(#aspect.ratio=2.3,
@@ -216,10 +221,10 @@ suppfig3C <- ggplot(go %>% filter(var=="Tissue") %>% mutate(P.DE=ifelse(P.DE == 
   scale_colour_manual(values = c("BP" = "lightpink2", "CC" = "dodgerblue3", "MF" = "palevioletred4")) 
 
 suppfig3D <- ggplot(go %>% filter(var=="Time:Tissue") %>% mutate(P.DE=ifelse(P.DE == 0, 0.00001, P.DE)), 
-                    aes(x=-log10(P.DE), y=reorder_within(Term, -log10(P.DE), var), color=Ont, size=hits)) + 
+                    aes(x=-log10(P.DE), y=reorder_within(Description, -log10(P.DE), var), color=ONTOLOGY, size=hits)) + 
   geom_point() + expand_limits(x=c(1,6)) +
-  labs(x=bquote(~-log[10]*italic(' q')~'value'), y="GO:BP term", size="Percentage of hits\nfrom each term") + 
-  facet_grid(scales="free_y", space="free",rows=vars(Ont), switch="y") + 
+  labs(x=bquote(~-log[10]*italic(' p')~'value'), y="GO:BP term", size="Percentage of hits\nfrom each term") + 
+  facet_grid(scales="free_y", space="free",rows=vars(ONTOLOGY), switch="y") + 
   labs(color="Ontology") + scale_y_reordered() +
   theme_bw() + ggtitle(paste0('GO analysis on top ', number_most_vargenes, ' most time:layer-variable genes')) +
   theme(#aspect.ratio=2.3,
@@ -232,10 +237,10 @@ suppfig3D <- ggplot(go %>% filter(var=="Time:Tissue") %>% mutate(P.DE=ifelse(P.D
   scale_colour_manual(values = c("BP" = "lightpink2", "CC" = "dodgerblue3", "MF" = "palevioletred4")) 
 
 suppfig3E <- ggplot(go %>% filter(var=="Residuals") %>% mutate(P.DE=ifelse(P.DE == 0, 0.00001, P.DE)), 
-                    aes(x=-log10(P.DE), y=reorder_within(Term, -log10(P.DE), var), color=Ont, size=hits)) + 
+                    aes(x=-log10(P.DE), y=reorder_within(Description, -log10(P.DE), var), color=ONTOLOGY, size=hits)) + 
   geom_point() + expand_limits(x=c(1,6)) +
-  labs(x=bquote(~-log[10]*italic(' q')~'value'), y="GO:BP term", size="Percentage of hits\nfrom each term") + 
-  facet_grid(scales="free_y", space="free",rows=vars(Ont), switch="y") + 
+  labs(x=bquote(~-log[10]*italic(' p')~'value'), y="GO:BP term", size="Percentage of hits\nfrom each term") + 
+  facet_grid(scales="free_y", space="free",rows=vars(ONTOLOGY), switch="y") + 
   labs(color="Ontology") + scale_y_reordered() +
   theme_bw() + ggtitle(paste0('GO analysis on top ', number_most_vargenes, ' most residuals-variable genes')) +
   theme(#aspect.ratio=2.3,
@@ -395,7 +400,10 @@ fig2 %>% ggsave('figures/fig2.pdf', ., width = 11, height = 11.5)
 
 sfig3_1 <- plot_grid(NULL, suppfig3A, NULL, suppfig3B, nrow=1, ncol=4, labels=c("A", "", "B", ""), rel_widths=c(0.1,1,0.1,1))
 sfig3_2 <- plot_grid(suppfig3C, nrow=1, ncol=1, labels=c("C"))
+sfig3_part1 <- plot_grid(sfig3_1, NULL, sfig3_2, nrow=3, rel_heights=c(0.6,0.1,0.85))
+sfig3_part1 %>% ggsave('figures/suppfig3_1.pdf', ., width = 11, height = 9)
+
 sfig3_3 <- plot_grid(NULL, suppfig3D, nrow=1, ncol=2, labels=c("D", ""), rel_widths=c(0.08,1))
 sfig3_4 <- plot_grid(NULL, suppfig3E, nrow=1, ncol=2, labels=c("E", ""), rel_widths=c(0.02,1))
-sfig3 <- plot_grid(sfig3_1, NULL, sfig3_2, NULL, sfig3_3, NULL, sfig3_4, nrow=7, rel_heights=c(0.6,0.1,0.85,0.1,0.85,0.1,1.1))
-sfig3 %>% ggsave('figures/suppfig3.pdf', ., width = 11, height = 22)
+sfig3_part2 <- plot_grid(sfig3_3, NULL, sfig3_4, nrow=3, rel_heights=c(0.85,0.1,1.1))
+sfig3_part2 %>% ggsave('figures/suppfig3_2.pdf', ., width = 11, height = 12)
