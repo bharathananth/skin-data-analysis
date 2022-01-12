@@ -1,0 +1,8 @@
+#!/bin/bash
+
+FILENAME="main"
+pdflatex $FILENAME.tex
+bibtex $FILENAME.aux
+pdflatex $FILENAME.tex 
+pdflatex $FILENAME.tex
+mv *.aux aux && mv *.log log && mv *.bbl bbl && mv *.blg blg && mv *.out out
