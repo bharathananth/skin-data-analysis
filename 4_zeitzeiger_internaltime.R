@@ -168,10 +168,10 @@ cvResultGathGroup_E[,"tissue"] <- "epidermis"
 cvResultGathGroup <- rbind(cvResultGathGroup_D, cvResultGathGroup_E)
 
 fig3A <- ggplot(cvResultGathGroup) + facet_wrap(~tissue, scales='free') + theme_custom() +
-  geom_point(aes(x=nSpc, y=medae, shape=sumabsv, color=tissue), alpha=0.8, 
+  geom_point(aes(x=nSpc, y=medae*24, shape=sumabsv, color=tissue), alpha=0.8, 
              size=5) +
-  labs(x='Number of SPCs', y='Median absolute error') + guides(color=FALSE) +
-  scale_y_continuous(limits=c(0.03, 0.16)) + scale_x_continuous(breaks=c(1,2,3,4,5,6)) + expand_limits(x=c(1,6)) +
+  labs(x='Number of SPCs', y='Median absolute error (h)') + guides(color=FALSE) +
+  scale_y_continuous(limits=c(0.03*24, 0.16*24)) + scale_x_continuous(breaks=c(1,2,3,4,5,6)) + expand_limits(x=c(1,6)) +
   theme(legend.title = element_text(),
         legend.position = "right",
         panel.grid.major = element_line(),
@@ -435,13 +435,13 @@ suppfig5B <- plot_grid(NULL, suppfig5B_1, NULL, suppfig5B_2, ncol=4, rel_widths 
 fig3_1 <- plot_grid(NULL, fig3A, NULL, fig3C, labels=c("A","","","C"), ncol=4, nrow=1, rel_widths=c(0.1,1.15,0.15,1))
 fig3_2 <- plot_grid(NULL, fig3B, labels=c("B", ""), ncol=2, rel_widths=c(0.1,1))
 fig3 <- plot_grid(fig3_1, NULL, fig3_2, nrow=3, ncol=1, 
-                  rel_heights=c(1.2,0.1,2.), labels=c("", "", ""), align="v", axis="l")
-fig3 %>% ggsave('figures/fig3.pdf', ., width = 11, height = 9.5)
+                  rel_heights=c(1.2,0.0,1.6), labels=c("", "", ""), align="v", axis="l")
+fig3 %>% ggsave('figures/fig3.pdf', ., width = 11, height = 8.5)
 
 sfig5_part1 <- plot_grid(suppfig5A_1, labels="A")
-sfig5_part2 <- plot_grid(suppfig5A_2, labels="")
-sfig5_part3 <- plot_grid(NULL, suppfig5B, suppfig5C, nrow=3, rel_heights=c(0.1, 1, 2), labels=c("B","","C"))
+sfig5_part2 <- plot_grid(NULL, suppfig5A_2, rel_widths=c(0.07,1))
+sfig5_part3 <- plot_grid(sfig5_part2, NULL, suppfig5B, suppfig5C, nrow=4, 
+                         rel_heights=c(2.5,0.1, 1, 2), labels=c(" ", "B","","C"))
 
 sfig5_part1 %>% ggsave('figures/suppfig5_1.pdf', ., width = 11, height = 10.5)
-sfig5_part2 %>% ggsave('figures/suppfig5_2.pdf', ., width = 11, height = 10.5)
-sfig5_part3 %>% ggsave('figures/suppfig5_3.pdf', ., width = 11, height = 8.5)
+sfig5_part3 %>% ggsave('figures/suppfig5_2.pdf', ., width = 11, height = 15.4)

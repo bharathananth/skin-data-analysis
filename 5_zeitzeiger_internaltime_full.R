@@ -141,9 +141,9 @@ cvResultGathGroup <- cvResultGath %>% group_by(sumabsv, nSpc) %>%
   dplyr::summarize(medae = median(abs(timeError))) %>% as.data.frame()
 
 suppfig4A <- ggplot(cvResultGathGroup) + theme_custom() +
-  geom_point(aes(x=nSpc, y=medae, shape=sumabsv, color=sumabsv), size=3) +
-  labs(x='Number of SPCs', y='Median absolute error') + 
-  scale_y_continuous(limits=c(0.03, 0.16)) + scale_x_continuous(breaks=c(1,2,3,4,5,6)) + expand_limits(x=c(1,6)) +
+  geom_point(aes(x=nSpc, y=medae*24, shape=sumabsv, color=sumabsv), size=3) +
+  labs(x='Number of SPCs', y='Median absolute error (h)') + 
+  scale_y_continuous(limits=c(0.03*24, 0.16*24)) + scale_x_continuous(breaks=c(1,2,3,4,5,6)) + expand_limits(x=c(1,6)) +
   theme(legend.title = element_text(),
         legend.position = "right",
         panel.grid.major = element_line(),
