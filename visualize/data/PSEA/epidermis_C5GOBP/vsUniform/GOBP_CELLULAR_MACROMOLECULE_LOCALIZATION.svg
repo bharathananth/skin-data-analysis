@@ -29,182 +29,178 @@
   <line style="fill:none;stroke:rgb(63,63,191);stroke-opacity:0.24705882352941178;stroke-miterlimit:10;stroke-linecap:square;" x1="370" x2="385" y1="80" y2="70"/>
   <line style="fill:none;stroke:rgb(63,63,191);stroke-opacity:0.24705882352941178;stroke-miterlimit:10;stroke-linecap:square;" x1="385" x2="400" y1="70" y2="60"/>
   <line style="fill:none;stroke:rgb(63,63,191);stroke-opacity:0.24705882352941178;stroke-miterlimit:10;stroke-linecap:square;" x1="400" x2="400" y1="60" y2="60"/>
-  <rect height="4" style="fill:rgb(255,127,0);fill-opacity:0.7490196078431373;stroke:none;" width="4" x="48" y="295"/>
+  <rect height="2" style="fill:rgb(255,127,0);fill-opacity:0.7490196078431373;stroke:none;" width="4" x="48" y="297"/>
   <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="50" x2="50" y1="300" y2="300"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="50" x2="50" y1="298" y2="297"/>
-  <rect height="13" style="fill:rgb(255,127,0);fill-opacity:0.7490196078431373;stroke:none;" width="4" x="62" y="286"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="50" x2="64" y1="295" y2="295"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="64" x2="64" y1="293" y2="283"/>
-  <rect height="16" style="fill:rgb(255,127,0);fill-opacity:0.7490196078431373;stroke:none;" width="4" x="77" y="283"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="64" x2="79" y1="281" y2="281"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="79" x2="79" y1="279" y2="267"/>
-  <rect height="2" style="fill:rgb(255,127,0);fill-opacity:0.7490196078431373;stroke:none;" width="4" x="91" y="297"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="79" x2="93" y1="265" y2="265"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="93" x2="93" y1="263" y2="264"/>
-  <rect height="13" style="fill:rgb(255,127,0);fill-opacity:0.7490196078431373;stroke:none;" width="4" x="106" y="286"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="93" x2="108" y1="262" y2="262"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="108" x2="108" y1="260" y2="250"/>
-  <rect height="4" style="fill:rgb(255,127,0);fill-opacity:0.7490196078431373;stroke:none;" width="4" x="120" y="295"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="108" x2="122" y1="248" y2="248"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="122" x2="122" y1="246" y2="246"/>
-  <rect height="2" style="fill:rgb(255,127,0);fill-opacity:0.7490196078431373;stroke:none;" width="4" x="135" y="297"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="122" x2="137" y1="244" y2="244"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="137" x2="137" y1="242" y2="243"/>
-  <rect height="6" style="fill:rgb(255,127,0);fill-opacity:0.7490196078431373;stroke:none;" width="4" x="150" y="293"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="137" x2="152" y1="241" y2="241"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="152" x2="152" y1="239" y2="236"/>
-  <rect height="9" style="fill:rgb(255,127,0);fill-opacity:0.7490196078431373;stroke:none;" width="4" x="164" y="290"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="152" x2="166" y1="234" y2="234"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="166" x2="166" y1="232" y2="227"/>
-  <rect height="2" style="fill:rgb(255,127,0);fill-opacity:0.7490196078431373;stroke:none;" width="4" x="179" y="297"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="166" x2="181" y1="225" y2="225"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="181" x2="181" y1="223" y2="225"/>
-  <rect height="6" style="fill:rgb(255,127,0);fill-opacity:0.7490196078431373;stroke:none;" width="4" x="193" y="293"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="181" x2="195" y1="223" y2="223"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="195" x2="195" y1="221" y2="218"/>
-  <rect height="13" style="fill:rgb(255,127,0);fill-opacity:0.7490196078431373;stroke:none;" width="4" x="208" y="286"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="195" x2="210" y1="216" y2="216"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="210" x2="210" y1="214" y2="204"/>
-  <rect height="30" style="fill:rgb(255,127,0);fill-opacity:0.7490196078431373;stroke:none;" width="4" x="223" y="269"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="210" x2="225" y1="202" y2="202"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="225" x2="225" y1="200" y2="173"/>
-  <rect height="18" style="fill:rgb(255,127,0);fill-opacity:0.7490196078431373;stroke:none;" width="4" x="237" y="281"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="225" x2="239" y1="171" y2="171"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="239" x2="239" y1="169" y2="155"/>
-  <rect height="34" style="fill:rgb(255,127,0);fill-opacity:0.7490196078431373;stroke:none;" width="4" x="252" y="265"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="239" x2="254" y1="153" y2="153"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="254" x2="254" y1="151" y2="120"/>
-  <rect height="9" style="fill:rgb(255,127,0);fill-opacity:0.7490196078431373;stroke:none;" width="4" x="266" y="290"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="254" x2="268" y1="118" y2="118"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="268" x2="268" y1="116" y2="110"/>
-  <rect height="11" style="fill:rgb(255,127,0);fill-opacity:0.7490196078431373;stroke:none;" width="4" x="281" y="288"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="268" x2="283" y1="108" y2="108"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="283" x2="283" y1="106" y2="99"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="50" x2="50" y1="298" y2="299"/>
+  <rect height="25" style="fill:rgb(255,127,0);fill-opacity:0.7490196078431373;stroke:none;" width="4" x="62" y="274"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="50" x2="64" y1="297" y2="297"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="64" x2="64" y1="295" y2="273"/>
+  <rect height="11" style="fill:rgb(255,127,0);fill-opacity:0.7490196078431373;stroke:none;" width="4" x="77" y="288"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="64" x2="79" y1="271" y2="271"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="79" x2="79" y1="269" y2="262"/>
+  <rect height="7" style="fill:rgb(255,127,0);fill-opacity:0.7490196078431373;stroke:none;" width="4" x="91" y="292"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="79" x2="93" y1="260" y2="260"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="93" x2="93" y1="258" y2="254"/>
+  <rect height="9" style="fill:rgb(255,127,0);fill-opacity:0.7490196078431373;stroke:none;" width="4" x="106" y="290"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="93" x2="108" y1="252" y2="252"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="108" x2="108" y1="250" y2="245"/>
+  <rect height="7" style="fill:rgb(255,127,0);fill-opacity:0.7490196078431373;stroke:none;" width="4" x="135" y="292"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="108" x2="137" y1="243" y2="243"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="137" x2="137" y1="241" y2="238"/>
+  <rect height="7" style="fill:rgb(255,127,0);fill-opacity:0.7490196078431373;stroke:none;" width="4" x="150" y="292"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="137" x2="152" y1="236" y2="236"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="152" x2="152" y1="234" y2="231"/>
+  <rect height="2" style="fill:rgb(255,127,0);fill-opacity:0.7490196078431373;stroke:none;" width="4" x="164" y="297"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="152" x2="166" y1="229" y2="229"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="166" x2="166" y1="227" y2="229"/>
+  <rect height="4" style="fill:rgb(255,127,0);fill-opacity:0.7490196078431373;stroke:none;" width="4" x="179" y="295"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="166" x2="181" y1="227" y2="227"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="181" x2="181" y1="225" y2="224"/>
+  <rect height="9" style="fill:rgb(255,127,0);fill-opacity:0.7490196078431373;stroke:none;" width="4" x="193" y="290"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="181" x2="195" y1="222" y2="222"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="195" x2="195" y1="220" y2="214"/>
+  <rect height="9" style="fill:rgb(255,127,0);fill-opacity:0.7490196078431373;stroke:none;" width="4" x="208" y="290"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="195" x2="210" y1="212" y2="212"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="210" x2="210" y1="210" y2="205"/>
+  <rect height="37" style="fill:rgb(255,127,0);fill-opacity:0.7490196078431373;stroke:none;" width="4" x="223" y="262"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="210" x2="225" y1="203" y2="203"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="225" x2="225" y1="201" y2="167"/>
+  <rect height="16" style="fill:rgb(255,127,0);fill-opacity:0.7490196078431373;stroke:none;" width="4" x="237" y="283"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="225" x2="239" y1="165" y2="165"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="239" x2="239" y1="163" y2="151"/>
+  <rect height="35" style="fill:rgb(255,127,0);fill-opacity:0.7490196078431373;stroke:none;" width="4" x="252" y="264"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="239" x2="254" y1="149" y2="149"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="254" x2="254" y1="147" y2="116"/>
+  <rect height="14" style="fill:rgb(255,127,0);fill-opacity:0.7490196078431373;stroke:none;" width="4" x="266" y="285"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="254" x2="268" y1="114" y2="114"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="268" x2="268" y1="112" y2="102"/>
+  <rect height="2" style="fill:rgb(255,127,0);fill-opacity:0.7490196078431373;stroke:none;" width="4" x="281" y="297"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="268" x2="283" y1="100" y2="100"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="283" x2="283" y1="98" y2="99"/>
   <rect height="4" style="fill:rgb(255,127,0);fill-opacity:0.7490196078431373;stroke:none;" width="4" x="295" y="295"/>
   <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="283" x2="297" y1="97" y2="97"/>
   <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="297" x2="297" y1="95" y2="94"/>
-  <rect height="6" style="fill:rgb(255,127,0);fill-opacity:0.7490196078431373;stroke:none;" width="4" x="310" y="293"/>
+  <rect height="4" style="fill:rgb(255,127,0);fill-opacity:0.7490196078431373;stroke:none;" width="4" x="310" y="295"/>
   <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="297" x2="312" y1="92" y2="92"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="312" x2="312" y1="90" y2="87"/>
-  <rect height="11" style="fill:rgb(255,127,0);fill-opacity:0.7490196078431373;stroke:none;" width="4" x="325" y="288"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="312" x2="327" y1="85" y2="85"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="327" x2="327" y1="83" y2="75"/>
-  <rect height="6" style="fill:rgb(255,127,0);fill-opacity:0.7490196078431373;stroke:none;" width="4" x="339" y="293"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="327" x2="341" y1="73" y2="73"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="341" x2="341" y1="71" y2="68"/>
-  <rect height="2" style="fill:rgb(255,127,0);fill-opacity:0.7490196078431373;stroke:none;" width="4" x="368" y="297"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="341" x2="370" y1="66" y2="66"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="370" x2="370" y1="64" y2="66"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="312" x2="312" y1="90" y2="90"/>
+  <rect height="16" style="fill:rgb(255,127,0);fill-opacity:0.7490196078431373;stroke:none;" width="4" x="325" y="283"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="312" x2="327" y1="88" y2="88"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="327" x2="327" y1="86" y2="73"/>
+  <rect height="2" style="fill:rgb(255,127,0);fill-opacity:0.7490196078431373;stroke:none;" width="4" x="339" y="297"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="327" x2="341" y1="71" y2="71"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="341" x2="341" y1="69" y2="71"/>
+  <rect height="2" style="fill:rgb(255,127,0);fill-opacity:0.7490196078431373;stroke:none;" width="4" x="354" y="297"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="341" x2="356" y1="69" y2="69"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="356" x2="356" y1="67" y2="69"/>
+  <rect height="4" style="fill:rgb(255,127,0);fill-opacity:0.7490196078431373;stroke:none;" width="4" x="368" y="295"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="356" x2="370" y1="67" y2="67"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="370" x2="370" y1="65" y2="64"/>
   <rect height="2" style="fill:rgb(255,127,0);fill-opacity:0.7490196078431373;stroke:none;" width="4" x="383" y="297"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="370" x2="385" y1="64" y2="64"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="385" x2="385" y1="62" y2="64"/>
-  <rect height="2" style="fill:rgb(255,127,0);fill-opacity:0.7490196078431373;stroke:none;" width="4" x="398" y="297"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="385" x2="400" y1="62" y2="62"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="400" x2="400" y1="60" y2="62"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="400" x2="400" y1="60" y2="60"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="370" x2="385" y1="62" y2="62"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="385" x2="385" y1="60" y2="62"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.24705882352941178;stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="385" x2="400" y1="60" y2="60"/>
   <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="50" x2="50" y1="300" y2="350"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="50" x2="50" y1="300" y2="364"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="64" x2="64" y1="300" y2="364"/>
   <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="64" x2="64" y1="300" y2="378"/>
   <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="64" x2="64" y1="300" y2="392"/>
   <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="64" x2="64" y1="300" y2="406"/>
   <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="64" x2="64" y1="300" y2="420"/>
   <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="64" x2="64" y1="300" y2="434"/>
   <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="64" x2="64" y1="300" y2="448"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="79" x2="79" y1="300" y2="462"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="79" x2="79" y1="300" y2="476"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="79" x2="79" y1="300" y2="490"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="79" x2="79" y1="300" y2="504"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="64" x2="64" y1="300" y2="462"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="64" x2="64" y1="300" y2="476"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="64" x2="64" y1="300" y2="490"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="64" x2="64" y1="300" y2="504"/>
   <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="79" x2="79" y1="300" y2="518"/>
   <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="79" x2="79" y1="300" y2="532"/>
   <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="79" x2="79" y1="300" y2="546"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="93" x2="93" y1="300" y2="560"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="108" x2="108" y1="300" y2="574"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="108" x2="108" y1="300" y2="588"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="108" x2="108" y1="300" y2="602"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="108" x2="108" y1="300" y2="616"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="79" x2="79" y1="300" y2="560"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="79" x2="79" y1="300" y2="574"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="93" x2="93" y1="300" y2="588"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="93" x2="93" y1="300" y2="602"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="93" x2="93" y1="300" y2="616"/>
   <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="108" x2="108" y1="300" y2="630"/>
   <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="108" x2="108" y1="300" y2="644"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="122" x2="122" y1="300" y2="658"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="122" x2="122" y1="300" y2="672"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="108" x2="108" y1="300" y2="658"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="108" x2="108" y1="300" y2="672"/>
   <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="137" x2="137" y1="300" y2="686"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="152" x2="152" y1="300" y2="700"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="152" x2="152" y1="300" y2="714"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="137" x2="137" y1="300" y2="700"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="137" x2="137" y1="300" y2="714"/>
   <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="152" x2="152" y1="300" y2="728"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="166" x2="166" y1="300" y2="742"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="166" x2="166" y1="300" y2="756"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="152" x2="152" y1="300" y2="742"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="152" x2="152" y1="300" y2="756"/>
   <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="166" x2="166" y1="300" y2="770"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="166" x2="166" y1="300" y2="784"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="181" x2="181" y1="300" y2="784"/>
   <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="181" x2="181" y1="300" y2="798"/>
   <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="195" x2="195" y1="300" y2="812"/>
   <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="195" x2="195" y1="300" y2="826"/>
   <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="195" x2="195" y1="300" y2="840"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="210" x2="210" y1="300" y2="855"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="210" x2="210" y1="300" y2="870"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="210" x2="210" y1="300" y2="885"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="210" x2="210" y1="300" y2="900"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="210" x2="210" y1="300" y2="915"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="210" x2="210" y1="300" y2="930"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="225" x2="225" y1="300" y2="945"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="225" x2="225" y1="300" y2="960"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="225" x2="225" y1="300" y2="975"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="225" x2="225" y1="300" y2="990"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="225" x2="225" y1="300" y2="1005"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="225" x2="225" y1="300" y2="1020"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="225" x2="225" y1="300" y2="1035"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="225" x2="225" y1="300" y2="1050"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="225" x2="225" y1="300" y2="1065"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="225" x2="225" y1="300" y2="1080"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="225" x2="225" y1="300" y2="1095"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="225" x2="225" y1="300" y2="1110"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="225" x2="225" y1="300" y2="1125"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="239" x2="239" y1="300" y2="1140"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="239" x2="239" y1="300" y2="1155"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="239" x2="239" y1="300" y2="1170"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="239" x2="239" y1="300" y2="1185"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="239" x2="239" y1="300" y2="1200"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="239" x2="239" y1="300" y2="1215"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="239" x2="239" y1="300" y2="1230"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="239" x2="239" y1="300" y2="1245"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="254" x2="254" y1="300" y2="1260"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="254" x2="254" y1="300" y2="1275"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="254" x2="254" y1="300" y2="1290"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="254" x2="254" y1="300" y2="1305"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="254" x2="254" y1="300" y2="1320"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="254" x2="254" y1="300" y2="1335"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="254" x2="254" y1="300" y2="1350"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="254" x2="254" y1="300" y2="1365"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="254" x2="254" y1="300" y2="1380"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="254" x2="254" y1="300" y2="1395"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="254" x2="254" y1="300" y2="1410"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="254" x2="254" y1="300" y2="1425"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="254" x2="254" y1="300" y2="1440"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="254" x2="254" y1="300" y2="1455"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="254" x2="254" y1="300" y2="1470"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="268" x2="268" y1="300" y2="1485"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="268" x2="268" y1="300" y2="1500"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="268" x2="268" y1="300" y2="1515"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="268" x2="268" y1="300" y2="1530"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="283" x2="283" y1="300" y2="1545"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="283" x2="283" y1="300" y2="1560"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="283" x2="283" y1="300" y2="1575"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="283" x2="283" y1="300" y2="1590"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="283" x2="283" y1="300" y2="1605"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="297" x2="297" y1="300" y2="1619"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="297" x2="297" y1="300" y2="1633"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="312" x2="312" y1="300" y2="1647"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="312" x2="312" y1="300" y2="1661"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="312" x2="312" y1="300" y2="1675"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="327" x2="327" y1="300" y2="1689"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="327" x2="327" y1="300" y2="1703"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="327" x2="327" y1="300" y2="1717"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="327" x2="327" y1="300" y2="1731"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="327" x2="327" y1="300" y2="1745"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="341" x2="341" y1="300" y2="1759"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="341" x2="341" y1="300" y2="1773"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="341" x2="341" y1="300" y2="1787"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="370" x2="370" y1="300" y2="1801"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="385" x2="385" y1="300" y2="1815"/>
-  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="400" x2="400" y1="300" y2="1829"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="195" x2="195" y1="300" y2="854"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="210" x2="210" y1="300" y2="868"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="210" x2="210" y1="300" y2="882"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="210" x2="210" y1="300" y2="896"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="210" x2="210" y1="300" y2="910"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="225" x2="225" y1="300" y2="925"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="225" x2="225" y1="300" y2="940"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="225" x2="225" y1="300" y2="955"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="225" x2="225" y1="300" y2="970"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="225" x2="225" y1="300" y2="985"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="225" x2="225" y1="300" y2="1000"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="225" x2="225" y1="300" y2="1015"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="225" x2="225" y1="300" y2="1030"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="225" x2="225" y1="300" y2="1045"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="225" x2="225" y1="300" y2="1060"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="225" x2="225" y1="300" y2="1075"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="225" x2="225" y1="300" y2="1090"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="225" x2="225" y1="300" y2="1105"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="225" x2="225" y1="300" y2="1120"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="225" x2="225" y1="300" y2="1135"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="225" x2="225" y1="300" y2="1150"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="239" x2="239" y1="300" y2="1165"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="239" x2="239" y1="300" y2="1180"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="239" x2="239" y1="300" y2="1195"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="239" x2="239" y1="300" y2="1210"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="239" x2="239" y1="300" y2="1225"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="239" x2="239" y1="300" y2="1240"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="239" x2="239" y1="300" y2="1255"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="254" x2="254" y1="300" y2="1270"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="254" x2="254" y1="300" y2="1285"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="254" x2="254" y1="300" y2="1300"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="254" x2="254" y1="300" y2="1315"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="254" x2="254" y1="300" y2="1330"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="254" x2="254" y1="300" y2="1345"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="254" x2="254" y1="300" y2="1360"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="254" x2="254" y1="300" y2="1375"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="254" x2="254" y1="300" y2="1390"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="254" x2="254" y1="300" y2="1405"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="254" x2="254" y1="300" y2="1420"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="254" x2="254" y1="300" y2="1435"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="254" x2="254" y1="300" y2="1450"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="254" x2="254" y1="300" y2="1465"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="254" x2="254" y1="300" y2="1480"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="268" x2="268" y1="300" y2="1495"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="268" x2="268" y1="300" y2="1510"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="268" x2="268" y1="300" y2="1525"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="268" x2="268" y1="300" y2="1540"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="268" x2="268" y1="300" y2="1555"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="268" x2="268" y1="300" y2="1570"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="283" x2="283" y1="300" y2="1584"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="297" x2="297" y1="300" y2="1598"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="297" x2="297" y1="300" y2="1612"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="312" x2="312" y1="300" y2="1626"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="312" x2="312" y1="300" y2="1640"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="327" x2="327" y1="300" y2="1654"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="327" x2="327" y1="300" y2="1668"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="327" x2="327" y1="300" y2="1682"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="327" x2="327" y1="300" y2="1696"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="327" x2="327" y1="300" y2="1710"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="327" x2="327" y1="300" y2="1724"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="327" x2="327" y1="300" y2="1738"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="341" x2="341" y1="300" y2="1752"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="356" x2="356" y1="300" y2="1766"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="370" x2="370" y1="300" y2="1780"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="370" x2="370" y1="300" y2="1794"/>
+  <line style="fill:none;stroke:rgb(255,127,0);stroke-opacity:0.4980392156862745;stroke-miterlimit:2;stroke-dasharray:2;" x1="385" x2="385" y1="300" y2="1808"/>
   <line style="fill:none;stroke:rgb(0,0,0);stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="48" x2="48" y1="60" y2="300"/>
   <line style="fill:none;stroke:rgb(0,0,0);stroke-width:2;stroke-miterlimit:10;stroke-linecap:square;" x1="48" x2="402" y1="300" y2="300"/>
   <rect height="30" style="fill:rgb(255,255,255);stroke:none;" width="17" x="42" y="308"/>
@@ -216,68 +212,68 @@
   <text style="fill:rgb(0,0,0);stroke:none;font-size:17px;font-weight:bold;" x="7" y="38">GOBP_CELLULAR_MACROMOLECULE_LOCALIZATION</text>
   <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="36" x="50" y="339"/>
   <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="50" y="350">PRKCE</text>
-  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="34" x="50" y="353"/>
-  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="50" y="364">ITGB3</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="23" x="64" y="353"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="64" y="364">EZR</text>
   <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="30" x="64" y="367"/>
   <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="64" y="378">SPRN</text>
-  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="37" x="64" y="381"/>
-  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="64" y="392">TRAM2</text>
-  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="37" x="64" y="395"/>
-  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="64" y="406">GPER1</text>
-  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="36" x="64" y="409"/>
-  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="64" y="420">RAB12</text>
-  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="40" x="64" y="423"/>
-  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="64" y="434">DZIP1L</text>
-  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="47" x="64" y="437"/>
-  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="64" y="448">SORCS2</text>
-  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="30" x="79" y="451"/>
-  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="79" y="462">BDNF</text>
-  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="30" x="79" y="465"/>
-  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="79" y="476">RPGR</text>
-  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="37" x="79" y="479"/>
-  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="79" y="490">FBXO4</text>
-  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="35" x="79" y="493"/>
-  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="79" y="504">TCAF2</text>
-  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="37" x="79" y="507"/>
-  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="79" y="518">HSPA5</text>
-  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="32" x="79" y="521"/>
-  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="79" y="532">LRIG2</text>
-  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="54" x="79" y="535"/>
-  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="79" y="546">GORASP2</text>
-  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="29" x="93" y="549"/>
-  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="93" y="560">DPP6</text>
-  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="22" x="108" y="563"/>
-  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="108" y="574">HK2</text>
-  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="26" x="108" y="577"/>
-  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="108" y="588">GJA1</text>
-  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="27" x="108" y="591"/>
-  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="108" y="602">LRP4</text>
-  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="37" x="108" y="605"/>
-  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="108" y="616">CALM1</text>
-  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="39" x="108" y="619"/>
-  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="108" y="630">BNIP3L</text>
-  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="55" x="108" y="633"/>
-  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="108" y="644">ZDHHC11</text>
-  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="30" x="122" y="647"/>
-  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="122" y="658">FZD5</text>
-  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="38" x="122" y="661"/>
-  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="122" y="672">GTSE1</text>
-  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="36" x="137" y="675"/>
-  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="137" y="686">VPS39</text>
-  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="18" x="152" y="689"/>
-  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="152" y="700">ID1</text>
-  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="28" x="152" y="703"/>
-  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="152" y="714">TFRC</text>
-  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="37" x="152" y="717"/>
-  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="152" y="728">TGFB1</text>
-  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="26" x="166" y="731"/>
-  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="166" y="742">CIB1</text>
-  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="30" x="166" y="745"/>
-  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="166" y="756">ECH1</text>
-  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="29" x="166" y="759"/>
-  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="166" y="770">BCL3</text>
-  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="45" x="166" y="773"/>
-  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="166" y="784">TNFAIP2</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="30" x="64" y="381"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="64" y="392">RPGR</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="32" x="64" y="395"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="64" y="406">COLQ</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="29" x="64" y="409"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="64" y="420">TTC8</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="37" x="64" y="423"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="64" y="434">HSPA5</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="37" x="64" y="437"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="64" y="448">SNX10</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="37" x="64" y="451"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="64" y="462">GPER1</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="36" x="64" y="465"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="64" y="476">RAB12</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="40" x="64" y="479"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="64" y="490">DZIP1L</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="47" x="64" y="493"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="64" y="504">SORCS2</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="30" x="79" y="507"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="79" y="518">BDNF</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="37" x="79" y="521"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="79" y="532">FBXO4</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="35" x="79" y="535"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="79" y="546">TCAF2</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="32" x="79" y="549"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="79" y="560">LRIG2</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="54" x="79" y="563"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="79" y="574">GORASP2</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="22" x="93" y="577"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="93" y="588">HK2</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="29" x="93" y="591"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="93" y="602">DPP6</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="26" x="93" y="605"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="93" y="616">PKIG</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="30" x="108" y="619"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="108" y="630">FZD5</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="27" x="108" y="633"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="108" y="644">LRP4</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="39" x="108" y="647"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="108" y="658">BNIP3L</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="55" x="108" y="661"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="108" y="672">ZDHHC11</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="18" x="137" y="675"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="137" y="686">ID1</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="36" x="137" y="689"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="137" y="700">LAMP3</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="36" x="137" y="703"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="137" y="714">VPS39</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="28" x="152" y="717"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="152" y="728">TFRC</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="29" x="152" y="731"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="152" y="742">BCL3</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="37" x="152" y="745"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="152" y="756">TGFB1</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="26" x="166" y="759"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="166" y="770">CIB1</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="33" x="181" y="773"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="181" y="784">ITGA3</text>
   <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="36" x="181" y="787"/>
   <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="181" y="798">AURKA</text>
   <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="28" x="195" y="801"/>
@@ -286,138 +282,136 @@
   <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="195" y="826">CCT5</text>
   <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="35" x="195" y="829"/>
   <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="195" y="840">SYTL3</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="23" x="210" y="843"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="210" y="855">TNF</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="42" x="210" y="858"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="210" y="870">MEPCE</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="38" x="210" y="873"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="210" y="885">TAPT1</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="38" x="210" y="888"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="210" y="900">ARL4A</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="52" x="210" y="903"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="210" y="915">ZDHHC7</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="43" x="210" y="918"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="210" y="930">INTS13</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="36" x="225" y="933"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="225" y="945">IPO13</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="38" x="225" y="948"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="225" y="960">STX1A</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="34" x="225" y="963"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="225" y="975">IFFO1</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="42" x="225" y="978"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="225" y="990">AP4M1</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="42" x="225" y="993"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="225" y="1005">GOSR2</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="50" x="225" y="1008"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="225" y="1020">NUP210</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="51" x="225" y="1023"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="225" y="1035">ADAM22</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="47" x="225" y="1038"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="225" y="1050">ARFRP1</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="45" x="225" y="1053"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="225" y="1065">DNAJA1</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="52" x="225" y="1068"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="225" y="1080">BCL2L11</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="56" x="225" y="1083"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="225" y="1095">PPP1R10</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="52" x="225" y="1098"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="225" y="1110">NECTIN3</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="65" x="225" y="1113"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="225" y="1125">ARHGEF16</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="31" x="239" y="1128"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="239" y="1140">RTP4</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="38" x="239" y="1143"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="239" y="1155">ACSL3</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="38" x="239" y="1158"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="239" y="1170">BCS1L</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="42" x="239" y="1173"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="239" y="1185">HSPD1</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="40" x="239" y="1188"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="239" y="1200">RAB24</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="42" x="239" y="1203"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="239" y="1215">TMCO6</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="49" x="239" y="1218"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="239" y="1230">UBXN2B</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="66" x="239" y="1233"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="239" y="1245">RAB11FIP3</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="31" x="254" y="1248"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="254" y="1260">PEX6</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="32" x="254" y="1263"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="254" y="1275">PAOX</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="33" x="254" y="1278"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="254" y="1290">GPC2</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="27" x="254" y="1293"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="254" y="1305">RIC3</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="39" x="254" y="1308"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="254" y="1320">SRSF7</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="40" x="254" y="1323"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="254" y="1335">PKDCC</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="40" x="254" y="1338"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="254" y="1350">AP4B1</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="40" x="254" y="1353"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="254" y="1365">AP2A2</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="52" x="254" y="1368"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="254" y="1380">ZMYND8</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="50" x="254" y="1383"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="254" y="1395">FAM83D</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="48" x="254" y="1398"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="254" y="1410">RAB27A</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="48" x="254" y="1413"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="254" y="1425">PPHLN1</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="47" x="254" y="1428"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="254" y="1440">RPH3AL</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="47" x="254" y="1443"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="254" y="1455">CLUAP1</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="60" x="254" y="1458"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="254" y="1470">ZDHHC23</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="32" x="268" y="1473"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="268" y="1485">RTN2</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="38" x="268" y="1488"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="268" y="1500">PREPL</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="49" x="268" y="1503"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="268" y="1515">NEDD4L</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="49" x="268" y="1518"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="268" y="1530">CCDC14</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="30" x="283" y="1533"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="283" y="1545">TBCK</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="33" x="283" y="1548"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="283" y="1560">NKD2</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="36" x="283" y="1563"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="283" y="1575">DESI1</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="46" x="283" y="1578"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="283" y="1590">ARL17B</text>
-  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="48" x="283" y="1593"/>
-  <text style="fill:rgb(128,128,128);stroke:none;" x="283" y="1605">TBC1D1</text>
-  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="26" x="297" y="1608"/>
-  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="297" y="1619">INVS</text>
-  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="58" x="297" y="1622"/>
-  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="297" y="1633">HSP90AA1</text>
-  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="36" x="312" y="1636"/>
-  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="312" y="1647">EPHX2</text>
-  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="55" x="312" y="1650"/>
-  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="312" y="1661">ZDHHC14</text>
-  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="51" x="312" y="1664"/>
-  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="312" y="1675">NEURL1B</text>
-  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="37" x="327" y="1678"/>
-  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="327" y="1689">TTC7B</text>
-  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="46" x="327" y="1692"/>
-  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="327" y="1703">ZBTB16</text>
-  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="40" x="327" y="1706"/>
-  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="327" y="1717">ABLIM3</text>
-  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="46" x="327" y="1720"/>
-  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="327" y="1731">CCDC66</text>
-  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="59" x="327" y="1734"/>
-  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="327" y="1745">ARHGAP44</text>
-  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="32" x="341" y="1748"/>
-  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="341" y="1759">DNM3</text>
-  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="36" x="341" y="1762"/>
-  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="341" y="1773">VPS18</text>
-  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="46" x="341" y="1776"/>
-  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="341" y="1787">TMEM98</text>
-  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="35" x="370" y="1790"/>
-  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="370" y="1801">FBLN5</text>
-  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="37" x="385" y="1804"/>
-  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="385" y="1815">ERBB4</text>
-  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="33" x="400" y="1818"/>
-  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="400" y="1829">MYRIP</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="38" x="195" y="843"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="195" y="854">MEPCE</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="21" x="210" y="857"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="210" y="868">TNF</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="35" x="210" y="871"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="210" y="882">TAPT1</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="48" x="210" y="885"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="210" y="896">ZDHHC7</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="40" x="210" y="899"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="210" y="910">INTS13</text>
+  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="22" x="225" y="913"/>
+  <text style="fill:rgb(128,128,128);stroke:none;" x="225" y="925">SYK</text>
+  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="33" x="225" y="928"/>
+  <text style="fill:rgb(128,128,128);stroke:none;" x="225" y="940">BANP</text>
+  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="36" x="225" y="943"/>
+  <text style="fill:rgb(128,128,128);stroke:none;" x="225" y="955">IPO13</text>
+  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="40" x="225" y="958"/>
+  <text style="fill:rgb(128,128,128);stroke:none;" x="225" y="970">CDK20</text>
+  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="38" x="225" y="973"/>
+  <text style="fill:rgb(128,128,128);stroke:none;" x="225" y="985">ACSL3</text>
+  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="38" x="225" y="988"/>
+  <text style="fill:rgb(128,128,128);stroke:none;" x="225" y="1000">STX1A</text>
+  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="34" x="225" y="1003"/>
+  <text style="fill:rgb(128,128,128);stroke:none;" x="225" y="1015">IFFO1</text>
+  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="42" x="225" y="1018"/>
+  <text style="fill:rgb(128,128,128);stroke:none;" x="225" y="1030">AP4M1</text>
+  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="42" x="225" y="1033"/>
+  <text style="fill:rgb(128,128,128);stroke:none;" x="225" y="1045">TMCO6</text>
+  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="45" x="225" y="1048"/>
+  <text style="fill:rgb(128,128,128);stroke:none;" x="225" y="1060">SNAPIN</text>
+  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="47" x="225" y="1063"/>
+  <text style="fill:rgb(128,128,128);stroke:none;" x="225" y="1075">ARFRP1</text>
+  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="45" x="225" y="1078"/>
+  <text style="fill:rgb(128,128,128);stroke:none;" x="225" y="1090">DNAJA1</text>
+  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="56" x="225" y="1093"/>
+  <text style="fill:rgb(128,128,128);stroke:none;" x="225" y="1105">PPP1R10</text>
+  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="56" x="225" y="1108"/>
+  <text style="fill:rgb(128,128,128);stroke:none;" x="225" y="1120">TRMT10B</text>
+  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="52" x="225" y="1123"/>
+  <text style="fill:rgb(128,128,128);stroke:none;" x="225" y="1135">NECTIN3</text>
+  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="65" x="225" y="1138"/>
+  <text style="fill:rgb(128,128,128);stroke:none;" x="225" y="1150">ARHGEF16</text>
+  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="31" x="239" y="1153"/>
+  <text style="fill:rgb(128,128,128);stroke:none;" x="239" y="1165">RTP4</text>
+  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="38" x="239" y="1168"/>
+  <text style="fill:rgb(128,128,128);stroke:none;" x="239" y="1180">BCS1L</text>
+  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="40" x="239" y="1183"/>
+  <text style="fill:rgb(128,128,128);stroke:none;" x="239" y="1195">ATG4B</text>
+  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="42" x="239" y="1198"/>
+  <text style="fill:rgb(128,128,128);stroke:none;" x="239" y="1210">HSPD1</text>
+  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="40" x="239" y="1213"/>
+  <text style="fill:rgb(128,128,128);stroke:none;" x="239" y="1225">RAB24</text>
+  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="49" x="239" y="1228"/>
+  <text style="fill:rgb(128,128,128);stroke:none;" x="239" y="1240">UBXN2B</text>
+  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="66" x="239" y="1243"/>
+  <text style="fill:rgb(128,128,128);stroke:none;" x="239" y="1255">RAB11FIP3</text>
+  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="16" x="254" y="1258"/>
+  <text style="fill:rgb(128,128,128);stroke:none;" x="254" y="1270">AR</text>
+  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="30" x="254" y="1273"/>
+  <text style="fill:rgb(128,128,128);stroke:none;" x="254" y="1285">CBLB</text>
+  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="32" x="254" y="1288"/>
+  <text style="fill:rgb(128,128,128);stroke:none;" x="254" y="1300">RTN2</text>
+  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="31" x="254" y="1303"/>
+  <text style="fill:rgb(128,128,128);stroke:none;" x="254" y="1315">PEX6</text>
+  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="33" x="254" y="1318"/>
+  <text style="fill:rgb(128,128,128);stroke:none;" x="254" y="1330">GPC2</text>
+  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="27" x="254" y="1333"/>
+  <text style="fill:rgb(128,128,128);stroke:none;" x="254" y="1345">RIC3</text>
+  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="40" x="254" y="1348"/>
+  <text style="fill:rgb(128,128,128);stroke:none;" x="254" y="1360">PKDCC</text>
+  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="39" x="254" y="1363"/>
+  <text style="fill:rgb(128,128,128);stroke:none;" x="254" y="1375">NPTX1</text>
+  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="40" x="254" y="1378"/>
+  <text style="fill:rgb(128,128,128);stroke:none;" x="254" y="1390">AP4B1</text>
+  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="40" x="254" y="1393"/>
+  <text style="fill:rgb(128,128,128);stroke:none;" x="254" y="1405">AP2A2</text>
+  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="50" x="254" y="1408"/>
+  <text style="fill:rgb(128,128,128);stroke:none;" x="254" y="1420">FAM83D</text>
+  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="48" x="254" y="1423"/>
+  <text style="fill:rgb(128,128,128);stroke:none;" x="254" y="1435">RAB27A</text>
+  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="48" x="254" y="1438"/>
+  <text style="fill:rgb(128,128,128);stroke:none;" x="254" y="1450">PPHLN1</text>
+  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="47" x="254" y="1453"/>
+  <text style="fill:rgb(128,128,128);stroke:none;" x="254" y="1465">RPH3AL</text>
+  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="60" x="254" y="1468"/>
+  <text style="fill:rgb(128,128,128);stroke:none;" x="254" y="1480">ZDHHC23</text>
+  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="32" x="268" y="1483"/>
+  <text style="fill:rgb(128,128,128);stroke:none;" x="268" y="1495">CAV1</text>
+  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="33" x="268" y="1498"/>
+  <text style="fill:rgb(128,128,128);stroke:none;" x="268" y="1510">NKD2</text>
+  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="38" x="268" y="1513"/>
+  <text style="fill:rgb(128,128,128);stroke:none;" x="268" y="1525">PREPL</text>
+  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="36" x="268" y="1528"/>
+  <text style="fill:rgb(128,128,128);stroke:none;" x="268" y="1540">DESI1</text>
+  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="49" x="268" y="1543"/>
+  <text style="fill:rgb(128,128,128);stroke:none;" x="268" y="1555">NEDD4L</text>
+  <rect height="12" style="fill:rgb(255,255,255);stroke:none;" width="49" x="268" y="1558"/>
+  <text style="fill:rgb(128,128,128);stroke:none;" x="268" y="1570">CCDC14</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="42" x="283" y="1573"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="283" y="1584">ARL17B</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="55" x="297" y="1587"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="297" y="1598">ZDHHC14</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="58" x="297" y="1601"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="297" y="1612">HSP90AA1</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="51" x="312" y="1615"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="312" y="1626">NEURL1B</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="59" x="312" y="1629"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="312" y="1640">ARHGAP44</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="29" x="327" y="1643"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="327" y="1654">CAV3</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="37" x="327" y="1657"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="327" y="1668">TTC7B</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="46" x="327" y="1671"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="327" y="1682">ZBTB16</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="46" x="327" y="1685"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="327" y="1696">EXOC6B</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="46" x="327" y="1699"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="327" y="1710">TMEM98</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="40" x="327" y="1713"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="327" y="1724">ABLIM3</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="46" x="327" y="1727"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="327" y="1738">CCDC66</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="36" x="341" y="1741"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="341" y="1752">VPS18</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="30" x="356" y="1755"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="356" y="1766">CD36</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="35" x="370" y="1769"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="370" y="1780">FBLN5</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="45" x="370" y="1783"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="370" y="1794">TNFAIP6</text>
+  <rect height="11" style="fill:rgb(255,255,255);stroke:none;" width="37" x="385" y="1797"/>
+  <text style="fill:rgb(128,128,128);stroke:none;font-size:11px;" x="385" y="1808">ERBB4</text>
 </svg>

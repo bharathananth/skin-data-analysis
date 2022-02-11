@@ -109,11 +109,14 @@ inphase  <- cos(2*pi*time/24)
 outphase <- sin(2*pi*time/24) #a*cos(wt) + cos(wt-phi) == A*cos(wt - phi), where A=sqrt(a**2 + b**2), phi = atan2(b,a)
 
 # design matrix
-design <- model.matrix(~ 0 + subject + tissue + tissue:inphase + tissue:outphase) #H0: rhythms are different across tissues
+design <- model.matrix(~ 0 + tissue + tissue:inphase + tissue:outphase) #H0: rhythms are different across tissues
+
+# duplicate Correlations
+dupcor <- duplicateCorrelation(yave, design, block=subject)
 
 # fits
 #wts <- limma::arrayWeights(yave, model.matrix(~tissue + subject))
-fit <- limma::lmFit(yave, design, weights = wts)
+fit <- limma::lmFit(yave, design, weights = wts, block=subject, correlation=dupcor$consensus)
 fit2 <- limma::eBayes(fit, trend = TRUE, robust = TRUE)
 
 # save results of fits
@@ -367,78 +370,41 @@ fig1F <- ggplot(both_rhy_phase, aes(x=dermis, y=epidermis)) +
 #####
 
 # Figure 1G: GO analysis -> top 20 GOBP terms 
-# with limma
-gD <- goana(yave[yave$genes$Symbol %in% filter(rhy_results, tissue=="dermis")$Symbol,]$genes$EntrezID, 
-            universe = yave_D$genes$EntrezID) #background = expressed genes in DERMIS
-gE <- goana(yave[yave$genes$Symbol %in% filter(rhy_results, tissue=="epidermis")$Symbol,]$genes$EntrezID, 
-            universe = yave_E$genes$EntrezID) 
-topGO(gD %>% filter(Ont=="BP"), n=20, truncate.term = "42") # we don't find any super-significant terms (p val ~1e-8)
-topGO(gE %>% filter(Ont=="BP"), n=20, truncate.term = "42") 
-
-g <- gE %>% filter(Ont=="BP") %>% top_n(20, wt=-P.DE) %>% mutate(hits=DE*100/N, tissue="epidermis") %>% as.data.frame() %>%
-  rbind(gD %>% filter(Ont=="BP") %>% top_n(20, wt=-P.DE) %>% mutate(hits=DE*100/N, tissue="dermis") %>% as.data.frame()) 
-
-
-# with clusterProfiler
-gD_2 <- enrichGO(yave[yave$genes$Symbol %in% filter(rhy_results, tissue=="dermis")$Symbol,]$genes$EntrezID,
+# with clusterProfiler (but results confirmed with limma, msigdbr and other online tools)
+gD <- enrichGO(yave[yave$genes$Symbol %in% filter(rhy_results, tissue=="dermis")$Symbol,]$genes$EntrezID,
                  universe = yave_D$genes$EntrezID, ont="BP",
                  'org.Hs.eg.db', pvalueCutoff = 1.0, qvalueCutoff = 1.0, minGSSize = 5) %>%
   as.data.frame() %>%
   tidyr::separate(GeneRatio, c("DE","junk"), convert = TRUE, sep = "/") %>% 
   tidyr::separate(BgRatio, c("N","junk"), convert = TRUE, sep = "/")
 
-gE_2 <- enrichGO(yave[yave$genes$Symbol %in% filter(rhy_results, tissue=="epidermis")$Symbol,]$genes$EntrezID,
+gE <- enrichGO(yave[yave$genes$Symbol %in% filter(rhy_results, tissue=="epidermis")$Symbol,]$genes$EntrezID,
                  universe = yave_E$genes$EntrezID, ont="BP",
                  'org.Hs.eg.db', pvalueCutoff = 1.0, qvalueCutoff = 1.0, minGSSize = 5) %>%
   as.data.frame() %>%
   tidyr::separate(GeneRatio, c("DE","junk"), convert = TRUE, sep = "/") %>% 
   tidyr::separate(BgRatio, c("N","junk"), convert = TRUE, sep = "/")
 
-g2 <- gE_2 %>% top_n(20, wt=-pvalue) %>% mutate(hits=DE*100/N, tissue="epidermis") %>% as.data.frame() %>%
-  rbind(gD_2 %>% top_n(20, wt=-pvalue) %>% mutate(hits=DE*100/N, tissue="dermis") %>% as.data.frame()) %>%
+if (!file.exists("visualize/data/enrichment/rhygenes_dermis_inttime.txt")){
+  write.table(yave[yave$genes$Symbol %in% filter(rhy_results, tissue=="dermis")$Symbol,]$genes$ENSEMBL,
+              "visualize/data/enrichment/rhygenes_dermis_inttime.txt", sep=',', row.names=FALSE, col.names=FALSE, quote=FALSE)
+  write.table(yave[yave$genes$Symbol %in% filter(rhy_results, tissue=="epidermis")$Symbol,]$genes$ENSEMBL,
+              "visualize/data/enrichment/rhygenes_epidermis_inttime.txt", sep=',', row.names=FALSE, col.names=FALSE, quote=FALSE)
+  write.table(yave_D$genes$ENSEMBL, "visualize/data/enrichment/exprgenes_dermis_inttime.txt", 
+              sep=',', row.names = FALSE, col.names=FALSE, quote=FALSE)
+  write.table(yave_E$genes$ENSEMBL, "visualize/data/enrichment/exprgenes_epidermis_inttime.txt", 
+              sep=',', row.names = FALSE, col.names=FALSE, quote=FALSE)}
+
+g <- gE %>% top_n(20, wt=-pvalue) %>% mutate(hits=DE*100/N, tissue="epidermis") %>% as.data.frame() %>%
+  rbind(gD %>% top_n(20, wt=-pvalue) %>% mutate(hits=DE*100/N, tissue="dermis") %>% as.data.frame()) %>%
   mutate(qvalue = scales::scientific(qvalue, digits = 3),
          pvalue = scales::scientific(pvalue, digits = 3),
          p.adjust = scales::scientific(p.adjust, digits = 3),
          P.DE=as.numeric(pvalue)) %>% 
   select(-ID, -junk, -Count) %>% rename(c("Term"="Description"))
 
-# Check that I get same terms as when I do GO analysis with limma::goana 
-#      -> results are less similar across both packages than when I do KEGG analysis
-both_gobp = data.frame(goana=data.frame(g) %$% Term, 
-                       enrichGO = data.frame(g2) %$% Term)
-both_gobp[which(!both_gobp$enrichGO %in% both_gobp$goana),]$enrichGO #pathways detected through enrichGO NOT through goana: 15/41
-both_gobp[which(!both_gobp$goana %in% both_gobp$enrichGO),]$goana #pathways detected through goana NOT throuhg enrichGO: 16/41
 
-
-# with msigdbr 
-gobp_gene_sets = msigdbr(species = "Homo sapiens", category = "C5", subcategory = "GO:BP") 
-msigdbr_t2g = gobp_gene_sets %>% dplyr::distinct(gs_name, entrez_gene) %>% as.data.frame() 
-
-gD_3 <- enricher(gene = yave[yave$genes$Symbol %in% filter(rhy_results, tissue=="dermis")$Symbol,]$genes$EntrezID,  
-                 universe = yave_D$genes$EntrezID, TERM2GENE = msigdbr_t2g, 
-                 pvalueCutoff = 1, qvalueCutoff = 1.0, minGSSize = 5) %>%   
-  as.data.frame() %>%   
-  tidyr::separate(GeneRatio, c("DE","junk"), convert = TRUE, sep = "/") %>%   
-  tidyr::separate(BgRatio, c("N","junk"), convert = TRUE, sep = "/") 
-gE_3 <- enricher(gene = yave[yave$genes$Symbol %in% filter(rhy_results, tissue=="epidermis")$Symbol,]$genes$EntrezID,
-                 universe = yave_E$genes$EntrezID, TERM2GENE = msigdbr_t2g, 
-                 pvalueCutoff = 1, qvalueCutoff = 1.0, minGSSize = 5) %>%   
-  as.data.frame() %>%   tidyr::separate(GeneRatio, c("DE","junk"), convert = TRUE, sep = "/") %>%  
-  tidyr::separate(BgRatio, c("N","junk"), convert = TRUE, sep = "/") ###################### EMPTY!!!!!! 
-
-g3 <- gE_3 %>% top_n(20, wt=-pvalue) %>% mutate(hits=DE*100/N, tissue="epidermis") %>% as.data.frame() %>%  
-  rbind(gD_3 %>% top_n(20, wt=-pvalue) %>% mutate(hits=DE*100/N, tissue="dermis") %>% as.data.frame()) %>%   
-  mutate(qvalue = scales::scientific(qvalue, digits = 3),          
-         pvalue = scales::scientific(pvalue, digits = 3),        
-         p.adjust = scales::scientific(p.adjust, digits = 3),         
-         P.DE=as.numeric(pvalue)) %>%   
-  select(-ID, -junk, -Count) %>% rename(c("Term"="Description")) %>%   
-  mutate(Term = str_replace_all(Term, "GOBP_", "")) %>%   
-  mutate(Term = str_replace_all(Term, "_", " ")) 
-g3$Term <- tolower(g3$Term)
-
-
-fig1G <- ggplot(g2, aes(x=-log10(P.DE), y=reorder_within(Term, -log10(P.DE), tissue), color=tissue, size=hits)) + 
+fig1G <- ggplot(g, aes(x=-log10(P.DE), y=reorder_within(Term, -log10(P.DE), tissue), color=tissue, size=hits)) + 
   geom_point() +  
   facet_wrap(~tissue, scales='free_y') + expand_limits(x=c(2.0,5)) + 
   labs(x=bquote(~-log[10]*italic(' p')~'value'), y="GO:BP term", size="Percentage of hits\nfrom each term") + 
@@ -494,78 +460,31 @@ suppfig2F <- ggplot(data = corrmat, aes(x=key, y=rowname, fill=value)) + facet_w
 #####
 
 # Supplementary figure 2C: KEGG analysis -> top 20 pathways + with qval<0.05
-# with limma
-kD <- kegga(yave[yave$genes$Symbol %in% filter(rhy_results, tissue=="dermis")$Symbol,]$genes$EntrezID, 
-            universe = yave_D$genes$EntrezID) 
-kE <- kegga(yave[yave$genes$Symbol %in% filter(rhy_results, tissue=="epidermis")$Symbol,]$genes$EntrezID, 
-            universe = yave_E$genes$EntrezID) 
-topKEGG(kD, n=20, truncate.path = "42")
-topKEGG(kE, n=20, truncate.path = "42")
-
-k <- kE %>% top_n(20, wt=-P.DE) %>% mutate(hits=DE*100/N, tissue="epidermis") %>% as.data.frame() %>%
-  rbind(kD %>% top_n(20, wt=-P.DE) %>% mutate(hits=DE*100/N, tissue="dermis") %>% as.data.frame()) 
-
-
-# with clusterProfiler
-kD_2 <- enrichKEGG(yave[yave$genes$Symbol %in% filter(rhy_results, tissue=="dermis")$Symbol,]$genes$EntrezID,
+# with clusterProfiler (also done with limma and msigdbr but less overlap than GOBP enrichment)
+kD <- enrichKEGG(yave[yave$genes$Symbol %in% filter(rhy_results, tissue=="dermis")$Symbol,]$genes$EntrezID,
                    universe = yave_D$genes$EntrezID,
                    organism = "hsa", keyType = "ncbi-geneid", pvalueCutoff = 1.0, qvalueCutoff = 1.0, minGSSize = 5) %>%
   as.data.frame() %>%
   tidyr::separate(GeneRatio, c("DE","junk"), convert = TRUE, sep = "/") %>% 
   tidyr::separate(BgRatio, c("N","junk"), convert = TRUE, sep = "/")
 
-kE_2 <- enrichKEGG(yave[yave$genes$Symbol %in% filter(rhy_results, tissue=="epidermis")$Symbol,]$genes$EntrezID,
+kE <- enrichKEGG(yave[yave$genes$Symbol %in% filter(rhy_results, tissue=="epidermis")$Symbol,]$genes$EntrezID,
                    universe = yave_E$genes$EntrezID,
                    organism = "hsa", keyType = "ncbi-geneid", pvalueCutoff = 1.0, qvalueCutoff = 1.0, minGSSize = 5) %>%
   as.data.frame() %>%
   tidyr::separate(GeneRatio, c("DE","junk"), convert = TRUE, sep = "/") %>% 
   tidyr::separate(BgRatio, c("N","junk"), convert = TRUE, sep = "/")
   
-k2 <- kE_2 %>% top_n(20, wt=-pvalue) %>% mutate(hits=DE*100/N, tissue="epidermis") %>% as.data.frame() %>%
-  rbind(kD_2 %>% top_n(20, wt=-pvalue) %>% mutate(hits=DE*100/N, tissue="dermis") %>% as.data.frame()) %>%
+k <- kE %>% top_n(20, wt=-pvalue) %>% mutate(hits=DE*100/N, tissue="epidermis") %>% as.data.frame() %>%
+  rbind(kD %>% top_n(20, wt=-pvalue) %>% mutate(hits=DE*100/N, tissue="dermis") %>% as.data.frame()) %>%
   mutate(qvalue = scales::scientific(qvalue, digits = 3),
          pvalue = scales::scientific(pvalue, digits = 3),
          p.adjust = scales::scientific(p.adjust, digits = 3),
          P.DE=as.numeric(pvalue)) %>% 
   select(-ID, -junk, -Count) %>% rename(c("Pathway"="Description"))
 
-# Check that I get same terms as when I do KEGG analysis with limma::kegga
-both_kegg = data.frame(kegga=data.frame(k) %$% Pathway, 
-                       enrichKEGG = data.frame(k2) %$% Pathway)
-both_kegg[which(!both_kegg$enrichKEGG %in% both_kegg$kegga),]$enrichKEGG #pathways detected through enrichKEGG NOT throuhg kegga
-both_kegg[which(!both_kegg$kegga %in% both_kegg$enrichKEGG),]$kegga #pathways detected through kegga NOT throuhg enrichKEGG 
 
-
-# with msigdbr 
-kegg_gene_sets = msigdbr(species = "Homo sapiens", category = "C2", subcategory = "CP:KEGG") 
-msigdbr_t2g = kegg_gene_sets %>% dplyr::distinct(gs_name, entrez_gene) %>% as.data.frame() 
-
-kD_3 <- enricher(gene = yave[yave$genes$Symbol %in% filter(rhy_results, tissue=="dermis")$Symbol,]$genes$EntrezID, 
-                 universe = yave_D$genes$EntrezID, TERM2GENE = msigdbr_t2g, 
-                 pvalueCutoff = 1, qvalueCutoff = 1.0, minGSSize = 5) %>%   
-  as.data.frame() %>%   
-  tidyr::separate(GeneRatio, c("DE","junk"), convert = TRUE, sep = "/") %>%
-  tidyr::separate(BgRatio, c("N","junk"), convert = TRUE, sep = "/") 
-kE_3 <- enricher(gene = yave[yave$genes$Symbol %in% filter(rhy_results, tissue=="epidermis")$Symbol,]$genes$EntrezID,    
-                 universe = yave_E$genes$EntrezID, TERM2GENE = msigdbr_t2g, 
-                 pvalueCutoff = 1, qvalueCutoff = 1.0, minGSSize = 5) %>% 
-  as.data.frame() %>%   
-  tidyr::separate(GeneRatio, c("DE","junk"), convert = TRUE, sep = "/") %>%  
-  tidyr::separate(BgRatio, c("N","junk"), convert = TRUE, sep = "/") 
-
-k3 <- kE_3 %>% top_n(20, wt=-pvalue) %>% mutate(hits=DE*100/N, tissue="epidermis") %>% as.data.frame() %>%   
-  rbind(kD_3 %>% top_n(20, wt=-pvalue) %>% mutate(hits=DE*100/N, tissue="dermis") %>% as.data.frame()) %>%   
-  mutate(qvalue = scales::scientific(qvalue, digits = 3),        
-         pvalue = scales::scientific(pvalue, digits = 3),       
-         p.adjust = scales::scientific(p.adjust, digits = 3),      
-         P.DE=as.numeric(pvalue)) %>%   
-  select(-ID, -junk, -Count) %>% rename(c("Pathway"="Description")) %>% 
-  mutate(Pathway = str_replace_all(Pathway, "KEGG_", "")) %>%  
-  mutate(Pathway = str_replace_all(Pathway, "_", " "))
-k3$Pathway <- tolower(k3$Pathway)
-
-
-suppfig2C <- ggplot(k2, aes(x=-log10(P.DE), y=reorder_within(Pathway, -log10(P.DE), tissue), color=tissue, size=hits)) + 
+suppfig2C <- ggplot(k, aes(x=-log10(P.DE), y=reorder_within(Pathway, -log10(P.DE), tissue), color=tissue, size=hits)) + 
   geom_point() +  
   facet_wrap(~tissue, scales='free_y') + expand_limits(x=c(0.75,4.0)) + 
   labs(x=bquote(~-log[10]*italic(' p')~'value'), y="KEGG pathway", size="Percentage of hits\nfrom each term") + 
@@ -577,48 +496,13 @@ suppfig2C <- ggplot(k2, aes(x=-log10(P.DE), y=reorder_within(Pathway, -log10(P.D
 
 #####
 
-# Fig1H: Disease ontology enrichment 
-dD <- enrichDO(yave[yave$genes$Symbol %in% filter(rhy_results, 
-                                                  tissue=="dermis" & amp_value>amp_cutoff)$Symbol,]$genes$EntrezID,
-               universe = yave_D$genes$EntrezID, ont = "DO",  
-               pvalueCutoff = 1, qvalueCutoff = 1.0, minGSSize = 5) %>%   
-  as.data.frame() %>% 
-  tidyr::separate(GeneRatio, c("DE","junk"), convert = TRUE, sep = "/") %>%  
-  tidyr::separate(BgRatio, c("N","junk"), convert = TRUE, sep = "/") 
-dE <- enrichDO(yave[yave$genes$Symbol %in% filter(rhy_results, 
-                                                  tissue=="epidermis" & amp_value>amp_cutoff)$Symbol,]$genes$EntrezID,  
-               universe = yave_E$genes$EntrezID, ont = "DO", 
-               pvalueCutoff = 1, qvalueCutoff = 1.0, minGSSize = 5) %>%   as.data.frame() %>% 
-  tidyr::separate(GeneRatio, c("DE","junk"), convert = TRUE, sep = "/") %>%  
-  tidyr::separate(BgRatio, c("N","junk"), convert = TRUE, sep = "/") 
-
-d <- dD %>% top_n(20, wt=-pvalue) %>% mutate(hits=DE*100/N, tissue="dermis") %>% as.data.frame() %>% 
-  rbind(dE %>% top_n(20, wt=-pvalue) %>% mutate(hits=DE*100/N, tissue="epidermis") %>% as.data.frame()) %>%  
-  mutate(qvalue = scales::scientific(qvalue, digits = 3),       
-         pvalue = scales::scientific(pvalue, digits = 3),       
-         p.adjust = scales::scientific(p.adjust, digits = 3),       
-         P.DE=as.numeric(pvalue)) %>% 
-  select(-ID, -junk, -Count, -geneID) %>% rename(c("Disease"="Description")) 
-
-fig1H <- ggplot(d, aes(x=-log10(P.DE), y=reorder_within(Disease, -log10(P.DE), tissue), color=tissue, size=hits)) +  
-  geom_point() +  
-  facet_wrap(~tissue, scales='free_y') + expand_limits(x=c(0.75,4.0)) + 
-  labs(x=bquote(~-log[10]*italic(' p')~'value'), y="Disease", size="Percentage of hits\nfrom each term") +  
-  guides(color = FALSE) +  
-  theme_custom() + scale_y_reordered() + 
-  theme(aspect.ratio=2.3, legend.position = "right", legend.title = element_text(color="black"),       
-        panel.grid.major = element_line(), panel.grid.minor = element_line()) +   
-  scale_colour_manual(values = c("dermis" = "#1B9E77", "epidermis" = "#D95F02"))  
-
-#####
-
 # Supplementary figure 2D, E: PSEA
 ## in a terminal, execute the .jar PSEA file: > java -jar PSEA-master/PSEA1.1_VectorGraphics.jar 
 ## (go to directory where PSEA is)
-## PSEA parameter choice: (0, 24, 5, 10000, 0.05)
+## PSEA parameter choice: (0, 24, 5, 10000, 0.05) -> gene sets downloaded from https://www.gsea-msigdb.org/gsea/msigdb/index.jsp
 fdr_cutoff_PSEA <- 0.1 #less significant cutoff for PSEA analysis
 if (!file.exists("visualize/data/phases_fig1_D.csv")){ 
-  results_passAmpcutoff %>% filter(tissue=="dermis" & adj_P_Val < fdr_cutoff_PSEA) %>% 
+  results_passAmpcutoff %>% dplyr::filter(tissue=="dermis" & adj_P_Val < fdr_cutoff_PSEA) %>% 
     mutate(phase_clock1 = phase_value + 8) %>% 
     mutate(phase_clock1 = ifelse(phase_clock1 < 0, phase_clock1 + 24, phase_clock1)) %>%
     select(Symbol, phase_clock1) %>% mutate(phase_clock1=round(phase_clock1, 0) %>% as.numeric()) %>%
@@ -633,13 +517,13 @@ if (!file.exists("visualize/data/phases_fig1_E.csv")){
     write.table(file = "visualize/data/PSEA/phasesforPSEA_fig1_E.txt", row.names=FALSE, col.names=FALSE, sep='\t', quote=FALSE)
 }
 
-# Supplementary figure 2E: PSEA with KEGG
+# Supplementary figure 2D: PSEA with KEGG
 q_cutoff <- 0.25# 0.25 for KEGG, 0.05 for GO:BP
 
-PSEA_d_K <- read.csv("visualize/data/PSEA/dermis_C2KEGG/results.txt", sep='\t') %>% 
+PSEA_d_K <- read.csv("visualize/data/PSEA/dermis_C2all/results.txt", sep='\t') %>% 
   filter(Set.N >= 5)
 PSEA_d_K <- PSEA_d_K[PSEA_d_K[,4] <  q_cutoff, ] %>% mutate(tissue = "dermis")
-PSEA_e_K <- read.csv("visualize/data/PSEA/epidermis_C2KEGG/results.txt", sep='\t')%>% 
+PSEA_e_K <- read.csv("visualize/data/PSEA/epidermis_C2all/results.txt", sep='\t')%>% 
   filter(Set.N >= 5)
 PSEA_e_K <- PSEA_e_K[PSEA_e_K[,4] <  q_cutoff, ] %>% mutate(tissue = "epidermis")
 
@@ -675,7 +559,7 @@ suppfig2D <- ggplot(m_kegg) +
   scale_x_continuous(limits=c(0,24), breaks = seq(0, 24, by=6)) +
   scale_size(breaks=c(5,10,15)) + scale_fill_brewer(palette="Dark2")
 
-# Supplementary figure 2F: PSEA with GOBP
+# Supplementary figure 2E: PSEA with GOBP
 q_cutoff <- 0.05# 0.25 for KEGG, 0.05 for GO:BP
 
 PSEA_d_G <- read.csv("visualize/data/PSEA/dermis_C5GOBP/results.txt", sep='\t') %>% 
@@ -737,9 +621,9 @@ fig1 %>% ggsave('figures/fig1.pdf', ., width = 11, height = 11)
 
 sfig2_1 <- plot_grid(suppfig2A, NULL, suppfig2B, ncol=3, nrow=1, labels=c("A", "", "B"), rel_widths = c(1,0.1,0.9))
 sfig2_2 <- plot_grid(suppfig2C, labels="C")
-sfig2_3 <- plot_grid(suppfig2D, suppfig2E, labels=c("D", "E"), rel_widths = c(1,1.15))
-#sfig2_4 <- plot_grid(suppfig2F, NULL, labels=c("F", ""), ncol=2, nrow=1)
-sfig2 <- plot_grid(sfig2_1, NULL, sfig2_2, NULL, sfig2_3, align='v', nrow=5, 
-                   rel_heights = c(1.5, 0.1, 1.8, 0.1, 2.3))#, 0.1, 1.5))
+sfig2_3 <- plot_grid(NULL, NULL, labels=c("D", "E"), rel_widths = c(1,1.15))
+sfig2_4 <- plot_grid(suppfig2D, suppfig2E, labels=c("", ""), rel_widths = c(1,1.15))
+sfig2 <- plot_grid(sfig2_1, NULL, sfig2_2, sfig2_3, sfig2_4, align='v', nrow=5, 
+                   rel_heights = c(1.5, 0.1, 1.8, 0.1, 1.5))#, 0.1, 1.5))
 
 sfig2 %>% ggsave('figures/suppfig2.pdf', ., width = 11, height = 11.5)

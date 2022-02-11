@@ -13,6 +13,39 @@ suppressPackageStartupMessages(library(cowplot))
 
 setwd("~/Documents/WORK/POSTDOC/projects/skin-data-analysis")
 
+# R graphics stuff
+scale_colour_discrete <- function(...) {
+  scale_colour_brewer(..., palette="Dark2")
+}
+
+theme_custom <- function(base_size = 11, base_family = "Helvetica") {
+  theme_foundation(base_size = base_size, base_family = base_family) + theme_bw() +
+    theme(
+      axis.line = element_line(colour = "black"),
+      
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      panel.border     = element_blank(),
+      panel.background = element_blank(),
+      panel.spacing.y  = unit(1.5, "lines"),
+      
+      plot.margin = margin(0.1, 0.1, 0.1, 0.1, unit = "lines"),
+      plot.title = element_text(hjust = 0.5, face="bold", size=10),
+      
+      strip.background = element_blank(),
+      strip.text = element_text(face="bold"),
+      
+      legend.title = element_blank(),
+      legend.position="top",
+      
+      aspect.ratio = 1
+    )
+}
+
+theme_set(theme_custom(base_size = 9))
+update_geom_defaults("line", list(size = 0.8))
+
+
 #------------------
 #------------------
 
@@ -40,10 +73,77 @@ info_subjects_long <- read.csv("resources/info_subjects.csv") %>%
          MSF_sc = round_hms(as_hms(MSF_sc), 60)) %>%
   dplyr::rename(c("subject"="Subject", "sex"="Sex")) 
 info_subjects <- info_subjects_long %>% dplyr::select(subject, sex, Light_condition, age, MSF_sc)
+
+
+DLMO_5  <- read.csv("resources/220126_DLMO_5ugdL.csv")  # read DLMO with threshold 5 
+DLMO_10 <- read.csv("resources/220126_DLMO_10ugdL.csv") # read DLMO with threshold 10
+colnames(DLMO_5) <- paste0(colnames(DLMO_5), "_5"); colnames(DLMO_10) <- paste0(colnames(DLMO_10), "_10")
+colnames(DLMO_5)[1] <- "subject"; colnames(DLMO_10)[1] <- "subject"
+
+DLMO <- inner_join(DLMO_5, DLMO_10) %>% mutate(subject=paste0("P", subject))
+info_subjects_DLMOlong <- info_subjects %>% 
+  inner_join(DLMO) %>%
+  #inner_join(DLMO %>% dplyr::select(subject, Re.Test.2_5, Re.Test.2_10, Comments_5, Comments_10)) %>%
+  mutate(Re.Test.1_5  = as.numeric(lubridate::as.difftime(lubridate::hm(Re.Test.1_5))), 
+         Re.Test.1_10 = as.numeric(lubridate::as.difftime(lubridate::hm(Re.Test.1_10))),
+         Re.Test.2_5  = as.numeric(lubridate::as.difftime(lubridate::hm(Re.Test.2_5))), 
+         Re.Test.2_10 = as.numeric(lubridate::as.difftime(lubridate::hm(Re.Test.2_10))),
+         Baseline.1_5  = as.numeric(lubridate::as.difftime(lubridate::hm(Baseline.1_5))), 
+         Baseline.1_10 = as.numeric(lubridate::as.difftime(lubridate::hm(Baseline.1_10))),
+         Baseline.2_5  = as.numeric(lubridate::as.difftime(lubridate::hm(Baseline.2_5))), 
+         Baseline.2_10 = as.numeric(lubridate::as.difftime(lubridate::hm(Baseline.2_10))),
+         )
+mean = rowMeans(info_subjects_DLMOlong[,c(6,7,8,9,11,12,13,14)], na.rm=TRUE)
+info_subjects_DLMOlong <- info_subjects_DLMOlong %>% 
+  mutate(DLMO_mean    = make_difftime(mean, units="second"),
+         Re.Test.1_5  = make_difftime(Re.Test.1_5, units="second") %>% seconds_to_period(),
+         Re.Test.1_10 = make_difftime(Re.Test.1_10, units="second") %>% seconds_to_period(),
+         Re.Test.2_5  = make_difftime(Re.Test.2_5, units="second") %>% seconds_to_period(),
+         Re.Test.2_10 = make_difftime(Re.Test.2_10, units="second") %>% seconds_to_period(),
+         Baseline.1_5  = make_difftime(Baseline.1_5, units="second") %>% seconds_to_period(),
+         Baseline.1_10 = make_difftime(Baseline.1_10, units="second") %>% seconds_to_period(),
+         Baseline.2_5  = make_difftime(Baseline.2_5, units="second") %>% seconds_to_period(),
+         Baseline.2_10 = make_difftime(Baseline.2_10, units="second") %>% seconds_to_period(),
+         DLMO_mean    = DLMO_mean %>% seconds_to_period(),
+         
+         Re.Test.1_5  = round(Re.Test.1_5 %>% time_length(), 0) %>% as_hms,
+         Re.Test.1_10 = round(Re.Test.1_10 %>% time_length(), 0) %>% as_hms,
+         Re.Test.2_5  = round(Re.Test.2_5 %>% time_length(), 0) %>% as_hms,
+         Re.Test.2_10 = round(Re.Test.2_10 %>% time_length(), 0) %>% as_hms,
+         Baseline.1_5  = round(Baseline.1_5 %>% time_length(), 0) %>% as_hms,
+         Baseline.1_10 = round(Baseline.1_10 %>% time_length(), 0) %>% as_hms,
+         Baseline.2_5  = round(Baseline.2_5 %>% time_length(), 0) %>% as_hms,
+         Baseline.2_10 = round(Baseline.2_10 %>% time_length(), 0) %>% as_hms,
+         DLMO_mean    = round(DLMO_mean %>% time_length(), 0) %>% as_hms,
+         
+         Re.Test.1_5  = round_hms(as_hms(Re.Test.1_5), 60),
+         Re.Test.1_10 = round_hms(as_hms(Re.Test.1_10), 60),
+         Re.Test.2_5  = round_hms(as_hms(Re.Test.2_5), 60),
+         Re.Test.2_10 = round_hms(as_hms(Re.Test.2_10), 60),
+         Baseline.1_5  = round_hms(as_hms(Baseline.1_5), 60),
+         Baseline.1_10 = round_hms(as_hms(Baseline.1_10), 60),
+         Baseline.2_5  = round_hms(as_hms(Baseline.2_5), 60),
+         Baseline.2_10 = round_hms(as_hms(Baseline.2_10), 60),
+         DLMO_mean    = round_hms(as_hms(DLMO_mean), 60)
+  )
+info_subjects = info_subjects_DLMOlong %>% dplyr::select(-Comments_5, -Comments_10)
 if (!file.exists('resources/info_subjects_short.csv')){
   write.csv(info_subjects, 'resources/info_subjects_short.csv')
 }
 
+#DLMO.labs <- c("DLMO threshold 10ug/dL", "DLMO threshold 5 ug/dL", "mean DLMO\n(if both measures available)")
+#names(DLMO.labs) <- c("DLMO_10", "DLMO_5", "DLMO_mean")
+corrplot_DLMO_MSF <- ggplot(info_subjects %>% gather(key, value, -sex, -age, -MSF_sc, -subject, -Light_condition) ) + #%>% mutate(key=str_replace(key,"Re.Test.2", "DLMO"))) +
+  geom_point(aes(x = as.POSIXct(MSF_sc, format="%H:%M", tz="UTC"), y = as.POSIXct(value, format="%H:%M", tz="UTC")), size=2) + 
+  lemon::facet_rep_wrap(~key,repeat.tick.labels = 'all') + #, labeller=labeller(key=DLMO.labs)) +
+  labs(x="Mid sleep time (corrected for sleep debt on work days)", y="DLMO") +
+  scale_x_datetime(date_breaks = "1 hours", date_labels = "%H:%M") + 
+  scale_y_datetime(date_breaks = "1 hours", date_labels = "%H:%M") + 
+  theme(panel.grid.major = element_line(), axis.text.x = element_text(angle = 45, hjust=1))
+
+if (!file.exists(paste0("figures/preanalysis_DLMO-MSFsc_corr.pdf"))){ 
+  corrplot_DLMO_MSF %>% ggsave(paste0("figures/preanalysis_DLMO-MSFsc_corr.pdf"), .) 
+} 
 
 # 2. Read image files
 # -------------------
@@ -127,7 +227,7 @@ df_out_r$feature <- row.names(df_out_r)
 plot_PCA_all <- ggplot(df_out_r, aes(x=PC1, y=PC2, label=feature, color=tissue)) +
   geom_point() + theme_bw() + geom_text(size=3) + ggtitle("PCA all data")
 
-if (!file.exists(paste0("figures/final/preanalysis_PCA_scale=", for_filename,".pdf"))){ 
+if (!file.exists(paste0("figures/preanalysis_PCA_scale=", for_filename,".pdf"))){ 
   for_filename <- ifelse(scale_PCA==TRUE, "T", "F")
   plot_PCA_all %>% ggsave(paste0("figures/preanalysis_PCA_scale=", for_filename,".pdf"), .) 
 } 

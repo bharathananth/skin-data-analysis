@@ -11,7 +11,6 @@ suppressPackageStartupMessages(library(lubridate))
 suppressPackageStartupMessages(library(stringr))
 suppressPackageStartupMessages(library(TissueEnrich))
 suppressPackageStartupMessages(library(ggthemes))
-suppressPackageStartupMessages(library(clusterProfiler))
 suppressPackageStartupMessages(library(doParallel))
 suppressPackageStartupMessages(library(tidytext))
 suppressPackageStartupMessages(library(clusterProfiler))
@@ -93,6 +92,54 @@ experiment <- experiment[-ind,] #remove outlier
 info_exp <- info_exp %>% full_join(experiment) %>% mutate(tissue = ifelse(tissue=="D", "dermis", "epidermis"),
                                                           time = as.character(time))
 
+# Figure 2A (introductory panel)
+# ------------------------------
+geneExpr_gath <- geneExpr %>% tibble::rownames_to_column("gene") %>% gather(key, value, -gene) %>% 
+  tidyr::separate(key, c("tissuetime","subject"), sep = "_", convert=TRUE) %>%
+  tidyr::separate(tissuetime, c("tissue","time"), convert = TRUE, sep = 1)  %>% 
+  full_join(experiment %>% dplyr::select(tissue, time, subject)) %>% mutate(time=as.character(time)) 
+
+df1 <- geneExpr_gath %>% gather(key, category, -gene, -value) 
+df2 <- df1 %>% group_by(category) %>% 
+  dplyr::summarise(magnitude = mean(value, na.rm=TRUE), sd = sd(value, na.rm=TRUE)) %>% as.data.frame() %>%
+  inner_join(df1 %>% dplyr::select(category, key)) %>% unique()
+df3 <- df2 %>% group_by(key)%>% 
+  dplyr::summarise(mean_magn = mean(magnitude, na.rm=TRUE), sd_magn = sd(magnitude, na.rm=TRUE)) %>% as.data.frame()
+df3 %<>% mutate(key=paste0(key,"_avg")) %>% rename(c("magnitude"="mean_magn", "sd"="sd_magn")) 
+
+df <- gtools::smartbind(df2, df3) #%>%
+temp = data.frame(key=unique(df$key))
+temp$group = sub("_.*", "", temp$key)
+
+df %<>% full_join(temp) %>% arrange(group) 
+#df %<>%
+#  group_split(group) %>% 
+#  purrr::map_dfr(~ add_row(.x, .after = Inf)) %>% as.data.frame()
+#df$key = replace_na(df$key, "empty")
+
+fig2A <- ggplot() + #geom_vline(xintercept=dplyr::summarise(df2, mean=mean(magnitude))$mean, linetype="dashed", size=0.5, color="gray80") +
+  geom_point(data = df %>% filter(key %in% c("time", "tissue", "subject")), 
+             aes(x=magnitude, y=key, group=key, color=group),
+             shape=21, size=2, position = position_dodge(width = 1.9), show.legend = F) +
+  geom_errorbar(data= df %>% filter(key %in% c("time_avg", "tissue_avg", "subject_avg")),
+                aes(y=key, xmin = magnitude-sd, xmax = magnitude + sd, color=group), width = 0.3, size=1,
+                position = position_dodge(width = 1.9), show.legend = F) +
+  geom_point(data= df %>% filter(key %in% c("time_avg", "tissue_avg", "subject_avg")),
+             aes(x=magnitude, y=key, color=group), size=4.5, position = position_dodge(width = 1.9)) +
+  scale_color_manual(labels = c("tissue" = "Inter-layer\nmean variation", "subject" = "Inter-subject\nmean variation", 
+                                "time" = "Common\ncircadian variation"),
+                     values = c("tissue" = "#d1495b", "subject" = "#00798c", "time" = "#edae49" )) + #facet_grid(rows=vars(group), scales="free") + 
+  theme(legend.position="right", 
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank(),
+        axis.title.y=element_blank(),
+        axis.line.y=element_blank(),
+        strip.text = element_blank(),
+        aspect.ratio=1,
+        panel.spacing.y = unit(-15, "lines"),
+        legend.spacing.y = unit(1.0, 'cm')) + 
+  scale_y_discrete(expand=expansion(c(.6,.6))) +xlab('\ngene expression levels')
+
 #--------------------------------
 #--------------------------------
 
@@ -101,6 +148,7 @@ info_exp <- info_exp %>% full_join(experiment) %>% mutate(tissue = ifelse(tissue
 # ------------------------------------------------------------
 info_exp %<>% mutate(MSF_sc_dec = hms(MSF_sc),
                      MSF_sc_dec = round((hour(MSF_sc_dec) + minute(MSF_sc_dec) / 60 + second(MSF_sc_dec) / 360),2))
+#form <- ~ (1|tissue:subject) + (1|time:tissue) + (1|time:subject)        
 form <- ~ (1|subject) + (1|tissue) + (1|time) + (1|time:tissue) + (1|time:subject) #+ (1|MSF_sc_dec)         
         #time here is wall time (continuous vble [internal_time] can't be modeled as random)
 
@@ -113,7 +161,10 @@ vp <- sortCols(varPart %>% dplyr::select(-ProbeName, -EntrezID))
 
 if (!file.exists("visualize/data/variancePartition_full.csv")){
   write.csv(vp %>% tibble::rownames_to_column("Symbol"), "visualize/data/variancePartition_full.csv")}
-
+# Save 50 genes with least variability across subjects -> supplementary Table 3
+if (!file.exists("figures/supp_table3.csv")){
+  write.csv(varPart %>% dplyr::arrange(subject) %>% head(50) %>% tibble::rownames_to_column("Symbol"), 
+            "figures/supp_table3.csv")}
 
 # Figure 2B: How does each variable contribute to the variance 
 # ------------------------------------------------------------
@@ -144,7 +195,7 @@ most_var <- rbind(most_tissuevar[1:number_most_vargenes,], most_subjvar[1:number
                   most_timevar[1:number_most_vargenes,], most_resvar[1:number_most_vargenes,],
                   most_timesubjvar[1:number_most_vargenes,], most_timetissvar[1:number_most_vargenes,])
 
-fig2A_1 <- plotPercentBars(most_var %>% filter(var=="Tissue" | var=="Subject") %>% 
+fig2C_1 <- plotPercentBars(most_var %>% filter(var=="Tissue" | var=="Subject") %>% 
                              dplyr::select(-ProbeName, -EntrezID, -var)) + 
   theme_custom() + 
   theme(axis.text.y = element_text(face="italic"), legend.position="right", aspect.ratio=1.7) + 
@@ -154,9 +205,9 @@ fig2A_1 <- plotPercentBars(most_var %>% filter(var=="Tissue" | var=="Subject") %
                                "time:tissue" = "#F78828", "time:subject" = "#39B600"),
                     labels=c("tissue" = "Inter-layer mean variation", "subject" = "Inter-subject mean variation", 
                              "time" = "Common circadian variation", "time:subject" = "Inter-subject circadian variation",
-                             "time:tissue" = "Inter-layer circadian variation", "Residuals" = "Residual variation"))
+                             "time:tissue" = "Inter-layer circadian variation", "Residuals" = "Residual variation")) 
 
-fig2A_2 <- plotPercentBars(most_var %>% filter(var=="Time" | var=="Residuals") %>% 
+fig2C_2 <- plotPercentBars(most_var %>% filter(var=="Time" | var=="Residuals") %>% 
                              dplyr::select(-ProbeName, -EntrezID, -var)) + 
   theme_custom() + 
   theme(axis.text.y = element_text(face="italic"), legend.position="right", aspect.ratio=1.7) + 
@@ -167,7 +218,7 @@ fig2A_2 <- plotPercentBars(most_var %>% filter(var=="Time" | var=="Residuals") %
                              "time" = "Common circadian variation", "time:subject" = "Inter-subject circadian variation",
                              "time:tissue" = "Inter-layer circadian variation", "Residuals" = "Residual variation"))
 
-fig2A_3 <- plotPercentBars(most_var %>% filter(var=="Time:Subject" | var=="Time:Tissue") %>% 
+fig2C_3 <- plotPercentBars(most_var %>% filter(var=="Time:Subject" | var=="Time:Tissue") %>% 
                              dplyr::select(-ProbeName, -EntrezID, -var)) + 
   theme_custom() + 
   theme(axis.text.y = element_text(face="italic"), legend.position="right", aspect.ratio=1.7, 
@@ -180,12 +231,12 @@ fig2A_3 <- plotPercentBars(most_var %>% filter(var=="Time:Subject" | var=="Time:
                              "time" = "Common circadian variation", "time:subject" = "Inter-subject circadian variation",
                              "time:tissue" = "Inter-layer circadian variation", "Residuals" = "Residual variation"))
 
-fig2A <- ggpubr::ggarrange(fig2A_1, NULL, fig2A_2, NULL, fig2A_3, nrow=1, ncol=5, 
+fig2C <- ggpubr::ggarrange(fig2C_1, NULL, fig2C_2, NULL, fig2C_3, nrow=1, ncol=5, 
                            common.legend=TRUE, legend="right", widths=c(1.09,0.1,1,0.1,0.98)) 
 
 
 
-# Learning about the most varying genes in each variable - Suppfig3A-D: GO analysis
+# Learning about the most varying genes in each variable - Suppfig3C-E: GO analysis
 # ---------------------------------------------------------------------------------
 number_most_vargenes <- 200
 most_var <- rbind(most_tissuevar[1:number_most_vargenes,], most_subjvar[1:number_most_vargenes,], 
@@ -254,7 +305,7 @@ suppfig3E <- ggplot(go %>% filter(var=="Residuals") %>% mutate(P.DE=ifelse(P.DE 
 
 
 
-# Suppl. Figure 3E: Negative control -- time variance of arrhythmic genes expected ~0
+# Suppl. Figure 3A: Negative control -- time variance of arrhythmic genes expected ~0
 # -----------------------------------------------------------------------------------
 no_rhy <- dplyr::filter(results, adj_P_Val > 0.1)
 geneExpr_arrhy <- yave$E %>% as.data.frame %>% filter(rownames(.) %in% no_rhy$ProbeName)
@@ -274,7 +325,7 @@ suppfig3A <- plotVarPart(vp) + #ggtitle('Variance partition on 1000 non-rhythmic
                               "time" = "Common\ncircadian\nvariation", "time:subject" = "Inter-subj.\ncircadian\nvariation",
                               "time:tissue" = "Inter-layer\ncircadian\nvariation", "Residuals" = "Residual\nvariation"))
 
-# Suppl. Figure 3F: positive control -- high time variance of clock genes expected 
+# Suppl. Figure 3B: positive control -- high time variance of clock genes expected 
 # --------------------------------------------------------------------------------
 clock_genes <- c("PER1","PER2","PER3", "CRY1", "CRY2", "NR1D1", "NR1D2", "ARNTL", "ARNTL2", "CLOCK", 
                  "NPAS2","RORA","RORB","RORC", "CSNK1D", "CSNK1E", "DBP")
@@ -323,14 +374,14 @@ vp.E <- sortCols(varPart.E %>% dplyr::select(-ProbeName, -EntrezID))
 
 # Figures 2C and 2D: variance partition done in dermis vs epidermis separately
 # ----------------------------------------------------------------------------
-fig2C <- plotVarPart(vp.D) + 
+fig2D <- plotVarPart(vp.D) + 
   theme_custom() + theme(aspect.ratio=0.6, legend.position = "none") +
   ylab("Percentage of\nvariance explained\n(rhythmic genes in dermis)") +
   scale_fill_manual(values = c("tissue" = "#d1495b", "subject" = "gray48", "time" = "#1B9E77", "Residuals" = "grey80")) +
   scale_x_discrete(labels = c("tissue" = "Inter-layer\nmean\nvariation", "subject" = "Inter-subject\nmean dermis\nvariation", 
                               "time" = "Dermis\ncircadian\nvariation", "Residuals" = "Residual\ndermis\nvariation"))
 
-fig2D <- plotVarPart(vp.E) + 
+fig2E <- plotVarPart(vp.E) + 
   theme_custom() + theme(aspect.ratio=0.6, legend.position = "none") +
   ylab("Percentage of\nvariance explained\n(rhythmic genes in epidermis)") +
   scale_fill_manual(values = c("tissue" = "#d1495b", "subject" = "gray48", "time" = "#D95F02", "Residuals" = "grey80")) +
@@ -359,7 +410,7 @@ most_timevar.E <- rbind(anti_join(most_timevar.E  %>% tibble::rownames_to_column
                         inner_join(most_timevar.E %>% tibble::rownames_to_column(), common_genes) %>% arrange(rowname))  %>%
   tibble::column_to_rownames("rowname")
 
-fig2E <- plotPercentBars(most_timevar.D %>% dplyr::select(-ProbeName, -EntrezID)) + 
+fig2F <- plotPercentBars(most_timevar.D %>% dplyr::select(-ProbeName, -EntrezID)) + 
   theme_custom() + 
   theme(axis.text.y = element_text(face="italic"), legend.position="bottom", aspect.ratio=2.3,
         rect = element_rect(fill="transparent")) + 
@@ -370,7 +421,7 @@ fig2E <- plotPercentBars(most_timevar.D %>% dplyr::select(-ProbeName, -EntrezID)
                                "subject" = "Inter-subject\nmean dermis\nvariation", 
                                "time" = "Dermis\ncircadian\nvariation", "Residuals" = "Residual\ndermis\nvariation")) 
 
-fig2F <- plotPercentBars(most_timevar.E %>% dplyr::select(-ProbeName, -EntrezID)) + 
+fig2G <- plotPercentBars(most_timevar.E %>% dplyr::select(-ProbeName, -EntrezID)) + 
   theme_custom() +
   theme(axis.text.y = element_text(face="italic"), legend.position="bottom", aspect.ratio=2.3, 
         rect = element_rect(fill="transparent")) + 
@@ -381,7 +432,7 @@ fig2F <- plotPercentBars(most_timevar.E %>% dplyr::select(-ProbeName, -EntrezID)
                                "subject" = "Inter-subject\nmean epid.\nvariation", 
                               "time" = "Epidermis\ncircadian\nvariation", "Residuals" = "Residual\nepidermis\nvariation"))
 
-fig2EF <- plot_grid(NULL, fig2E, NULL, fig2F, nrow=1, ncol=4, labels=c("E", "", "F", ""), rel_widths=c(-0.2,1,-0.2,1))
+fig2FG <- plot_grid(NULL, fig2F, NULL, fig2G, nrow=1, ncol=4, labels=c("F", "", "G", ""), rel_widths=c(-0.2,1,-0.2,1))
 
 
 ##############################
@@ -390,11 +441,11 @@ fig2EF <- plot_grid(NULL, fig2E, NULL, fig2F, nrow=1, ncol=4, labels=c("E", "", 
 
 # Arrange plots in grid
 # ---------------------
-fig2_1 <- plot_grid(fig2A, labels=c('A'))
-fig2_2 <- plot_grid(NULL, fig2B, NULL, nrow=1, ncol=3, labels=c("B", "", ""), rel_widths=c(0.095,1,1))
-fig2_3 <- plot_grid(fig2C, fig2D, nrow=2, ncol=1, labels=c("C", "D"), rel_heights=c(1,1), align='v')
-fig2_4 <- plot_grid(fig2_3, fig2EF, ncol=2, nrow=1, rel_widths=c(0.66,1))
-fig2   <- plot_grid(fig2_1, fig2_2, fig2_4, nrow=3, ncol=1, rel_heights=c(1.,0.7,1.), align='v')
+fig2_1 <- plot_grid(NULL, fig2A, NULL, fig2B, nrow=1, ncol=4, labels=c("A", "", "", "B"), rel_widths=c(0.095,0.66,0.1,1))
+fig2_2 <- plot_grid(fig2C, labels=c('C'))
+fig2_3 <- plot_grid(fig2D, fig2E, nrow=2, ncol=1, labels=c("D", "E"), rel_heights=c(1,1), align='v')
+fig2_4 <- plot_grid(fig2_3, fig2FG, ncol=2, nrow=1, rel_widths=c(0.66,1))
+fig2   <- plot_grid(fig2_1, fig2_2, fig2_4, nrow=3, ncol=1, rel_heights=c(0.7,1.,1.), align='v')
 fig2 %>% ggsave('figures/fig2.pdf', ., width = 11, height = 11.5)
 
 

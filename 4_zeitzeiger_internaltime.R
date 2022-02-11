@@ -131,8 +131,8 @@ for (ii in 1:length(sumabsv)) {
   predResultList_E[[ii]] <- zeitzeigerPredictCv(xE, time_E, foldid_E, spcResultList_E[[ii]], nSpc=nSpc)}
 
 
-# Plot the error for each set of parameter values: Figure 3A
-# ----------------------------------------------------------
+# Plot the error for each set of parameter values: Supplementary Figure 5A
+# ------------------------------------------------------------------------
 # Before plotting, we need to reorganize the output, making a data.frame with the information for each prediction
 timePredList_D <- lapply(predResultList_D, function(a) a$timePred)
 timePredList_E <- lapply(predResultList_E, function(a) a$timePred)
@@ -167,7 +167,7 @@ cvResultGathGroup_E = cvResultGath_E %>% group_by(sumabsv, nSpc) %>%
 cvResultGathGroup_E[,"tissue"] <- "epidermis"
 cvResultGathGroup <- rbind(cvResultGathGroup_D, cvResultGathGroup_E)
 
-fig3A <- ggplot(cvResultGathGroup) + facet_wrap(~tissue, scales='free') + theme_custom() +
+suppfig5A <- ggplot(cvResultGathGroup) + facet_wrap(~tissue, scales='free') + theme_custom() +
   geom_point(aes(x=nSpc, y=medae*24, shape=sumabsv, color=tissue), alpha=0.8, 
              size=5) +
   labs(x='Number of SPCs', y='Median absolute error (h)') + guides(color=FALSE) +
@@ -196,7 +196,7 @@ dfVar_D[,"tissue"] <- "dermis"; dfVar_E[,"tissue"] <- "epidermis"
 dfVar <- rbind(dfVar_D, dfVar_E)
 
 
-# Plot the phase portrait of SPCs over time: Figure 3C
+# Plot the phase portrait of SPCs over time: Figure 3B
 # ----------------------------------------------------
 zD <- xD %*% spcResultFinal_D$v[, 1:2]
 zE <- xE %*% spcResultFinal_E$v[, 1:2]
@@ -219,20 +219,20 @@ data.arrow <- data.frame(SPC1_start = max(z %>% filter(tissue=="dermis") %$% SPC
                    SPC2_end   = max(z %>% filter(tissue=="epidermis") %$% SPC2),
                    tissue="epidermis"))
 
-fig3C <- ggplot(z) + 
+fig3B <- ggplot(z) + 
   geom_point(aes(x=SPC1, y=SPC2, color=as.character(Time)), size=2) + theme_custom() + 
   scale_color_viridis(discrete=TRUE, option='E') +
   geom_curve(data=data.arrow, aes(x=SPC1_start, y=SPC2_start, xend=SPC1_end, yend=SPC2_end), 
              arrow=arrow(length=unit(0.03, "npc")), lineend="round") + #expand_limits(y=-5) +
-  facet_wrap(tissue~., scales='free', ncol=2) + 
+  facet_wrap(tissue~., scales='free', nrow=2) + 
   theme(legend.position="none", 
         strip.background = element_rect(fill=alpha("#1B9E77", 0.5), color="white")) +
   scale_y_continuous(expand = c(0.04, 0.75, 0.04, 0.75)) + scale_x_continuous(expand = c(0.04, 0.75, 0.04, 0.75))
 
 
-# Plot the phase portrait of SPCs over time, but for each subject: supplementary figure 5C
+# Plot the phase portrait of SPCs over time, but for each subject: supplementary figure 5D
 # -----------------------------------------------------------------------------------------
-suppfig5C_1 <- ggplot(z %>% filter(tissue=="dermis")) + 
+suppfig5D_1 <- ggplot(z %>% filter(tissue=="dermis")) + 
   geom_point(aes(x=SPC1, y=SPC2, color=as.character(Time)), size=2) + theme_custom() + 
   scale_color_viridis(discrete=TRUE, option='E') +
   geom_curve(data=data.arrow %>% filter(tissue=="dermis"), aes(x=SPC1_start, y=SPC2_start, xend=SPC1_end, yend=SPC2_end), 
@@ -241,7 +241,7 @@ suppfig5C_1 <- ggplot(z %>% filter(tissue=="dermis")) +
   scale_y_continuous(expand = c(0.04, 0.75, 0.04, 0.75)) + scale_x_continuous(expand = c(0.04, 0.75, 0.04, 0.75)) +
   theme(strip.background = element_rect(fill=alpha("#1B9E77", 0.5))) + xlab("\nSPC1") + ylab("SPC2\n") 
 
-suppfig5C_2 <- ggplot(z %>% filter(tissue=="epidermis")) + 
+suppfig5D_2 <- ggplot(z %>% filter(tissue=="epidermis")) + 
   geom_point(aes(x=SPC1, y=SPC2, color=as.character(Time)), size=2) + theme_custom() + 
   scale_color_viridis(discrete=TRUE, option='E') +
   geom_curve(data=data.arrow %>% filter(tissue=="epidermis"), aes(x=SPC1_start, y=SPC2_start, xend=SPC1_end, yend=SPC2_end), 
@@ -250,10 +250,10 @@ suppfig5C_2 <- ggplot(z %>% filter(tissue=="epidermis")) +
   scale_y_continuous(expand = c(0.04, 0.75, 0.04, 0.75)) + scale_x_continuous(expand = c(0.04, 0.75, 0.04, 0.75)) +
   theme(strip.background = element_rect(fill=alpha("#D95F02", 0.5))) + xlab("\nSPC1") + ylab("SPC2\n") 
   
-suppfig5C <- plot_grid(NULL, suppfig5C_1, NULL, suppfig5C_2, ncol=4, rel_widths = c(0.1,1,0.1,1))
+suppfig5D <- plot_grid(NULL, suppfig5D_1, NULL, suppfig5D_2, ncol=4, rel_widths = c(0.1,1,0.1,1))
 
 
-# Plot coefficients of the features (time-telling genes) for the SPCs: Figure 3B
+# Plot coefficients of the features (time-telling genes) for the SPCs: Figure 3A
 # ------------------------------------------------------------------------------
 vD <- data.frame(spcResultFinal_D$v[, 1:2])
 vE <- data.frame(spcResultFinal_E$v[, 1:2])
@@ -307,7 +307,7 @@ vGath$varPart_gene <- ifelse(vGath$varPart_time_gene == FALSE & vGath$varPart_ti
                                                                  "time & time:tissue", FALSE)))
 vGath %<>% select(-varPart_time_gene, -varPart_timetissue_gene)
 
-fig3B_1 <- ggplot(vGath %>% filter(tissue=="dermis")) + facet_wrap(~spc, scales="free") +
+fig3A_1 <- ggplot(vGath %>% filter(tissue=="dermis")) + facet_wrap(~spc, scales="free") +
   geom_label(aes(x=spc, y=feature, label=Symbol_it, size=Coefficient, color=sign, fill=varPart_gene), 
              label.size=NA, parse=TRUE) + 
   scale_color_manual(values=c("#d11141", "steelblue3")) + 
@@ -326,7 +326,7 @@ fig3B_1 <- ggplot(vGath %>% filter(tissue=="dermis")) + facet_wrap(~spc, scales=
   scale_size(limits = c(NA, NA), range = c(3, 8)) + guides(fill=FALSE)
 # https://stackoverflow.com/questions/63393553/color-legend-key-labels-with-r-ggplot2-and-remove-the-keys
 
-fig3B_2 <- ggplot(vGath %>% filter(tissue=="epidermis")) + facet_wrap(~spc, scales="free") +
+fig3A_2 <- ggplot(vGath %>% filter(tissue=="epidermis")) + facet_wrap(~spc, scales="free") +
   geom_label(aes(x=spc, y=feature, label=Symbol_it, size=Coefficient, color=sign, fill=varPart_gene), 
              label.size=NA, parse=TRUE) +
   scale_color_manual(values=c("#d11141", "steelblue3")) + 
@@ -344,7 +344,7 @@ fig3B_2 <- ggplot(vGath %>% filter(tissue=="epidermis")) + facet_wrap(~spc, scal
         aspect.ratio=2.5) + ggtitle(paste0("epidermis, sumabsv=", sumabsv_E)) +
   scale_size(limits = c(NA, NA), range = c(3, 8)) + guides(fill=FALSE)
 
-fig3B <- ggpubr::ggarrange(fig3B_1, NULL, fig3B_2, nrow=1, ncol=3, common.legend=TRUE, legend="right", widths=c(1.,0.1,1))
+fig3A <- ggpubr::ggarrange(fig3A_1, NULL, fig3A_2, nrow=1, ncol=3, common.legend=TRUE, legend="right", widths=c(1.,0.1,1))
 
 ZZ_Wu2018.E <- c("ARNTL", "C2CD4B", "TRIM35", "IFFO2", "GALNT11", "NR1D1", "FKBP5", "HLF", "DBP", "NR1D2", "PER3", "TEF", 
                  "PER1", "CIART", 'PHTF2', "DYNC1LI2", "RGS3", "FANCL", "TMEM168", "METTL3", "KIAA0907", "TTC14", "NHLH2", 
@@ -358,7 +358,7 @@ ourZZgenes_inWu2020.E <- vGath %>% filter(tissue=="epidermis") %>% filter(Symbol
 ourZZgenes_inWu2020.D <- vGath %>% filter(tissue=="dermis") %>% filter(Symbol %in% ZZ_Wu2020.D) #large time-variation!
 
 
-# Plot timeseries of time-telling genes: Supplementary figure 5A
+# Plot timeseries of time-telling genes: Supplementary figure 5B
 # --------------------------------------------------------------
 zz.genes_D <- data.frame(Symbol = vGath %>% filter(tissue=="dermis") %$% Symbol %>% unique())
 zz.genes_D <- zz.genes_D %>% inner_join(yave$genes %>% as.data.frame()) %>% select(-EntrezID, -ENSEMBL)
@@ -380,7 +380,7 @@ yGath_E <- yE %>% gather(key, expression, -Symbol) %>%
   tidyr::separate(tissuetime, c("tissue","time"), sep = "(?<=[A-Za-z])(?=[0-9])", convert = TRUE) %>%
   inner_join(experiment %>% select(tissue, time, subject, internal_time))
 
-suppfig5A_1 <- ggplot(yGath_D) + geom_line(aes(x=internal_time, y=expression, color=subject)) + 
+suppfig5B_1 <- ggplot(yGath_D) + geom_line(aes(x=internal_time, y=expression, color=subject)) + 
   facet_wrap(~Symbol, scales="free", ncol=5, nrow=5) + xlab("internal time") + ylab(bquote(~log[2]*'expression (normalized)')) +
   theme_custom() + theme(strip.text = element_text(face="bold.italic"),
                          legend.position="right",
@@ -391,7 +391,7 @@ suppfig5A_1 <- ggplot(yGath_D) + geom_line(aes(x=internal_time, y=expression, co
                          legend.text=element_blank()) + labs(color="subjects\n1 to 11") +
   scale_color_viridis(discrete=TRUE) + scale_x_continuous(breaks=c(8,20,32)) + expand_limits(x=c(6,34)) 
 
-suppfig5A_2 <- ggplot(yGath_E) + geom_line(aes(x=internal_time, y=expression, color=subject)) + 
+suppfig5B_2 <- ggplot(yGath_E) + geom_line(aes(x=internal_time, y=expression, color=subject)) + 
   facet_wrap(~Symbol, scales="free", ncol=5, nrow=5) + xlab("internal time") + ylab(bquote(~log[2]*'expression (normalized)')) +
   theme_custom() + theme(strip.text = element_text(face="bold.italic"),
                          legend.position="right",
@@ -402,7 +402,7 @@ suppfig5A_2 <- ggplot(yGath_E) + geom_line(aes(x=internal_time, y=expression, co
                          legend.text=element_blank()) + labs(color="subjects\n1 to 11") +
   scale_color_viridis(discrete=TRUE) + scale_x_continuous(breaks=c(8,20,32)) + expand_limits(x=c(6,34)) 
 
-suppfig5A <- ggpubr::ggarrange(suppfig5A_1, NULL, suppfig5A_2, ncol=3, nrow=1, 
+suppfig5B <- ggpubr::ggarrange(suppfig5B_1, NULL, suppfig5B_2, ncol=3, nrow=1, 
                                common.legend=TRUE, legend="right", heights=c(1.,0.1,0.6))
 
 
@@ -411,20 +411,20 @@ suppfig5A <- ggpubr::ggarrange(suppfig5A_1, NULL, suppfig5A_2, ncol=3, nrow=1,
 zz.genes_D <- vp.D %>% filter(Symbol %in% zz.genes_D$Symbol) %>% column_to_rownames("Symbol")
 zz.genes_E <- vp.E %>% filter(Symbol %in% zz.genes_E$Symbol) %>% column_to_rownames("Symbol")
 
-suppfig5B_1 <- plotVarPart(zz.genes_D) + 
+suppfig5C_1 <- plotVarPart(zz.genes_D) + 
   theme_custom() + ylab("Percentage of\nvariance explained") + 
   theme(aspect.ratio=0.7, legend.position = "none", ) +
   scale_fill_manual(values = c("tissue" = "#d1495b", "subject" = "gray48", "time" = "#1B9E77", "Residuals" = "grey80")) +
   scale_x_discrete(labels = c("tissue" = "Inter-tissue\nmean\nvariation", "subject" = "Inter-subject\nmean dermis\nvariation", 
                               "time" = "Dermis\ncircadian\nvariation", "Residuals" = "Residual\ndermis\nvariation"))
-suppfig5B_2 <- plotVarPart(zz.genes_E) + 
+suppfig5C_2 <- plotVarPart(zz.genes_E) + 
   theme_custom() + ylab("Percentage of\nvariance explained") + 
   theme(aspect.ratio=0.7, legend.position = "none", ) +
   scale_fill_manual(values = c("tissue" = "#d1495b", "subject" = "gray48", "time" = "#D95F02", "Residuals" = "grey80")) +
   scale_x_discrete(labels = c("tissue" = "Inter-tissue\nmean\nvariation", "subject" = "Inter-subject\nmean epidermis\nvariation", 
                               "time" = "Epidermis\ncircadian\nvariation", "Residuals" = "Residual\nepidermis\nvariation"))
 
-suppfig5B <- plot_grid(NULL, suppfig5B_1, NULL, suppfig5B_2, ncol=4, rel_widths = c(0.1,1,0.1,1))
+suppfig5C <- plot_grid(NULL, suppfig5C_1, NULL, suppfig5C_2, ncol=4, rel_widths = c(0.1,1,0.1,1))
 
 ###################
 ###################
@@ -432,16 +432,13 @@ suppfig5B <- plot_grid(NULL, suppfig5B_1, NULL, suppfig5B_2, ncol=4, rel_widths 
 
 # Arrange plots in grid
 # ---------------------
-fig3_1 <- plot_grid(NULL, fig3A, NULL, fig3C, labels=c("A","","","C"), ncol=4, nrow=1, rel_widths=c(0.1,1.15,0.15,1))
-fig3_2 <- plot_grid(NULL, fig3B, labels=c("B", ""), ncol=2, rel_widths=c(0.1,1))
-fig3 <- plot_grid(fig3_1, NULL, fig3_2, nrow=3, ncol=1, 
-                  rel_heights=c(1.2,0.0,1.6), labels=c("", "", ""), align="v", axis="l")
-fig3 %>% ggsave('figures/fig3.pdf', ., width = 11, height = 8.5)
+fig3 <- plot_grid(NULL, fig3A, NULL, fig3B, labels=c("A","","B", ""), ncol=4, nrow=1, rel_widths=c(0.03,1.15,0.08,0.3))
+fig3 %>% ggsave('figures/fig3.pdf', ., width = 11, height = 5.)
 
-sfig5_part1 <- plot_grid(suppfig5A_1, labels="A")
-sfig5_part2 <- plot_grid(NULL, suppfig5A_2, rel_widths=c(0.07,1))
-sfig5_part3 <- plot_grid(sfig5_part2, NULL, suppfig5B, suppfig5C, nrow=4, 
-                         rel_heights=c(2.5,0.1, 1, 2), labels=c(" ", "B","","C"))
+sfig5_part1 <- plot_grid(suppfig5A, NULL, suppfig5B_1, labels=c("A", "", "B"), nrow=3, rel_heights=c(0.25,0.05,1))
+sfig5_part2 <- plot_grid(NULL, suppfig5B_2, rel_widths=c(0.07,1))
+sfig5_part3 <- plot_grid(sfig5_part2, NULL, suppfig5C, suppfig5D, nrow=4, 
+                         rel_heights=c(1.81,0.1, 1, 2), labels=c(" ", "C","","D"))
 
-sfig5_part1 %>% ggsave('figures/suppfig5_1.pdf', ., width = 11, height = 10.5)
+sfig5_part1 %>% ggsave('figures/suppfig5_1.pdf', ., width = 11, height = 13.)
 sfig5_part3 %>% ggsave('figures/suppfig5_2.pdf', ., width = 11, height = 15.4)

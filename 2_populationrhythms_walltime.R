@@ -94,10 +94,14 @@ inphase  <- cos(2*pi*time/24)
 outphase <- sin(2*pi*time/24) #a*cos(wt) + cos(wt-phi) == A*cos(wt - phi), where A=sqrt(a**2 + b**2), phi = atan2(b,a)
 
 # design matrix
-design <- model.matrix(~ 0 + subject + tissue + tissue:inphase + tissue:outphase) #H0: rhythms are different across tissues
+design <- model.matrix(~ 0 + tissue + tissue:inphase + tissue:outphase) #H0: rhythms are different across tissues
+
+# duplicate Correlations
+dupcor <- duplicateCorrelation(yave, design, block=subject)
 
 # fits
-fit <- limma::lmFit(yave, design, weights = wts) 
+#wts <- limma::arrayWeights(yave, model.matrix(~tissue + subject))
+fit <- limma::lmFit(yave, design, weights = wts, block=subject, correlation=dupcor$consensus)
 fit2 <- limma::eBayes(fit, trend = TRUE, robust = TRUE)
 
 # save results of fits
@@ -155,7 +159,7 @@ results_passAmpcutoff_internaltime <- inner_join(results_amp_internaltime, resul
 rhy_results_internaltime <- results_passAmpcutoff_internaltime %>% filter(adj_P_Val < fdr_cutoff)
 
 
-# Supplementary figure 2A: comparison of rhythmic genes with wall vs internal time
+# Supplementary figure 1A: comparison of rhythmic genes with wall vs internal time
 yrhy_internaltime <- list(dermis = yave$genes$ProbeName[yave$genes$Symbol %in% 
                                                           filter(rhy_results_internaltime, tissue=="dermis")$Symbol], 
                           epidermis = yave$genes$ProbeName[yave$genes$Symbol %in% 
@@ -174,31 +178,31 @@ yrhy_epidermis <- list(internal = yave$genes$ProbeName[yave$genes$Symbol %in%
                                                   filter(rhy_results_walltime, tissue=="epidermis")$Symbol])
 
 
-suppfig2A_1 <- ggvenn(yrhy_internaltime, fill_color = c("#1B9E77", "#D95F02"), text_size = 3,
+suppfig1A_1 <- ggvenn(yrhy_internaltime, fill_color = c("#1B9E77", "#D95F02"), text_size = 3,
                       stroke_size = 0.25, set_name_size = 4) +
   ggtext::geom_richtext(data = tibble(x=-2, y=0, s="Internal\ntime"), aes(x, y, label = s), 
                         angle=90, fill = NA, label.color = NA, size=5, fontface='bold') 
-suppfig2A_2 <- ggvenn(yrhy_walltime, fill_color = c("#1B9E77", "#D95F02"), text_size = 3,
+suppfig1A_2 <- ggvenn(yrhy_walltime, fill_color = c("#1B9E77", "#D95F02"), text_size = 3,
                       stroke_size = 0.25, set_name_size = 4, stroke_linetype = "dashed") +
   ggtext::geom_richtext(data = tibble(x=-2, y=0, s="Wall\ntime"), aes(x, y, label = s), 
                         angle=90, fill = NA, label.color = NA, size=5, fontface='bold') 
-suppfig2A_3 <- ggvenn(yrhy_dermis, fill_color = c("#1B9E77","#1B9E77"), text_size = 3, #stroke_linetype = c("solid", "dashed"), 
+suppfig1A_3 <- ggvenn(yrhy_dermis, fill_color = c("#1B9E77","#1B9E77"), text_size = 3, #stroke_linetype = c("solid", "dashed"), 
                       stroke_size = 0.25, set_name_size = 4) +
   ggtext::geom_richtext(data = tibble(x=-2, y=0, s="Dermis"), aes(x, y, label = s), 
                         angle=90, fill = NA, label.color = NA, size=5, fontface='bold') 
-suppfig2A_4 <- ggvenn(yrhy_epidermis, fill_color = c("#D95F02","#D95F02"), text_size=3, #stroke_linetype = c("solid", "dashed"), 
+suppfig1A_4 <- ggvenn(yrhy_epidermis, fill_color = c("#D95F02","#D95F02"), text_size=3, #stroke_linetype = c("solid", "dashed"), 
                       stroke_size = 0.25, set_name_size = 4) +
   ggtext::geom_richtext(data = tibble(x=-2, y=0, s="Epidermis"), aes(x, y, label = s), 
                         angle=90, fill = NA, label.color = NA, size=5, fontface='bold')
 
-suppfig2A <- plot_grid(suppfig2A_1, NULL, suppfig2A_2, NULL, suppfig2A_3, NULL, suppfig2A_4, 
+suppfig1A <- plot_grid(suppfig1A_1, NULL, suppfig1A_2, NULL, suppfig1A_3, NULL, suppfig1A_4, 
                        rel_heights = c(1, -0.25, 1, -0.25, 1, -0.25, 1),
                        ncol=1, nrow=7, labels=c("A", ""))
 
 
 #########
 
-# Supplementary Figure 2B: correlation of amplitudes estimated from wall vs internal time analyses
+# Supplementary Figure 1B: correlation of amplitudes estimated from wall vs internal time analyses
 rhy_results <- rbind(rhy_results_internaltime %>% mutate(analysis="internal_time"),
                      rhy_results_walltime %>% mutate(analysis="wall_time"))
 clock_genes <- c("PER1","PER2","PER3", "CRY1", "CRY2", "NR1D1", "NR1D2", "ARNTL", "ARNTL2", "CLOCK", 
@@ -208,7 +212,7 @@ toplot <- rhy_results %>% select(Symbol, tissue, amp_value, analysis) %>% spread
   mutate(Symbol_it = paste0("italic('", Symbol, "')"))
 
 highamp_cutoff <- 0.75
-suppfig2B <- ggplot(toplot, aes(x=internal_time, y=wall_time, color=tissue)) +
+suppfig1B <- ggplot(toplot, aes(x=internal_time, y=wall_time, color=tissue)) +
   geom_abline(slope=1, intercept=0, lty='dashed', color="gray") + 
   geom_point(alpha=0.3) + 
   geom_point(data = filter(toplot, Symbol %in% clock_genes), aes(x=wall_time, y=internal_time), color="black") +
@@ -232,14 +236,14 @@ print(paste0(which(amp_epidermis$internal_time > amp_epidermis$wall_time) %>% le
 
 #########
 
-# Supplementary Figure 2C: correlation of phases estimated from wall vs internal time analyses
+# Supplementary Figure 1C: correlation of phases estimated from wall vs internal time analyses
 toplot <- rhy_results %>% select(Symbol, tissue, phase_value, analysis) %>% 
   mutate(phase_clock1 = phase_value + 8) %>% 
   mutate(phase_clock1 = ifelse(phase_clock1 < 0, phase_clock1 + 24, phase_clock1)) %>% select(-phase_value) %>%
   spread(analysis, phase_clock1) %>% 
   mutate(Symbol_it = paste0("italic('", Symbol, "')")) 
 
-suppfig2C <- ggplot(toplot, aes(x=internal_time, y=wall_time, color=tissue)) +
+suppfig1C <- ggplot(toplot, aes(x=internal_time, y=wall_time, color=tissue)) +
   geom_abline(slope=1, intercept=0, lty='dashed', color="gray") + 
   geom_point(alpha=0.3) + 
   geom_point(data = filter(toplot, Symbol %in% clock_genes), aes(x=wall_time, y=internal_time), color="black") +
@@ -254,11 +258,11 @@ suppfig2C <- ggplot(toplot, aes(x=internal_time, y=wall_time, color=tissue)) +
 
 #########
 
-# Supplementary Figure 2D: correlation of p values from wall vs internal time analyses
+# Supplementary Figure 1D: correlation of p values from wall vs internal time analyses
 toplot <- rhy_results %>% select(Symbol, tissue, adj_P_Val, analysis) %>% spread(analysis, adj_P_Val) %>% 
   mutate(Symbol_it = paste0("italic('", Symbol, "')"))
 
-suppfig2D <- ggplot(toplot, aes(x=-log10(internal_time), y=-log10(wall_time), color=tissue)) +
+suppfig1D <- ggplot(toplot, aes(x=-log10(internal_time), y=-log10(wall_time), color=tissue)) +
   geom_abline(slope=1, intercept=0, lty='dashed', color="gray") + 
   geom_point(alpha=0.3) + 
   geom_point(data = filter(toplot, Symbol %in% clock_genes), aes(x=-log10(internal_time), y=-log10(wall_time)), color="black") +
@@ -274,9 +278,9 @@ suppfig2D <- ggplot(toplot, aes(x=-log10(internal_time), y=-log10(wall_time), co
 ################
 ################
 
-sfig2_1 <- plot_grid(suppfig2A, nrow=1, labels = c("", ""))
-sfig2_2 <- plot_grid(suppfig2B, NULL, suppfig2C, NULL, suppfig2D, nrow=5, 
+sfig1_1 <- plot_grid(suppfig1A, nrow=1, labels = c("", ""))
+sfig1_2 <- plot_grid(suppfig1B, NULL, suppfig1C, NULL, suppfig1D, nrow=5, 
                      labels = c("B", "", "C", "", "D"), rel_heights = c(1,0.1,1,0.1,1))
-sfig2   <- plot_grid(sfig2_1, sfig2_2, ncol=2)
+sfig1   <- plot_grid(sfig1_1, sfig1_2, ncol=2)
 
-sfig2 %>% ggsave('figures/suppfig2.pdf', ., width = 11, height = 8.5)
+sfig1 %>% ggsave('figures/suppfig1.pdf', ., width = 11, height = 8.5)
