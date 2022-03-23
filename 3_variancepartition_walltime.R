@@ -1,6 +1,6 @@
 suppressPackageStartupMessages(library(limma))
 suppressPackageStartupMessages(library(magrittr))
-suppressPackageStartupMessages(library(hgug4112a.db))
+#suppressPackageStartupMessages(library(hgug4112a.db))
 suppressPackageStartupMessages(library(variancePartition))
 suppressPackageStartupMessages(library(tidyr))
 suppressPackageStartupMessages(library(dplyr) )
@@ -9,11 +9,11 @@ suppressPackageStartupMessages(library(cowplot))
 suppressPackageStartupMessages(library(hms))
 suppressPackageStartupMessages(library(lubridate))
 suppressPackageStartupMessages(library(stringr))
-suppressPackageStartupMessages(library(TissueEnrich))
+#suppressPackageStartupMessages(library(TissueEnrich))
 suppressPackageStartupMessages(library(ggthemes))
 suppressPackageStartupMessages(library(doParallel))
 suppressPackageStartupMessages(library(tidytext))
-suppressPackageStartupMessages(library(clusterProfiler))
+#suppressPackageStartupMessages(library(clusterProfiler))
 
 setwd("~/Documents/WORK/POSTDOC/projects/skin-data-analysis")
 
@@ -147,10 +147,13 @@ fig2A <- ggplot() + #geom_vline(xintercept=dplyr::summarise(df2, mean=mean(magni
 # 2. EXECUTE VARIANCE PARTITION MODEL (WITH INTERACTION TERMS)
 # ------------------------------------------------------------
 info_exp %<>% mutate(MSF_sc_dec = hms(MSF_sc),
-                     MSF_sc_dec = round((hour(MSF_sc_dec) + minute(MSF_sc_dec) / 60 + second(MSF_sc_dec) / 360),2))
+                     MSF_sc_dec = round((hour(MSF_sc_dec) + minute(MSF_sc_dec) / 60 + second(MSF_sc_dec) / 360),2),
+                     inphase = cos(2*pi*as.numeric(time)/24),
+                     outphase = sin(2*pi*as.numeric(time)/24))
 #form <- ~ (1|tissue:subject) + (1|time:tissue) + (1|time:subject)        
-form <- ~ (1|subject) + (1|tissue) + (1|time) + (1|time:tissue) + (1|time:subject) #+ (1|MSF_sc_dec)         
+form <- ~ (1|subject) + (1|tissue) + (1|time) + (1|time:tissue) + (1|time:subject) 
         #time here is wall time (continuous vble [internal_time] can't be modeled as random)
+form <- ~ (inphase + outphase|subject) + (inphase + outphase|tissue)
 
 varPart <- fitExtractVarPartModel(geneExpr, form, info_exp, showWarnings=FALSE) 
 varPart <- varPart %>% as.data.frame() %>%  

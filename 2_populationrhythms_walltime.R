@@ -94,7 +94,10 @@ inphase  <- cos(2*pi*time/24)
 outphase <- sin(2*pi*time/24) #a*cos(wt) + cos(wt-phi) == A*cos(wt - phi), where A=sqrt(a**2 + b**2), phi = atan2(b,a)
 
 # design matrix
-design <- model.matrix(~ 0 + tissue + tissue:inphase + tissue:outphase) #H0: rhythms are different across tissues
+design <- model.matrix(~ 0 + tissue + tissue:inphase + tissue:outphase) %>% #H0: rhythms are different across tissues
+  as.data.frame() %>% rename(c("tissueD_inphase"="tissueD:inphase", "tissueE_inphase"="tissueE:inphase",
+                               "tissueD_outphase"="tissueD:outphase", "tissueE_outphase"="tissueE:outphase")) %>% 
+  as.matrix()
 
 # duplicate Correlations
 dupcor <- duplicateCorrelation(yave, design, block=subject)
@@ -104,11 +107,30 @@ dupcor <- duplicateCorrelation(yave, design, block=subject)
 fit <- limma::lmFit(yave, design, weights = wts, block=subject, correlation=dupcor$consensus)
 fit2 <- limma::eBayes(fit, trend = TRUE, robust = TRUE)
 
+# test null hypothesis
+rhy_indices <- which(grepl("phase",colnames(design)))
+results <- limma::topTable(fit2, coef = rhy_indices, number = Inf, sort.by = "none") %>% 
+  set_colnames(gsub("\\.","_", colnames(.))) 
+results$adj_P_Val_D_or_E <- results$adj_P_Val
+rhy_D_or_E <- results[(results$adj_P_Val_D_or_E < fdr_cutoff) & # fdr < cutoff
+                        (pmax(sqrt(results$tissueD_inphase^2 + results$tissueD_outphase^2), #amplitude_D or amplitude_E > cutoff
+                              sqrt(results$tissueE_inphase^2 + results$tissueE_outphase^2)) > amp_cutoff),]
+
+# analysis of differentially rhythmic genes
+diff_rhy_contrast <- limma::makeContrasts(tissueD_inphase - tissueE_inphase, tissueD_outphase - tissueE_outphase, levels = design)
+diff_rhy_fit <- limma::contrasts.fit(fit, diff_rhy_contrast)
+diff_rhy_fit <- limma::eBayes(diff_rhy_fit, robust = TRUE, trend = TRUE)
+diff_rhy_results <- limma::topTable(diff_rhy_fit, number = Inf, sort.by = "none")
+diff_rhy_results <- diff_rhy_results[rhy_D_or_E$ProbeName, ]
+
+# organize results
+rhy_D_or_E$adj_p_val_DR <- stats::p.adjust(diff_rhy_results$P.Value, method = "BH")
+rhy_D_or_E$diff_rhythmic <- rhy_D_or_E$adj_p_val_DR < fdr_cutoff
+
+results <- full_join(results, rhy_D_or_E) %>% select(-adj_P_Val)
+
 # save results of fits
 if (!file.exists("visualize/data/results_populationrhy_walltime.rds")){
-  rhy_indices <- which(grepl("phase",colnames(design)))
-  results <- limma::topTable(fit2, coef = rhy_indices, number = Inf, sort.by = "none") %>% 
-    set_colnames(gsub("\\.","_", colnames(.))) 
   saveRDS(results, file = "visualize/data/results_populationrhy_walltime.rds")
 }  
 
@@ -124,39 +146,53 @@ results_internaltime <- readRDS("visualize/data/results_populationrhy_internalti
                 A_E = sqrt(tissueE_inphase^2 + tissueE_outphase^2),
                 phaseD = atan2(tissueD_outphase, tissueD_inphase)*12/pi,
                 phaseE = atan2(tissueE_outphase, tissueE_inphase)*12/pi)
+results_internaltime$rhythmic_in_D <- ifelse(results_internaltime$diff_rhythmic==FALSE, TRUE, 
+                                             ifelse(results_internaltime$diff_rhythmic==TRUE & results_internaltime$A_D > amp_cutoff, 
+                                                    TRUE, FALSE)) 
+results_internaltime$rhythmic_in_E <- ifelse(results_internaltime$diff_rhythmic==FALSE, TRUE, 
+                                             ifelse(results_internaltime$diff_rhythmic==TRUE & results_internaltime$A_E > amp_cutoff, 
+                                                    TRUE, FALSE))
+
 results_walltime <- readRDS("visualize/data/results_populationrhy_walltime.rds") %>%
   dplyr::mutate(A_D = sqrt(tissueD_inphase^2 + tissueD_outphase^2), #note log2 values!
                 A_E = sqrt(tissueE_inphase^2 + tissueE_outphase^2),
                 phaseD = atan2(tissueD_outphase, tissueD_inphase)*12/pi,
                 phaseE = atan2(tissueE_outphase, tissueE_inphase)*12/pi)
   # note phase = 0 means that the respective gene peaks at 8AM (time of first sampling)
+results_walltime$rhythmic_in_D <- ifelse(results_walltime$diff_rhythmic==FALSE, TRUE, 
+                                         ifelse(results_walltime$diff_rhythmic==TRUE & results_walltime$A_D > amp_cutoff, TRUE, FALSE)) 
+results_walltime$rhythmic_in_E <- ifelse(results_walltime$diff_rhythmic==FALSE, TRUE, 
+                                         ifelse(results_walltime$diff_rhythmic==TRUE & results_walltime$A_E > amp_cutoff, TRUE, FALSE))
 results <- results_walltime
 
-results_amp_walltime <- results %>% 
-  dplyr::select(Symbol, adj_P_Val, A_D, A_E, AveExpr, ProbeName) %>%
-  gather(tissue, amp_value, -adj_P_Val, -Symbol, -AveExpr, -ProbeName) %>%
-  filter(amp_value > amp_cutoff) %>%
-  mutate(tissue = ifelse(tissue=="A_D", "dermis", "epidermis"))
-results_phase_walltime <- results %>% 
-  filter(pmax(A_E, A_D) > amp_cutoff) %>%
-  dplyr::select(Symbol, adj_P_Val, phaseD, phaseE, ProbeName) %>%
-  gather(tissue, phase_value, -adj_P_Val, -Symbol, -ProbeName) %>%
-  mutate(tissue = ifelse(tissue=="phaseD", "dermis", "epidermis"))
-results_passAmpcutoff_walltime <- inner_join(results_amp_walltime, results_phase_walltime)
-rhy_results_walltime <- results_passAmpcutoff_walltime %>% filter(adj_P_Val < fdr_cutoff)
 
-results_amp_internaltime <- results_internaltime %>% 
-  dplyr::select(Symbol, adj_P_Val, A_D, A_E, AveExpr, ProbeName) %>%
-  gather(tissue, amp_value, -adj_P_Val, -Symbol, -AveExpr, -ProbeName) %>%
-  filter(amp_value > amp_cutoff) %>%
-  mutate(tissue = ifelse(tissue=="A_D", "dermis", "epidermis"))
-results_phase_internaltime <- results_internaltime %>% 
-  filter(pmax(A_E, A_D) > amp_cutoff) %>%
-  dplyr::select(Symbol, adj_P_Val, phaseD, phaseE, ProbeName) %>%
-  gather(tissue, phase_value, -adj_P_Val, -Symbol, -ProbeName) %>%
-  mutate(tissue = ifelse(tissue=="phaseD", "dermis", "epidermis"))
-results_passAmpcutoff_internaltime <- inner_join(results_amp_internaltime, results_phase_internaltime)
-rhy_results_internaltime <- results_passAmpcutoff_internaltime %>% filter(adj_P_Val < fdr_cutoff)
+rhy_results_walltime <- results %>% filter(rhythmic_in_D | rhythmic_in_E) %>%
+  dplyr::select(Symbol, adj_P_Val_D_or_E, diff_rhythmic, AveExpr, ProbeName, rhythmic_in_D, rhythmic_in_E) %>% 
+  gather(tissue, rhythmic, -Symbol, -diff_rhythmic, -adj_P_Val_D_or_E, -AveExpr,-ProbeName,) %>% 
+  mutate(tissue = ifelse(tissue=="rhythmic_in_D", "dermis", "epidermis")) %>%
+  full_join(results %>% filter(rhythmic_in_D | rhythmic_in_E) %>% 
+              dplyr::select(Symbol, adj_P_Val_D_or_E, diff_rhythmic, AveExpr, ProbeName, A_D, A_E) %>% 
+              gather(tissue, amp_value, -Symbol, -diff_rhythmic, -adj_P_Val_D_or_E, -AveExpr,-ProbeName) %>% 
+              mutate(tissue = ifelse(tissue=="A_D", "dermis", "epidermis"))) %>%
+  full_join(results %>% filter(rhythmic_in_D | rhythmic_in_E) %>% 
+              dplyr::select(Symbol, adj_P_Val_D_or_E, diff_rhythmic, AveExpr, ProbeName, phaseD, phaseE) %>% 
+              gather(tissue, phase_value, -Symbol, -diff_rhythmic, -adj_P_Val_D_or_E, -AveExpr,-ProbeName) %>% 
+              mutate(tissue = ifelse(tissue=="phaseD", "dermis", "epidermis"))) 
+rhy_results_walltime <- rhy_results_walltime %>% anti_join( rhy_results_walltime %>% filter(rhythmic == FALSE & diff_rhythmic==TRUE) )
+
+rhy_results_internaltime <- results_internaltime %>% filter(rhythmic_in_D | rhythmic_in_E) %>%
+  dplyr::select(Symbol, adj_P_Val_D_or_E, diff_rhythmic, AveExpr, ProbeName, rhythmic_in_D, rhythmic_in_E) %>% 
+  gather(tissue, rhythmic, -Symbol, -diff_rhythmic, -adj_P_Val_D_or_E, -AveExpr,-ProbeName,) %>% 
+  mutate(tissue = ifelse(tissue=="rhythmic_in_D", "dermis", "epidermis")) %>%
+  full_join(results_internaltime %>% filter(rhythmic_in_D | rhythmic_in_E) %>% 
+              dplyr::select(Symbol, adj_P_Val_D_or_E, diff_rhythmic, AveExpr, ProbeName, A_D, A_E) %>% 
+              gather(tissue, amp_value, -Symbol, -diff_rhythmic, -adj_P_Val_D_or_E, -AveExpr,-ProbeName) %>% 
+              mutate(tissue = ifelse(tissue=="A_D", "dermis", "epidermis"))) %>%
+  full_join(results_internaltime %>% filter(rhythmic_in_D | rhythmic_in_E) %>% 
+              dplyr::select(Symbol, adj_P_Val_D_or_E, diff_rhythmic, AveExpr, ProbeName, phaseD, phaseE) %>% 
+              gather(tissue, phase_value, -Symbol, -diff_rhythmic, -adj_P_Val_D_or_E, -AveExpr,-ProbeName) %>% 
+              mutate(tissue = ifelse(tissue=="phaseD", "dermis", "epidermis"))) 
+rhy_results_internaltime <- rhy_results_internaltime %>% anti_join( rhy_results_internaltime %>% filter(rhythmic == FALSE & diff_rhythmic==TRUE) )
 
 
 # Supplementary figure 1A: comparison of rhythmic genes with wall vs internal time
@@ -220,8 +256,8 @@ suppfig1B <- ggplot(toplot, aes(x=internal_time, y=wall_time, color=tissue)) +
                   max.overlaps=Inf, box.padding=1., point.padding=.5,  size=3, 
                   segment.color="black", color="black", parse=TRUE) + 
   facet_wrap(~tissue, scales="free") + guides(color=FALSE) +
-  scale_y_continuous(limits=c(0.26,1.2), breaks = seq(0.2, 1.2, by=0.2), trans='log2') +
-  scale_x_continuous(limits=c(0.26,1.2), breaks = seq(0.2, 1.2, by=0.2), trans='log2') +
+  scale_y_continuous(limits=c(0.1,1.2), breaks = seq(0.2, 1.2, by=0.2), trans='log2') +
+  scale_x_continuous(limits=c(0.1,1.2), breaks = seq(0.2, 1.2, by=0.2), trans='log2') +
   xlab(bquote(~log[2]*' (fold amplitude) internal time')) + 
   ylab(bquote(~log[2]*' (fold amplitude) wall time')) + theme_custom() 
 
@@ -259,7 +295,7 @@ suppfig1C <- ggplot(toplot, aes(x=internal_time, y=wall_time, color=tissue)) +
 #########
 
 # Supplementary Figure 1D: correlation of p values from wall vs internal time analyses
-toplot <- rhy_results %>% select(Symbol, tissue, adj_P_Val, analysis) %>% spread(analysis, adj_P_Val) %>% 
+toplot <- rhy_results %>% select(Symbol, tissue, adj_P_Val_D_or_E, analysis) %>% spread(analysis, adj_P_Val_D_or_E) %>% 
   mutate(Symbol_it = paste0("italic('", Symbol, "')"))
 
 suppfig1D <- ggplot(toplot, aes(x=-log10(internal_time), y=-log10(wall_time), color=tissue)) +
@@ -283,4 +319,4 @@ sfig1_2 <- plot_grid(suppfig1B, NULL, suppfig1C, NULL, suppfig1D, nrow=5,
                      labels = c("B", "", "C", "", "D"), rel_heights = c(1,0.1,1,0.1,1))
 sfig1   <- plot_grid(sfig1_1, sfig1_2, ncol=2)
 
-sfig1 %>% ggsave('figures/suppfig1.pdf', ., width = 11, height = 8.5)
+sfig1 %>% ggsave('figures/suppfig1_DR.pdf', ., width = 11, height = 8.5)
