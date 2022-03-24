@@ -13,6 +13,7 @@ suppressPackageStartupMessages(library(stringr))
 suppressPackageStartupMessages(library(ggthemes))
 suppressPackageStartupMessages(library(doParallel))
 suppressPackageStartupMessages(library(tidytext))
+suppressPackageStartupMessages(library(lme4))
 #suppressPackageStartupMessages(library(clusterProfiler))
 
 setwd("~/Documents/WORK/POSTDOC/projects/skin-data-analysis")
@@ -77,7 +78,13 @@ results <- readRDS("visualize/data/results_populationrhy_walltime.rds") %>%
                 A_E = sqrt(tissueE_inphase^2 + tissueE_outphase^2),
                 phaseD = atan2(tissueD_outphase, tissueD_inphase)*12/pi, #atan2 takes two arguments (y,x), atan takes the angle
                 phaseE = atan2(tissueE_outphase, tissueE_inphase)*12/pi)
-some_rhy <- dplyr::filter(results, pmax(A_D, A_E) > amp_cutoff & adj_P_Val < fdr_cutoff) #some_rhy as in fig1 analysis
+
+results$rhythmic_in_D <- ifelse(results$diff_rhythmic==FALSE, TRUE,
+                                ifelse(results$diff_rhythmic==TRUE & results$A_D > amp_cutoff, TRUE, FALSE)) 
+results$rhythmic_in_E <- ifelse(results$diff_rhythmic==FALSE, TRUE, 
+                                ifelse(results$diff_rhythmic==TRUE & results$A_E > amp_cutoff, TRUE, FALSE))
+
+some_rhy <- dplyr::filter(results, rhythmic_in_D | rhythmic_in_E) #some_rhy as in fig1 analysis
 geneExpr <- geneExpr %>% as.data.frame %>% filter(rownames(.) %in% some_rhy$ProbeName)
 
 # Metadata
@@ -150,10 +157,10 @@ info_exp %<>% mutate(MSF_sc_dec = hms(MSF_sc),
                      MSF_sc_dec = round((hour(MSF_sc_dec) + minute(MSF_sc_dec) / 60 + second(MSF_sc_dec) / 360),2),
                      inphase = cos(2*pi*as.numeric(time)/24),
                      outphase = sin(2*pi*as.numeric(time)/24))
-#form <- ~ (1|tissue:subject) + (1|time:tissue) + (1|time:subject)        
-form <- ~ (1|subject) + (1|tissue) + (1|time) + (1|time:tissue) + (1|time:subject) 
-        #time here is wall time (continuous vble [internal_time] can't be modeled as random)
-form <- ~ (inphase + outphase|subject) + (inphase + outphase|tissue)
+#form <- ~ (1|subject) + (1|tissue) + (1|time) + (1|time:tissue) + (1|time:subject) 
+#        #time here is wall time (continuous vble [internal_time] can't be modeled as random)
+form <- ~ (1 + inphase + outphase|subject) + (1 + inphase + outphase|tissue)
+form <- ~ 1 + inphase + outphase + (1 + inphase + outphase|subject) + (1 + inphase + outphase|tissue)
 
 varPart <- fitExtractVarPartModel(geneExpr, form, info_exp, showWarnings=FALSE) 
 varPart <- varPart %>% as.data.frame() %>%  
@@ -163,11 +170,70 @@ vp <- sortCols(varPart %>% dplyr::select(-ProbeName, -EntrezID))
     #sortCols: orders columns such that the first one is the one with largest (mean) variation, second is second largest, etc
 
 if (!file.exists("visualize/data/variancePartition_full.csv")){
-  write.csv(vp %>% tibble::rownames_to_column("Symbol"), "visualize/data/variancePartition_full.csv")}
+  write.csv(vp %>% tibble::rownames_to_column("Symbol"), "visualize/data/variancePartition_full.csv")
+}
 # Save 50 genes with least variability across subjects -> supplementary Table 3
 if (!file.exists("figures/supp_table3.csv")){
   write.csv(varPart %>% dplyr::arrange(subject) %>% head(50) %>% tibble::rownames_to_column("Symbol"), 
-            "figures/supp_table3.csv")}
+            "figures/supp_table3.csv")
+}
+##############################
+###NEW
+fitList <- fitVarPartModel(geneExpr, form, info_exp, showWarnings=FALSE) 
+
+#for gene i=1
+m_i <- fixef(fitList[[1]])[1]; a_i <- fixef(fitList[[1]])[2]; b_i <- fixef(fitList[[1]])[3]
+A_i <- sqrt(a_i^2 + b_i^2) %>% as.numeric
+
+Jac_A <- matrix( c(0, a_i/A_i, b_i/A_i), # dA/dm, dA/da, dA/db
+                 nrow = 1)
+sigma_i <-  as.matrix(Matrix::bdiag(VarCorr(fitList[[1]])))
+sigma_i_S <- sigma_i[1:3,1:3]
+sigma_i_T <- sigma_i[4:6,4:6]
+
+var_A_S <- Jac_A %*% sigma_i_S %*% t(Jac_A); sd_A_S <- sqrt(var_A_S); cv_A_S <- sd_A_S/A_i 
+var_A_T <- Jac_A %*% sigma_i_T %*% t(Jac_A); sd_A_T <- sqrt(var_A_T); cv_A_T <- sd_A_T/A_i 
+
+# calculate variance in amplitude from all rhythmic genes
+df_total = data.frame(ProbeName=NULL, Amp=NULL, var_A_T=NULL, var_A_S=NULL,
+                      phase=NULL, var_phi_T=NULL, var_phi_S=NULL)
+#df_total = data.frame(var_A_T=NULL, sd_A_T=NULL, cv_A_T=NULL, var_A_S=NULL, sd_A_S=NULL, cv_A_S=NULL)
+for (i in 1:length(fitList)){
+  # fixed effects (coefficients)
+  m_i <- fixef(fitList[[i]])[1] %>% as.numeric; 
+  a_i <- fixef(fitList[[i]])[2] %>% as.numeric; 
+  b_i <- fixef(fitList[[i]])[3] %>% as.numeric
+  
+  # amplitude and phase of the fit for gene i across subjects and tissues
+  A_i   <- sqrt(a_i^2 + b_i^2) 
+  phi_i <- atan2(b_i, a_i)*12/pi
+  
+  # with estimation of coefficients comes a covariance matrix sigma (because there are >1 subject/tissue to do fits)
+  sigma_i <-  as.matrix(Matrix::bdiag(VarCorr(fitList[[1]])))
+  sigma_i_S <- sigma_i[1:3,1:3] #covariance_subject
+  sigma_i_T <- sigma_i[4:6,4:6] #covariance_tissue
+  
+  # define jacobian
+  Jac_A <- matrix( c(0, a_i/A_i, b_i/A_i), # dA/dm, dA/da, dA/db
+                   nrow = 1)
+  Jac_phi <- matrix( c(0, (1/(1+(b_i/a_i)^2)) * (-b_i/(a_i^2)), (1/(1+(b_i/a_i)^2)) * (1/a_i)), 
+                     nrow=1)
+  
+  # determine variance, sd and cv in amplitude and phase, separating tissue and subject contributions
+  var_A_S <- Jac_A %*% sigma_i_S %*% t(Jac_A)#; sd_A_S <- sqrt(var_A_S); cv_A_S <- sd_A_S/A_i 
+  var_A_T <- Jac_A %*% sigma_i_T %*% t(Jac_A)#; sd_A_T <- sqrt(var_A_T); cv_A_T <- sd_A_T/A_i 
+  var_phi_S <- Jac_phi %*% sigma_i_S %*% t(Jac_phi)
+  var_phi_T <- Jac_phi %*% sigma_i_T %*% t(Jac_phi)
+  
+  #df_i <- data.frame(var_A_T=var_A_T, sd_A_T=sd_A_T, cv_A_T=cv_A_T, var_A_S=var_A_S, sd_A_S=sd_A_S, cv_A_S=cv_A_S)
+  df_i <- data.frame(ProbeName=names(fitList)[i], 
+                     Amp=A_i,     var_A_T=var_A_T,     var_A_S=var_A_S,
+                     phase=phi_i, var_phi_T=var_phi_T, var_phi_S=var_phi_S)
+  df_total <- rbind(df_total, df_i)
+}
+
+##############################
+##############################
 
 # Figure 2B: How does each variable contribute to the variance 
 # ------------------------------------------------------------
