@@ -181,27 +181,16 @@ if (!file.exists("figures/supp_table3.csv")){
 ###NEW
 fitList <- fitVarPartModel(geneExpr, form, info_exp, showWarnings=FALSE) 
 
-#for gene i=1
-m_i <- fixef(fitList[[1]])[1]; a_i <- fixef(fitList[[1]])[2]; b_i <- fixef(fitList[[1]])[3]
-A_i <- sqrt(a_i^2 + b_i^2) %>% as.numeric
-
-Jac_A <- matrix( c(0, a_i/A_i, b_i/A_i), # dA/dm, dA/da, dA/db
-                 nrow = 1)
-sigma_i <-  as.matrix(Matrix::bdiag(VarCorr(fitList[[1]])))
-sigma_i_S <- sigma_i[1:3,1:3]
-sigma_i_T <- sigma_i[4:6,4:6]
-
-var_A_S <- Jac_A %*% sigma_i_S %*% t(Jac_A); sd_A_S <- sqrt(var_A_S); cv_A_S <- sd_A_S/A_i 
-var_A_T <- Jac_A %*% sigma_i_T %*% t(Jac_A); sd_A_T <- sqrt(var_A_T); cv_A_T <- sd_A_T/A_i 
-
 # calculate variance in amplitude from all rhythmic genes
 df_total = data.frame(ProbeName=NULL, Amp=NULL, var_A_T=NULL, var_A_S=NULL,
-                      phase=NULL, var_phi_T=NULL, var_phi_S=NULL)
-#df_total = data.frame(var_A_T=NULL, sd_A_T=NULL, cv_A_T=NULL, var_A_S=NULL, sd_A_S=NULL, cv_A_S=NULL)
+                      phase=NULL, var_phi_T=NULL, var_phi_S=NULL, 
+                      magn=NULL, var_magn_T=NULL, var_magn_S=NULL)
+
 for (i in 1:length(fitList)){
+  
   # fixed effects (coefficients)
-  m_i <- fixef(fitList[[i]])[1] %>% as.numeric; 
-  a_i <- fixef(fitList[[i]])[2] %>% as.numeric; 
+  m_i <- fixef(fitList[[i]])[1] %>% as.numeric 
+  a_i <- fixef(fitList[[i]])[2] %>% as.numeric 
   b_i <- fixef(fitList[[i]])[3] %>% as.numeric
   
   # amplitude and phase of the fit for gene i across subjects and tissues
@@ -209,7 +198,7 @@ for (i in 1:length(fitList)){
   phi_i <- atan2(b_i, a_i)*12/pi
   
   # with estimation of coefficients comes a covariance matrix sigma (because there are >1 subject/tissue to do fits)
-  sigma_i <-  as.matrix(Matrix::bdiag(VarCorr(fitList[[1]])))
+  sigma_i <-  as.matrix(Matrix::bdiag(VarCorr(fitList[[i]])))
   sigma_i_S <- sigma_i[1:3,1:3] #covariance_subject
   sigma_i_T <- sigma_i[4:6,4:6] #covariance_tissue
   
@@ -218,6 +207,9 @@ for (i in 1:length(fitList)){
                    nrow = 1)
   Jac_phi <- matrix( c(0, (1/(1+(b_i/a_i)^2)) * (-b_i/(a_i^2)), (1/(1+(b_i/a_i)^2)) * (1/a_i)), 
                      nrow=1)
+  Jac = matrix( c(0, a_i/A_i, b_i/A_i,
+                  0, (1/(1+(b_i/a_i)^2)) * (-b_i/(a_i^2)), (1/(1+(b_i/a_i)^2)) * (1/a_i)), # dA/dm, dA/da, dA/db
+                nrow = 2, byrow = TRUE) #!!!!!!!
   
   # determine variance, sd and cv in amplitude and phase, separating tissue and subject contributions
   var_A_S <- Jac_A %*% sigma_i_S %*% t(Jac_A)#; sd_A_S <- sqrt(var_A_S); cv_A_S <- sd_A_S/A_i 
@@ -225,12 +217,117 @@ for (i in 1:length(fitList)){
   var_phi_S <- Jac_phi %*% sigma_i_S %*% t(Jac_phi)
   var_phi_T <- Jac_phi %*% sigma_i_T %*% t(Jac_phi)
   
+  var_S <- Jac %*% sigma_i_S %*% t(Jac) #!!!!!!!
+  var_T <- Jac %*% sigma_i_T %*% t(Jac) #!!!!!!!
+  
   #df_i <- data.frame(var_A_T=var_A_T, sd_A_T=sd_A_T, cv_A_T=cv_A_T, var_A_S=var_A_S, sd_A_S=sd_A_S, cv_A_S=cv_A_S)
   df_i <- data.frame(ProbeName=names(fitList)[i], 
-                     Amp=A_i,     var_A_T=var_A_T,     var_A_S=var_A_S,
-                     phase=phi_i, var_phi_T=var_phi_T, var_phi_S=var_phi_S)
+                     Amp=A_i,     var_A_T=var_A_T,           var_A_S=var_A_S,
+                     phase=phi_i, var_phi_T=var_phi_T,       var_phi_S=var_phi_S,
+                     magn=m_i,    var_magn_T=sigma_i_T[1,1], var_magn_S=sigma_i_S[1,1])
   df_total <- rbind(df_total, df_i)
 }
+if (!file.exists("visualize/data/variance_rhythmic_parameters.csv")){
+  write.csv(df_total, "visualize/data/variance_rhythmic_parameters.csv")
+}
+df_total <- read.csv("visualize/data/variance_rhythmic_parameters.csv") %>% dplyr::select(-X)
+
+variation_A   <- df_total %>% select(ProbeName, Amp, var_A_S, var_A_T) %>% 
+  gather(variable, variance, -ProbeName, -Amp) %>%
+  mutate(variable = ifelse(variable=="var_A_S", "A_S", "A_T"),
+         sd = sqrt(variance),
+         cv = sd/Amp) %>% arrange(desc(cv)) %>% inner_join(yave$genes %>% dplyr::select(ProbeName, Symbol))
+variation_phi <- df_total %>% select(ProbeName, phase, var_phi_S, var_phi_T) %>%
+  gather(variable, variance, -ProbeName, -phase) %>%
+  mutate(variable = ifelse(variable=="var_phi_S", "phi_S", "phi_T"),
+         sd = sqrt(variance),
+         cv = sd/phase) %>% arrange(desc(cv)) %>% inner_join(yave$genes %>% dplyr::select(ProbeName, Symbol))
+variation_magn <- df_total %>% select(ProbeName, magn, var_magn_S, var_magn_T) %>%
+  gather(variable, variance, -ProbeName, -magn) %>%
+  mutate(variable = ifelse(variable=="var_magn_S", "magn_S", "magn_T"),
+         sd = sqrt(variance),
+         cv = sd/magn) %>% arrange(desc(cv)) %>% inner_join(yave$genes %>% dplyr::select(ProbeName, Symbol))
+
+variation_full <- rbind(variation_A %>% rename(c("value_fit"="Amp")), variation_phi %>% rename(c("value_fit"="phase"))) %>% 
+  rbind(variation_magn %>% rename(c("value_fit"="magn"))) %>%
+  tidyr::separate(variable, c("rhythmic_par","variable"), sep = "_", convert = TRUE) %>%
+  mutate(rhythmic_par=ifelse(rhythmic_par == "A", "amplitude", 
+                             ifelse(rhythmic_par=="phi", "phase", "magnitude")),
+         variable=ifelse(variable == "S", "subject", "tissue")) 
+
+ggplot(variation_full %>% select(Symbol, variable, sd, rhythmic_par),
+       aes(x=variable, y=sd, fill=variable)) + geom_violin() + facet_wrap(~rhythmic_par, scales="free_y")
+
+
+variation_full %>% mutate(vble = paste(rhythmic_par, variable, sep="_")) %>% dplyr::select(Symbol, cv, vble)# %>%
+variation_full$amplitude_total <- variation_full$amplitude_subject + variation_full$amplitude_tissue
+variation_full$magnitude_total <- variation_full$magnitude_subject + variation_full$magnitude_tissue
+variation_full$phase_total <- variation_full$phase_subject + variation_full$phase_tissue
+
+# fractions of cv (!)
+amp <- variation_full %>% 
+  mutate(vble = paste(rhythmic_par, variable, sep="_")) %>% 
+  dplyr::filter(rhythmic_par=="amplitude") %>% 
+  select(Symbol, vble, "cv") %>% 
+  spread(vble, cv) %>%
+  tibble::column_to_rownames("Symbol") %>%
+  mutate(total=rowSums(.)) %>% tibble::rownames_to_column("Symbol") %>%
+  gather(vble, cv, -Symbol, -total)
+amp_frac <- amp[,c(1,3,4,2)] %>% mutate(fraction = cv/total) %>% dplyr::select(Symbol, vble, fraction) %>%
+  spread(vble, fraction) %>% tibble::column_to_rownames("Symbol")
+ggpubr::ggarrange(plotPercentBars(amp_frac %>% arrange(desc(amplitude_subject)) %>% head(20)) +
+                    ylab('% of total CV'),
+                  plotPercentBars(amp_frac %>% arrange(desc(amplitude_tissue)) %>% head(20)) +
+                    ylab('% of total CV'),
+                  nrow=1, ncol=2, common.legend=TRUE, legend="right")
+
+phi <- variation_full %>% 
+  mutate(vble = paste(rhythmic_par, variable, sep="_")) %>% 
+  dplyr::filter(rhythmic_par=="phase") %>% 
+  select(Symbol, vble, cv) %>% 
+  spread(vble, cv) %>%
+  tibble::column_to_rownames("Symbol") %>%
+  mutate(total=rowSums(.)) %>% tibble::rownames_to_column("Symbol") %>%
+  gather(vble, cv, -Symbol, -total)
+phi_frac <- phi[,c(1,3,4,2)] %>% mutate(fraction = cv/total) %>% dplyr::select(Symbol, vble, fraction) %>%
+  spread(vble, fraction) %>% tibble::column_to_rownames("Symbol")
+ggpubr::ggarrange(plotPercentBars(phi_frac %>% arrange(desc(phase_subject)) %>% head(20)) +
+                    ylab('% of total CV'),
+                  plotPercentBars(phi_frac %>% arrange(desc(phase_tissue)) %>% head(20)) +
+                    ylab('% of total CV'),
+                  nrow=1, ncol=2, common.legend=TRUE, legend="right")
+
+magn <- variation_full %>% 
+  mutate(vble = paste(rhythmic_par, variable, sep="_")) %>% 
+  dplyr::filter(rhythmic_par=="magnitude") %>% 
+  select(Symbol, vble, cv) %>% 
+  spread(vble, cv) %>%
+  tibble::column_to_rownames("Symbol") %>%
+  mutate(total=rowSums(.)) %>% tibble::rownames_to_column("Symbol") %>%
+  gather(vble, cv, -Symbol, -total)
+magn_frac <- magn[,c(1,3,4,2)] %>% mutate(fraction = cv/total) %>% dplyr::select(Symbol, vble, fraction) %>%
+  spread(vble, fraction) %>% tibble::column_to_rownames("Symbol")
+ggpubr::ggarrange(plotPercentBars(magn_frac %>% arrange(desc(magnitude_subject)) %>% head(20)) +
+                    ylab('% of total CV'),
+                  plotPercentBars(magn_frac %>% arrange(desc(magnitude_tissue)) %>% head(20)) +
+                    ylab('% of total CV'),
+                  nrow=1, ncol=2, common.legend=TRUE, legend="right")
+
+
+# Figuring a way to plot everything together
+df_variances <- df_total %>% tibble::column_to_rownames('ProbeName') %>% dplyr::select(-Amp,-phase,-magn)
+
+
+#READ:
+#  https://rdrr.io/github/GabrielHoffman/variancePartition/src/R/extractVarPart.R
+modelList = fitList
+singleResult = calcVarPart( modelList[[1]], showWarnings=FALSE )
+entry <- 1
+varPart <- lapply( modelList, function( entry ) 
+  calcVarPart( entry, showWarnings=FALSE)
+)
+varPartMat <- data.frame(matrix(unlist(varPart), nrow=length(varPart), byrow=TRUE))
+
 
 ##############################
 ##############################
