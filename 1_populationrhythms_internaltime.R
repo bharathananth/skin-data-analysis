@@ -20,6 +20,7 @@ suppressPackageStartupMessages(library(ggthemes))
 suppressPackageStartupMessages(library(tidytext))
 suppressPackageStartupMessages(library(clusterProfiler))
 suppressPackageStartupMessages(library(DOSE))
+suppressPackageStartupMessages(library(mgsub))
 
 setwd("~/Documents/WORK/POSTDOC/projects/skin-data-analysis")
 
@@ -376,10 +377,12 @@ suppfig2B <- ggplot(rhy_results %>% filter(Symbol %in% clock_genes) %>%
 toplot <- rhy_results %>% filter(tissue=="dermis") %>% mutate(FC_amp = 2^(2*amp_value)) %>%
   mutate(phase_clock1 = phase_value + 8) %>% 
   mutate(phase_clock1 = ifelse(phase_clock1 < 0, phase_clock1 + 24, phase_clock1)) %>%
-  mutate(Symbol_it = paste0("italic('", Symbol, "')"))
-fig1D_1 <- ggplot(toplot, aes(x=phase_clock1, y=FC_amp, color=tissue)) +
+  mutate(Symbol_it = paste0("italic('", Symbol, "')"),
+         clock_gene=ifelse(Symbol %in% clock_genes, TRUE, FALSE))
+fig1D_1 <- ggplot(toplot, aes(x=phase_clock1, y=FC_amp, color=tissue, shape=clock_gene)) +
   geom_point(alpha=0.3) +
-  geom_point(data = filter(toplot, Symbol %in% clock_genes), aes(x=phase_clock1, y=FC_amp), color="black") +
+  geom_point(data = filter(toplot, Symbol %in% clock_genes), aes(x=phase_clock1, y=FC_amp), color="black", shape=8) +
+  scale_shape_manual(values=c(16,8), guide="none") +
   geom_text_repel(data = filter(toplot, Symbol %in% clock_genes), aes(label=Symbol_it), 
                   max.overlaps=Inf, box.padding=1.1, point.padding=.5,  size=3,
                   segment.color="black", color="black", parse=TRUE)  +
@@ -392,10 +395,12 @@ fig1D_1 <- ggExtra::ggMarginal(fig1D_1, type = 'histogram', fill="#1B9E77", colo
 toplot <- rhy_results %>% filter(tissue=="epidermis") %>% mutate(FC_amp = 2^(2*amp_value)) %>%
   mutate(phase_clock1 = phase_value + 8) %>% 
   mutate(phase_clock1 = ifelse(phase_clock1 < 0, phase_clock1 + 24, phase_clock1)) %>%
-  mutate(Symbol_it = paste0("italic('", Symbol, "')"))
-fig1D_2 <- ggplot(toplot, aes(x=phase_clock1, y=FC_amp, color=tissue)) +
+  mutate(Symbol_it = paste0("italic('", Symbol, "')"),
+         clock_gene=ifelse(Symbol %in% clock_genes, TRUE, FALSE))
+fig1D_2 <- ggplot(toplot, aes(x=phase_clock1, y=FC_amp, color=tissue, shape=clock_gene)) +
   geom_point(alpha=0.3, color="#D95F02") +
-  geom_point(data = filter(toplot, Symbol %in% clock_genes), aes(x=phase_clock1, y=FC_amp), color="black") +
+  geom_point(data = filter(toplot, Symbol %in% clock_genes), aes(x=phase_clock1, y=FC_amp), color="black", shape=8) +
+  scale_shape_manual(values=c(16,8), guide="none") +
   geom_text_repel(data = filter(toplot, Symbol %in% clock_genes), aes(label=Symbol_it), 
                   max.overlaps=Inf, box.padding=1.1, point.padding=.5, size=3,
                   segment.color="black", color="black", parse=TRUE)  +
@@ -415,17 +420,20 @@ both_rhy <- rhy_results[which(rhy_results$Symbol %in% rhy_results[duplicated(rhy
   arrange(desc(amp_value)) 
   #we check for which symbols are duplicated in the rhy_results dataframe -> that means they are rhythmic in both layers
 both_rhy_amp <- both_rhy %>% dplyr::select(Symbol, tissue, amp_value) %>% spread(tissue, amp_value) %>% 
-  mutate(Symbol_it = paste0("italic('", Symbol, "')")) %>% arrange(desc(dermis))
+  mutate(Symbol_it = paste0("italic('", Symbol, "')")) %>% arrange(desc(dermis)) %>%
+  mutate(clock_gene=ifelse(Symbol %in% clock_genes, TRUE, FALSE))
 
 # from the genes that are rhythmic in both layers, how many are DIFFERENTIALLY rhythmic?
 both_rhy_DR <- results %>% filter(diff_rhythmic==TRUE) %>% filter(Symbol %in% both_rhy$Symbol)
 
-fig1E <- ggplot(both_rhy_amp, aes(x=dermis, y=epidermis)) + 
+fig1E <- ggplot(both_rhy_amp, aes(x=dermis, y=epidermis, shape=clock_gene)) + 
   geom_abline(slope=1, intercept=0, lty='dashed', color="gray") + 
   geom_point(color="#7570B3", alpha=0.3) +
   geom_point(data = filter(both_rhy_amp, Symbol %in% clock_genes), 
              aes(x=dermis, y=epidermis), color="black", shape=8) + # #DC0000B2
-  geom_point(data=both_rhy_amp %>% filter(Symbol %in% both_rhy_DR$Symbol), aes(x=dermis, y=epidermis), color="coral1") +
+  geom_point(data=both_rhy_amp %>% filter(Symbol %in% both_rhy_DR$Symbol), 
+             aes(x=dermis, y=epidermis, shape=clock_gene), color="coral1") +
+  scale_shape_manual(values=c(16,8), guide="none") +
   geom_text_repel(data = filter(both_rhy_amp, Symbol %in% clock_genes),  box.padding=1., max.overlaps=10, 
                   size=3., aes(x=dermis, y=epidermis, label=Symbol_it), color="black", parse=TRUE, point.padding = .5) +
   coord_fixed() + theme_bw() + 
@@ -434,6 +442,7 @@ fig1E <- ggplot(both_rhy_amp, aes(x=dermis, y=epidermis)) +
   theme_custom() + 
   scale_x_continuous(limits=c(0.26,1.2), breaks = seq(0.2, 1.2, by=0.2), trans='log2') +
   scale_y_continuous(limits=c(0.26,1.2), breaks = seq(0.2, 1.2, by=0.2), trans='log2') 
+
 print(paste0(which(both_rhy_amp$epidermis > both_rhy_amp$dermis) %>% length(), "/", dim(both_rhy_amp)[1], 
              " genes (rhythmic in both tissues) with higher amplitude in epidermis than dermis"))
 
@@ -445,14 +454,17 @@ both_rhy_phase <- both_rhy %>% dplyr::select(Symbol, tissue, phase_value) %>%
   mutate(phase_clock1 = phase_value + 8) %>% 
   mutate(phase_clock1 = ifelse(phase_clock1 < 0, phase_clock1 + 24, phase_clock1)) %>% 
   select(-phase_value) %>% spread(tissue, phase_clock1) %>% 
-  mutate(Symbol_it = paste0("italic('", Symbol, "')"))
+  mutate(Symbol_it = paste0("italic('", Symbol, "')"),
+         clock_gene=ifelse(Symbol %in% clock_genes, TRUE, FALSE))
 
-fig1F <- ggplot(both_rhy_phase, aes(x=dermis, y=epidermis)) + 
+fig1F <- ggplot(both_rhy_phase, aes(x=dermis, y=epidermis, shape=clock_gene)) + 
   geom_abline(slope=1, intercept=0, lty='dashed', color="gray") + 
   geom_point(color="#7570B3", alpha=0.3) +
   geom_point(data = filter(both_rhy_phase, Symbol %in% clock_genes), 
              aes(x=dermis, y=epidermis), shape=8, color="black") + # #DC0000B2
-  geom_point(data=both_rhy_phase %>% filter(Symbol %in% both_rhy_DR$Symbol), aes(x=dermis, y=epidermis), color="coral1") +
+  geom_point(data=both_rhy_phase %>% filter(Symbol %in% both_rhy_DR$Symbol), 
+             aes(x=dermis, y=epidermis, shape=clock_gene), color="coral1") +
+  scale_shape_manual(values=c(16,8), guide="none") +
   geom_text_repel(data = filter(both_rhy_phase, Symbol %in% clock_genes), box.padding=1.2, max.overlaps=Inf, size=3.,
                   aes(x=dermis, y=epidermis, label=Symbol_it), color="black", parse=TRUE, point.padding = .5,
                   xlim = c(0, 24)) +
@@ -731,7 +743,7 @@ fig1_3 <- plot_grid(fig1G, labels="G")
 fig1 <- plot_grid(fig1_1, NULL, fig1_2, NULL, fig1_3, align='v', nrow=5, 
                   rel_heights = c(1.5, 0.05,1.6, 0.02, 1.8))
 
-fig1 %>% ggsave('figures/fig1_DR.pdf', ., width = 11, height = 11)
+fig1 %>% ggsave('figures/fig1.pdf', ., width = 11, height = 11)
 
 ###
 
@@ -743,4 +755,4 @@ sfig2_4 <- plot_grid(suppfig2D, suppfig2E, labels=c("", ""), rel_widths = c(1,1.
 sfig2 <- plot_grid(sfig2_1, NULL, sfig2_2, sfig2_3, sfig2_4, align='v', nrow=5, 
                    rel_heights = c(1.5, 0.1, 1.8, 0.1, 2.))#, 0.1, 1.5))
 
-sfig2 %>% ggsave('figures/suppfig2_DR.pdf', ., width = 11, height = 12.8)
+sfig2 %>% ggsave('figures/suppfig2.pdf', ., width = 11, height = 12.8)
