@@ -67,8 +67,8 @@ PCA_outliers <- "E32_P109" #see PCA analysis in preana.R
 info_subjects <- read.csv("resources/info_subjects_short.csv") %>% dplyr::select(-X) # read info of subjects
 experiment <- readRDS("visualize/data/experiment.rds") %>% full_join(info_subjects) # read sample details from column names
 yave <- readRDS("visualize/data/rawdata.rds") # read y gene expression data (without outlier removal)
-yave_D <- readRDS("visualize/data/rawdata_dermis.rds") # read y gene expression data (without outlier removal)
-yave_E <- readRDS("visualize/data/rawdata_epidermis.rds") # read y gene expression data (without outlier removal)
+#yave_D <- readRDS("visualize/data/rawdata_dermis.rds") # read y gene expression data (without outlier removal)
+#yave_E <- readRDS("visualize/data/rawdata_epidermis.rds") # read y gene expression data (without outlier removal)
 
 # Remove outliers in yave
 ind <- which(colnames(yave) == PCA_outliers)    
@@ -242,7 +242,8 @@ suppfig1A <- plot_grid(suppfig1A_1, NULL, suppfig1A_2, NULL, suppfig1A_3, NULL, 
 rhy_results <- rbind(rhy_results_internaltime %>% mutate(analysis="internal_time"),
                      rhy_results_walltime %>% mutate(analysis="wall_time"))
 clock_genes <- c("PER1","PER2","PER3", "CRY1", "CRY2", "NR1D1", "NR1D2", "ARNTL", "ARNTL2", "CLOCK", 
-                 "NPAS2","RORA","RORB","RORC", "CSNK1D", "CSNK1E", "DBP")
+                 "NPAS2","RORA","RORB","RORC", "CSNK1D", "CSNK1E", "DBP",
+                 "NFIL3", "TEF", "BHLHE40", "BHLHE41")#, "HLF"
 
 toplot <- rhy_results %>% select(Symbol, tissue, amp_value, analysis) %>% spread(analysis, amp_value) %>% 
   mutate(Symbol_it = paste0("italic('", Symbol, "')"))
@@ -274,15 +275,16 @@ print(paste0(which(amp_epidermis$internal_time > amp_epidermis$wall_time) %>% le
 
 # Supplementary Figure 1C: correlation of phases estimated from wall vs internal time analyses
 toplot <- rhy_results %>% select(Symbol, tissue, phase_value, analysis) %>% 
-  mutate(phase_clock1 = phase_value + 8) %>% 
-  mutate(phase_clock1 = ifelse(phase_clock1 < 0, phase_clock1 + 24, phase_clock1)) %>% select(-phase_value) %>%
-  spread(analysis, phase_clock1) %>% 
+  #mutate(phase_clock1 = phase_value + 8) %>% 
+  #mutate(phase_clock1 = ifelse(phase_clock1 < 0, phase_clock1 + 24, phase_clock1)) %>% select(-phase_value) %>%
+  mutate(phase_value = phase_value%%24) %>% 
+  spread(analysis, phase_value) %>% 
   mutate(Symbol_it = paste0("italic('", Symbol, "')")) 
 
 suppfig1C <- ggplot(toplot, aes(x=internal_time, y=wall_time, color=tissue)) +
-  geom_abline(slope=1, intercept=0, lty='dashed', color="gray") + 
+  geom_abline(slope=1, intercept=4, lty='dashed', color="gray") + 
   geom_point(alpha=0.3) + 
-  geom_point(data = filter(toplot, Symbol %in% clock_genes), aes(x=wall_time, y=internal_time), color="black") +
+  geom_point(data = filter(toplot, Symbol %in% clock_genes), aes(x=internal_time, y=wall_time), color="black") +
   geom_text_repel(data = filter(toplot, Symbol %in% clock_genes), aes(label=Symbol_it), 
                   max.overlaps=Inf, box.padding=1., point.padding=.5,  size=3,
                   segment.color="black", color="black", parse=TRUE) + guides(color=FALSE) +
@@ -319,4 +321,4 @@ sfig1_2 <- plot_grid(suppfig1B, NULL, suppfig1C, NULL, suppfig1D, nrow=5,
                      labels = c("B", "", "C", "", "D"), rel_heights = c(1,0.1,1,0.1,1))
 sfig1   <- plot_grid(sfig1_1, sfig1_2, ncol=2)
 
-sfig1 %>% ggsave('figures/suppfig1_DR.pdf', ., width = 11, height = 8.5)
+sfig1 %>% ggsave('figures/suppfig1.pdf', ., width = 11, height = 8.5)
