@@ -1,7 +1,7 @@
 \begin{figure*}[htb!]
 	\begin{center}
 		\includegraphics[scale=0.55]{./Figures/suppfig1.pdf}
-		\caption{\textbf{Analysis of the circadian transcriptome in human dermis and epiderms done with external (instead of internal) time.} \textbf{A.} Venn diagram comparing the number of genes identified as circadian in dermis (green) vs. epidermis (orange) and in the analysis using internal time (solid line) or wall time (dashed line). \textbf{B.} Amplitude correlation of genes identified as rhythmic with the internal time analysis compared to external time analysis. \textbf{C.} Acrophase correlation of genes identified as rhythmic with the internal time analysis compared to external time analysis. \textbf{D. }BH-adjusted \textit{p} value correlation of rhythmic genes identified with internal vs. external time analysis. \\
+		\caption{\textbf{Analysis of the circadian transcriptome in human dermis and epiderms done with external (instead of internal) time.} \textbf{A.} Venn diagram visualization of the number of genes identified as circadian in dermis (green) vs. epidermis (orange) and in the analysis using internal time (solid line) or wall time (dashed line). \textbf{B.} Amplitude correlation of genes identified as rhythmic with the internal time analysis compared to external time analysis. \textbf{C.} Acrophase correlation of genes identified as rhythmic with the internal time analysis compared to external time analysis. \textbf{D. }BH-adjusted \textit{p} value correlation of rhythmic genes identified with internal vs. external time analysis. \\
 		% \textcolor{red}{Also to the question of whether genes with higher amplitude in internal time analysis are related to some specific functions, see noter on 9.9.21, nothing too interesting. inkscape: wall time in dashed}
 	}
 		\label{fig:suppfig1}
@@ -150,54 +150,55 @@
 %----------------------------------------------------------------------------------------
 
 %https://genomemedicine.biomedcentral.com/articles/10.1186/s13073-020-00768-9#Sec19
-\begin{table}[b!ht]\vspace{-.3cm}
-	\caption{\textbf{List of software packages used in this study.} Versions and references are included. }\vspace{-.2cm}
-	\footnotesize
-	\centering
-\begin{tabular}{llc}
-	\hline
-	\textbf{\begin{tabular}[c]{@{}c@{}}Software\\package\end{tabular}} & \textbf{Version} & \textbf{Ref.}     \\ \hline
-	Biobase                   & 2.46.0           & \cite{biobase}         \\
-	clusterProfiler           & 3.14.3           & \cite{clusterprofiler} \\
-	cowplot                   & 1.1.1            & \cite{cowplot}         \\
-	doParallel                & 1.0.16           & \cite{doparallel}      \\
-	dplyr                     & 1.0.5            & \cite{dplyr}           \\
-	GEOquery                  & 2.54.1           & \cite{geoquery}        \\
-	ggforce                   & 0.3.3            & \cite{ggforce}         \\
-	ggplot2                   & 3.3.3            & \cite{ggplot2}         \\
-	ggrepel                   & 0.9.1            & \cite{ggrepel}         \\
-	ggthemes                  & 4.2.4            & \cite{ggthemes}        \\ \hline
-\end{tabular}	
-\hspace{0.2cm}
-\begin{tabular}{llc}
-	\hline
-	\textbf{\begin{tabular}[c]{@{}c@{}}Software\\package\end{tabular}} & \textbf{Version} & \textbf{Ref.}     \\ \hline
-	ggvenn                    & 0.1.8            & \cite{ggvenn}          \\
-	hgug4112a.db              & 3.2.3            & \cite{hgug4112a}       \\
-	hms                       & 1.0.0            & \cite{hms}             \\
-	limma                     & 3.42.2           & \cite{limma}           \\
-	lubridate                 & 1.7.10           & \cite{lubridate}       \\
-	magrittr                  & 2.0.1            & \cite{magrittr}        \\
-	msigdbr                   & 7.4.1            & \cite{msigdbr}         \\
-	\textcolor{red}{oligo??}  &                  & \textbf{which?}        \\
-	PSEA                      & 1.1              & \cite{Zhang2016}       \\
-	R                         & 3.6.3            & \cite{R}               \\ \hline
-\end{tabular}
-\hspace{0.2cm}	
-\begin{tabular}{llc}
-	\hline
-	\textbf{\begin{tabular}[c]{@{}c@{}}Software\\package\end{tabular}} & \textbf{Version} & \textbf{Ref.}     \\ \hline
-	stringr                   & 1.4.0            & \cite{stringr}         \\
-	tibble                    & 3.1.1            & \cite{tibble}          \\
-	tidyr                     & 1.1.3            & \cite{tidyr}           \\
-	tidytext                  & 0.3.2            & \cite{tidytext}        \\
-	tidyverse                 & 1.3.1            & \cite{tidyverse}       \\
-	variancePartition         & 1.16.1           & \cite{Hoffman2016}     \\
-	viridis                   & 0.6.1            & \cite{viridis}         \\
-	zeitzeiger                & 2.0.2            & \cite{Hughey2016}      \\ 
-	                          &                  &                        \\
-	                          &                  &                        \\ \hline
-\end{tabular}	
-	\label{tab:supptab2}
-\end{table}
+%\begin{table}[b!ht]\vspace{-.3cm}
+%	\caption{\textbf{List of software packages used in this study.} Versions and references are included. }\vspace{-.2cm}
+%	\footnotesize
+%	\centering
+%\begin{tabular}{llc}
+%	\hline
+%	\textbf{\begin{tabular}[c]{@{}c@{}}Software\\package\end{tabular}} & \textbf{Version} & \textbf{Ref.}     \\ \hline
+%	Biobase                   & 2.46.0           & \cite{biobase}         \\
+%	clusterProfiler           & 3.14.3           & \cite{clusterprofiler} \\
+%	cowplot                   & 1.1.1            & \cite{cowplot}         \\
+%	doParallel                & 1.0.16           & \cite{doparallel}      \\
+%	dplyr                     & 1.0.5            & \cite{dplyr}           \\
+%	GEOquery                  & 2.54.1           & \cite{geoquery}        \\
+%	ggforce                   & 0.3.3            & \cite{ggforce}         \\
+%	ggplot2                   & 3.3.3            & \cite{ggplot2}         \\
+%	ggrepel                   & 0.9.1            & \cite{ggrepel}         \\
+%	ggthemes                  & 4.2.4            & \cite{ggthemes}        \\ \hline
+%\end{tabular}	
+%\hspace{0.2cm}
+%\begin{tabular}{llc}
+%	\hline
+%	\textbf{\begin{tabular}[c]{@{}c@{}}Software\\package\end{tabular}} & \textbf{Version} & \textbf{Ref.}     \\ \hline
+%	ggvenn                    & 0.1.8            & \cite{ggvenn}          \\
+%	hgug4112a.db              & 3.2.3            & \cite{hgug4112a}       \\
+%	hms                       & 1.0.0            & \cite{hms}             \\
+%	limma                     & 3.42.2           & \cite{limma}           \\
+%	lubridate                 & 1.7.10           & \cite{lubridate}       \\
+%	magrittr                  & 2.0.1            & \cite{magrittr}        \\
+%	msigdbr                   & 7.4.1            & \cite{msigdbr}         \\
+%	\textcolor{red}{oligo??}  &                  & \textbf{which?}        \\
+%	PSEA                      & 1.1              & \cite{Zhang2016}       \\
+%	R                         & 3.6.3            & \cite{R}               \\ \hline
+%\end{tabular}
+%\hspace{0.2cm}	
+%\begin{tabular}{llc}
+%	\hline
+%	\textbf{\begin{tabular}[c]{@{}c@{}}Software\\package\end{tabular}} & \textbf{Version} & \textbf{Ref.}     \\ \hline
+%	stringr                   & 1.4.0            & \cite{stringr}         \\
+%	tibble                    & 3.1.1            & \cite{tibble}          \\
+%	tidyr                     & 1.1.3            & \cite{tidyr}           \\
+%	tidytext                  & 0.3.2            & \cite{tidytext}        \\
+%	tidyverse                 & 1.3.1            & \cite{tidyverse}       \\
+%	variancePartition         & 1.16.1           & \cite{Hoffman2016}     \\
+%	viridis                   & 0.6.1            & \cite{viridis}         \\
+%	zeitzeiger                & 2.0.2            & \cite{Hughey2016}      \\ 
+%	                          &                  &                        \\
+%	                          &                  &                        \\ \hline
+%\end{tabular}	
+%	\label{tab:supptab2}
+
+%\end{table}
 \clearpage
