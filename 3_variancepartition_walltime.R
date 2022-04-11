@@ -8,7 +8,6 @@ suppressPackageStartupMessages(library(cowplot))
 suppressPackageStartupMessages(library(hms))
 suppressPackageStartupMessages(library(lubridate))
 suppressPackageStartupMessages(library(stringr))
-#suppressPackageStartupMessages(library(TissueEnrich))
 suppressPackageStartupMessages(library(ggthemes))
 suppressPackageStartupMessages(library(doParallel))
 suppressPackageStartupMessages(library(tidytext))
@@ -97,70 +96,20 @@ info_exp <- data.frame(experiment2= geneExpr %>% colnames) %>% mutate(experiment
 
 experiment <- readRDS("visualize/data/experiment.rds") %>% full_join(info_subjects) # read sample details from column names
 experiment <- experiment[-ind,] #remove outlier
-info_exp <- info_exp %>% full_join(experiment) %>% mutate(tissue = ifelse(tissue=="D", "dermis", "epidermis"),
-                                                          time = as.character(time))
+info_exp <- info_exp %>% full_join(experiment) %>% 
+  mutate(tissue = ifelse(tissue=="D", "dermis", "epidermis"),
+         time = as.character(time),
+         MSF_sc_dec = hms(MSF_sc),
+         MSF_sc_dec = round((hour(MSF_sc_dec) + minute(MSF_sc_dec) / 60 + second(MSF_sc_dec) / 360),2),
+         inphase = cos(2*pi*as.numeric(internal_time)/24),
+         outphase = sin(2*pi*as.numeric(internal_time)/24))
 
-# Figure 2A (introductory panel)
-# ------------------------------
-geneExpr_gath <- geneExpr %>% tibble::rownames_to_column("gene") %>% gather(key, value, -gene) %>% 
-  tidyr::separate(key, c("tissuetime","subject"), sep = "_", convert=TRUE) %>%
-  tidyr::separate(tissuetime, c("tissue","time"), convert = TRUE, sep = 1)  %>% 
-  full_join(experiment %>% dplyr::select(tissue, time, subject)) %>% mutate(time=as.character(time)) 
-
-df1 <- geneExpr_gath %>% gather(key, category, -gene, -value) 
-df2 <- df1 %>% group_by(category) %>% 
-  dplyr::summarise(magnitude = mean(value, na.rm=TRUE), sd = sd(value, na.rm=TRUE)) %>% as.data.frame() %>%
-  inner_join(df1 %>% dplyr::select(category, key)) %>% unique()
-df3 <- df2 %>% group_by(key)%>% 
-  dplyr::summarise(mean_magn = mean(magnitude, na.rm=TRUE), sd_magn = sd(magnitude, na.rm=TRUE)) %>% as.data.frame()
-df3 %<>% mutate(key=paste0(key,"_avg")) %>% rename(c("magnitude"="mean_magn", "sd"="sd_magn")) 
-
-df <- gtools::smartbind(df2, df3) #%>%
-temp = data.frame(key=unique(df$key))
-temp$group = sub("_.*", "", temp$key)
-
-df %<>% full_join(temp) %>% arrange(group) 
-#df %<>%
-#  group_split(group) %>% 
-#  purrr::map_dfr(~ add_row(.x, .after = Inf)) %>% as.data.frame()
-#df$key = replace_na(df$key, "empty")
-
-fig2A <- ggplot() + #geom_vline(xintercept=dplyr::summarise(df2, mean=mean(magnitude))$mean, linetype="dashed", size=0.5, color="gray80") +
-  geom_point(data = df %>% filter(key %in% c("time", "tissue", "subject")), 
-             aes(x=magnitude, y=key, group=key, color=group),
-             shape=21, size=2, position = position_dodge(width = 1.9), show.legend = F) +
-  geom_errorbar(data= df %>% filter(key %in% c("time_avg", "tissue_avg", "subject_avg")),
-                aes(y=key, xmin = magnitude-sd, xmax = magnitude + sd, color=group), width = 0.3, size=1,
-                position = position_dodge(width = 1.9), show.legend = F) +
-  geom_point(data= df %>% filter(key %in% c("time_avg", "tissue_avg", "subject_avg")),
-             aes(x=magnitude, y=key, color=group), size=4.5, position = position_dodge(width = 1.9)) +
-  scale_color_manual(labels = c("tissue" = "Inter-layer\nmean variation", "subject" = "Inter-subject\nmean variation", 
-                                "time" = "Common\ncircadian variation"),
-                     values = c("tissue" = "#d1495b", "subject" = "#00798c", "time" = "#edae49" )) + #facet_grid(rows=vars(group), scales="free") + 
-  theme(legend.position="right", 
-        axis.text.y=element_blank(),
-        axis.ticks.y=element_blank(),
-        axis.title.y=element_blank(),
-        axis.line.y=element_blank(),
-        strip.text = element_blank(),
-        aspect.ratio=1,
-        panel.spacing.y = unit(-15, "lines"),
-        legend.spacing.y = unit(1.0, 'cm')) + 
-  scale_y_discrete(expand=expansion(c(.6,.6))) +xlab('\ngene expression levels')
-
-#--------------------------------
-#--------------------------------
 
 
 # 2. EXECUTE VARIANCE PARTITION MODEL
 # -----------------------------------
-info_exp %<>% mutate(MSF_sc_dec = hms(MSF_sc),
-                     MSF_sc_dec = round((hour(MSF_sc_dec) + minute(MSF_sc_dec) / 60 + second(MSF_sc_dec) / 360),2),
-                     inphase = cos(2*pi*as.numeric(internal_time)/24),
-                     outphase = sin(2*pi*as.numeric(internal_time)/24))
 #form <- ~ (1|subject) + (1|tissue) + (1|time) + (1|time:tissue) + (1|time:subject) 
 #        #time here is wall time (continuous vble [internal_time] can't be modeled as random)
-#form <- ~ 1 + inphase + outphase + (1 + inphase + outphase|subject) + (1 + inphase + outphase|tissue)
 form <- ~ 1 + inphase + outphase + (1 + inphase + outphase|subject) + (1 + inphase + outphase||tissue)
 
 #varPart <- fitExtractVarPartModel(geneExpr, form, info_exp, showWarnings=FALSE) 
@@ -181,7 +130,8 @@ form <- ~ 1 + inphase + outphase + (1 + inphase + outphase|subject) + (1 + inpha
 
 fitList <- fitVarPartModel(geneExpr, form, info_exp, showWarnings=FALSE) 
 
-# Calculate variance in amplitude and phase from all rhythmic genes -> Error propagation
+
+# CALCULATE VARIANCE IN AMPLITUDE AND PHASE FROM ALL RHYTHMIC GENES -> ERROR PROPAGATION
 df_total = data.frame(ProbeName=NULL, Amp=NULL, var_A_layer=NULL, var_A_subject=NULL,
                       phase=NULL, var_phi_layer=NULL, var_phi_subject=NULL, 
                       magn=NULL, var_magn_layer=NULL, var_magn_subject=NULL)
@@ -226,6 +176,7 @@ for (i in 1:length(fitList)){
                      magn=m_i,    var_magn_layer=sigma_i_T[1,1], var_magn_subject=sigma_i_S[1,1])
   df_total <- rbind(df_total, df_i)
 }
+
 # Save results of variance Partition
 if (!file.exists("visualize/data/variance_rhythmic_parameters.csv")){
   write.csv(df_total %>% inner_join(yave$genes %>% dplyr::select(ProbeName, Symbol)),
@@ -235,6 +186,77 @@ df_total <- read.csv("visualize/data/variance_rhythmic_parameters.csv") %>% dply
 hist(df_total$Amp, breaks=100)
 df_total %<>% filter(Amp>.15) # filter genes with low amp_fit that result in high variability and "mask" variable genes
 hist(df_total$Amp, breaks=100)
+
+# PLOT DISTRIBUTIONS OF RANDOM EFFECTS -> HOW VARIABLE ARE MAGNITUDES, AMPLITUDES AND PHASES ACROSS LAYERS/SUBJECTS?
+ranef_total_subj <- data.frame('(Intercept)'=NULL, 'inphase'=NULL, 'outphase'=NULL, 'gene'=NULL)
+ranef_total_lay  <- data.frame('(Intercept)'=NULL, 'inphase'=NULL, 'outphase'=NULL, 'gene'=NULL)
+for (g in c(1:length(fitList))){
+  
+  ranef_g_subj <- ranef(fitList[[g]])$subject %>% as.data.frame
+  ranef_g_lay <- ranef(fitList[[g]])$tissue%>% as.data.frame
+  
+  ranef_g_subj <- data.frame('(Intercept)'=NULL, 'inphase'=NULL, 'outphase'=NULL, 'gene'=NULL)
+  for (r in c(1:nrow(ranef_g_subj))){
+    new_row <- ranef_g_subj[r,]
+    new_row$gene <- paste0('gene', g)
+    ranef_g_subj <- rbind(ranef_g_subj, new_row)
+  }
+  ranef_g_lay  <- data.frame('(Intercept)'=NULL, 'inphase'=NULL, 'outphase'=NULL, 'gene'=NULL)
+  for (r in c(1:nrow(ranef_g_lay))){
+    new_row <- ranef_g_lay[r,]
+    new_row$gene <- paste0('gene', g)
+    ranef_g_lay <- rbind(ranef_g_lay, new_row)
+  }
+  
+  ranef_total_subj <- rbind(ranef_total_subj, ranef_g_subj)
+  ranef_total_lay <- rbind(ranef_total_lay, ranef_g_lay)
+}
+
+
+ranef_total_subj$effect <- 'subject'
+ranef_total_subj$factor <- rep(unique(info_exp$subject), times=length(fitList))
+ranef_total_lay$effect <- 'tissue'
+ranef_total_lay$factor  <- rep(unique(info_exp$tissue), times=length(fitList))
+
+ranef_total <- full_join(ranef_total_lay, ranef_total_subj) %>% dplyr::rename(c('magnitude'='(Intercept)'))
+ranef_total$amplitude <- sqrt(ranef_total$inphase^2 + ranef_total$outphase^2) #log2
+ranef_total$phase <- atan2(ranef_total$outphase, ranef_total$inphase)*12/pi
+ranef_total$phase <- ifelse(ranef_total$phase + 8 < 0, ranef_total$phase + 8 + 24, ranef_total$phase + 8)
+ranef_total_gath <- ranef_total %>% select(-inphase, -outphase) %>% gather(rhythmic_par, value, -gene, -effect, -factor)
+ranef_total_gath$rhythmic_par = factor(ranef_total_gath$rhythmic_par, levels=c('magnitude','amplitude','phase'))
+
+p1 <- ggplot(ranef_total_gath %>% filter(rhythmic_par=="magnitude")) + 
+  geom_jitter(aes(y=effect, x=value, group=effect, color=effect, fill=effect), alpha=0.3) +
+  geom_boxplot(aes(y=effect, x=value, fill=effect), alpha=0.1) +
+  #facet_wrap(~rhythmic_par, scales='free') + 
+  scale_fill_manual(values = c("tissue" = "#d1495b", "subject" = "#00798c"))  +
+  scale_color_manual(values = c("tissue" = "#d1495b", "subject" = "#00798c"))  +
+  guides(color=FALSE, fill=FALSE) + 
+  labs(x='magnitude random effect', y='')
+p1 <- ggExtra::ggMarginal(p1, groupFill = TRUE, type="density", margins = "x", xparams = list(size = .3))
+
+p2 <- ggplot(ranef_total_gath %>% filter(rhythmic_par=="amplitude")) + 
+  geom_jitter(aes(y=effect, x=2^(2*value), group=effect, color=effect, fill=effect), alpha=0.3) +
+  geom_boxplot(aes(y=effect, x=2^(2*value), fill=effect), alpha=0.1) +
+  #facet_wrap(~rhythmic_par, scales='free') + 
+  scale_fill_manual(values = c("tissue" = "#d1495b", "subject" = "#00798c"))  +
+  scale_color_manual(values = c("tissue" = "#d1495b", "subject" = "#00798c"))  +
+  guides(color=FALSE, fill=FALSE)  + labs(x='amplitude random effect', y='')
+p2 <- ggExtra::ggMarginal(p2, groupFill = TRUE, type="density", margins = "x", xparams = list(size = .3))
+
+p3 <- ggplot(ranef_total_gath %>% filter(rhythmic_par=="phase")) + 
+  geom_jitter(aes(y=effect, x=value, group=effect, color=effect, fill=effect), alpha=0.3) +
+  geom_boxplot(aes(y=effect, x=value, fill=effect), alpha=0.1) +
+  #facet_wrap(~rhythmic_par, scales='free') + 
+  scale_fill_manual(values = c("tissue" = "#d1495b", "subject" = "#00798c"))  +
+  scale_color_manual(values = c("tissue" = "#d1495b", "subject" = "#00798c"))  +
+  guides(color=FALSE, fill=FALSE) +
+  scale_x_continuous(breaks=c(0,6,12,18,24)) + labs(x='phase random effect', y='')
+p3 <- ggExtra::ggMarginal(p3, groupFill = TRUE, type="density", margins = "x", xparams = list(size = .3))
+
+fig2A <- ggpubr::ggarrange(p1, p2, p3, nrow=1, ncol=3)
+
+
 
 # Save 50 genes with least magnitude variability (variance) across subjects -> supplementary Table 3
 if (!file.exists("figures/supp_table3.csv")){
@@ -277,40 +299,21 @@ variation_full <- rbind(variation_A %>% dplyr::rename(c("value_fit"="Amp")),
                              ifelse(rhythmic_par=="phi", "phase", "magnitude")),
          variable=ifelse(variable == "S", "subject", "tissue")) 
 
-plotVarPart(sortCols(df_total %>% dplyr::select(Symbol, var_A_layer, var_A_subject, var_phi_layer, 
-                                                var_phi_subject,  var_magn_layer, var_magn_subject) %>% 
-                       tibble::column_to_rownames("Symbol"))) + 
-  ggtitle('WHAT ABOUT RESIDUALS, x axis is wrong\nI dont understand this plot')
+#plotVarPart(sortCols(df_total %>% dplyr::select(Symbol, var_A_layer, var_A_subject, var_phi_layer, 
+#                                                var_phi_subject,  var_magn_layer, var_magn_subject) %>% 
+#                       tibble::column_to_rownames("Symbol"))) + 
+#  ggtitle('WHAT ABOUT RESIDUALS, x axis is wrong\nI dont understand this plot')
 
-df_forviolin <- variation_full %>% dplyr::mutate(vble = paste0(rhythmic_par, "_", variable)) %>% 
-  dplyr::select(Symbol, vble, cv)
-df_forviolin$vble = factor(df_forviolin$vble, levels=c('amplitude_subject','amplitude_tissue',
-                                                       'magnitude_tissue', 'magnitude_subject', 
-                                                       'phase_subject', 'phase_tissue'))
-ggplot(df_forviolin, aes(x=vble, y=cv, fill = factor(vble)) ) + 
-  geom_violin( scale="width" ) +
-  geom_boxplot(width=0.07, fill="grey", outlier.colour='black') + 
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
-  ggtitle('Is this plot confusing? It somehow confuses me.. Can we compare different CVs?\nwhat about CV_Phase?')
-## violin plots
-#ggpubr::ggarrange(
-#  ggplot(variation_full %>% dplyr::select(Symbol, variable, variance, rhythmic_par),
-#         aes(x=variable, y=variance, fill=variable)) + geom_violin() + facet_wrap(~rhythmic_par, scales="free_y") +
-#    guides(fill="none") + xlab('') +
-#    ggtitle('VARIANCES') +
-#    scale_fill_manual(values = c("tissue" = "#d1495b", "subject" = "#00798c")) ,
-#  ggplot(variation_full %>% dplyr::select(Symbol, variable, sd, rhythmic_par),
-#         aes(x=variable, y=sd, fill=variable)) + geom_violin() + facet_wrap(~rhythmic_par, scales="free_y") +
-#    guides(fill="none") + xlab('') +
-#    ggtitle('STANDARD DEVIATIONS') +
-#    scale_fill_manual(values = c("tissue" = "#d1495b", "subject" = "#00798c")) ,
-#  ggplot(variation_full %>% dplyr::select(Symbol, variable, cv, rhythmic_par),
-#         aes(x=variable, y=cv, fill=variable)) + geom_violin() + facet_wrap(~rhythmic_par, scales="free_y") +
-#    guides(fill="none") + xlab('') +
-#    ggtitle('CV (amp or magn)=sd/value_fit (amp or magn), CV_PHI=sd_phi/2pi') +
-#    scale_fill_manual(values = c("tissue" = "#d1495b", "subject" = "#00798c")) ,
-#  nrow=3, ncol=1, legend="right", common.legend=TRUE)
-
+#df_forviolin <- variation_full %>% dplyr::mutate(vble = paste0(rhythmic_par, "_", variable)) %>% 
+#  dplyr::select(Symbol, vble, cv)
+#df_forviolin$vble = factor(df_forviolin$vble, levels=c('amplitude_subject','amplitude_tissue',
+#                                                       'magnitude_tissue', 'magnitude_subject', 
+#                                                       'phase_subject', 'phase_tissue'))
+#ggplot(df_forviolin, aes(x=vble, y=cv, fill = factor(vble)) ) + 
+#  geom_violin( scale="width" ) +
+#  geom_boxplot(width=0.07, fill="grey", outlier.colour='black') + 
+#  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+#  ggtitle('Is this plot confusing? It somehow confuses me.. Can we compare different CVs?\nwhat about CV_Phase?')
 
 # Fractions of variance 
 amp <- variation_full %>% 
@@ -353,28 +356,39 @@ df_fraction_variance <- amp_frac %>% tibble::rownames_to_column("Symbol") %>%
   tidyr::separate(key, c("rhythm_par","variable"), convert = TRUE, sep = "_") 
 df_fraction_variance$rhythm_par = factor(df_fraction_variance$rhythm_par, levels=c('magnitude','amplitude','phase'))
 
+fig2C_2 <- ggplot(df_fraction_variance) + geom_boxplot(aes(y=value, x=variable, fill=variable), alpha=0.6) + 
+  facet_wrap(~rhythm_par) +
+  scale_fill_manual(values = c("tissue" = "#d1495b", "subject" = "#00798c")) 
+  
 
 clock_genes <- c("PER1","PER2","PER3", "CRY1", "CRY2", "NR1D1", "NR1D2", "ARNTL", "ARNTL2", "CLOCK", 
                  "NPAS2","RORA","RORB","RORC", "CSNK1D", "CSNK1E", "DBP")
 ZZ_genes <- c(ZZ_genes_D, ZZ_genes_E) %>% unique
 
-figI <- ggplot(df_fraction_variance %>% filter(variable=="subject")) +
+fig2C <- ggplot(df_fraction_variance %>% filter(variable=="subject")) +
   #geom_histogram(aes(value), alpha=0.6, position='identity', colour="black", fill="white", bins=50) +
   geom_density(aes(value, fill=variable, group=variable), alpha=0.6) + #, position="fill"
   geom_vline(data=filter(df_fraction_variance, Symbol %in% clock_genes & variable=="subject"), 
              aes(xintercept=value), color="black", size=.1, linetype="dashed") +
+  #geom_point(data=filter(df_fraction_variance, Symbol %in% clock_genes & variable=="subject"), 
+  #           aes(x=value, y=2.5), color="red") +
   geom_text_repel(data=filter(df_fraction_variance, Symbol %in% clock_genes & variable=="subject") %>%
                     mutate(Symbol_it = paste0("italic('", Symbol, "')")),
-                  aes(x=value, y=1.2, label=Symbol_it), angle=90, size=3.3,
-                  max.overlaps=Inf, box.padding=1.1, point.padding=.5, parse=TRUE, color="black") +
-  facet_wrap(~rhythm_par) +
-  scale_fill_manual(values = c("tissue" = "#d1495b", "subject" = "#00798c")) +
+                  aes(x=value, y=2.5, label=Symbol_it),  parse=TRUE, color="black",
+                  max.overlaps=Inf, #box.padding=1.1, point.padding=.5,
+                  force_pull   = 0, # do not pull toward data points
+                  nudge_y      = 0.05,
+                  direction    = "x",
+                  angle        = 90,
+                  hjust        = 0,
+                  segment.size = 0.2,
+                  max.iter = 1e4, max.time = 1) +
+  facet_wrap(~rhythm_par) + ylim(0, 3) + 
+  scale_fill_manual(values = c("tissue" = "#d1495b", "subject" = "#00798c"), guide="none") +
   labs(x='Fraction of variance explained by subject', y='Density')  
-print('labels!'
-)
 #https://ggrepel.slowkow.com/articles/examples.html#align-labels-on-the-left-or-right-edge-1
 
-figI_B <- ggplot(df_fraction_variance ) +
+fig2C_3 <- ggplot(df_fraction_variance ) +
   #geom_histogram(aes(value, y=..density..), 
   #               alpha=0.6, position='identity', colour="black", fill="white", bins=50) +
   stat_ecdf(aes(x = value, len=dim(df_total)[1], y = ..y..*len, color=variable), geom = "step") + 
@@ -446,7 +460,7 @@ pairs(df[,c(3:5)],
 DR_genes    <- filter(some_rhy, diff_rhythmic)$Symbol
 nonDR_genes <- filter(some_rhy, diff_rhythmic==FALSE)$Symbol
 
-figII <- ggplot(df %>% mutate(clock_gene = ifelse(Symbol %in% clock_genes, TRUE, FALSE))) +
+fig2B <- ggplot(df %>% mutate(clock_gene = ifelse(Symbol %in% clock_genes, TRUE, FALSE))) +
   geom_point(aes(x=cv_amp, y=cv_phi), alpha=0.3, color="grey") + 
   geom_point(data=filter(df, Symbol %in% DR_genes),      
              aes(x=cv_amp, y=cv_phi, color=variable), alpha=0.5) + 
@@ -458,25 +472,32 @@ figII <- ggplot(df %>% mutate(clock_gene = ifelse(Symbol %in% clock_genes, TRUE,
   geom_text_repel(data=filter(df, Symbol %in% clock_genes), 
                   aes(x=cv_amp, y=cv_phi, label=Symbol_it), 
                   max.overlaps=Inf, box.padding=1.1, point.padding=.5, parse=TRUE, color="black") +
-  scale_color_manual(values = c("tissue" = "#d1495b", "subject" = "#00798c")) +
-  scale_fill_manual(values = c("tissue" = "#d1495b", "subject" = "#00798c")) +
-  ggtitle(paste(length(which(df_total$ProbeName %in% filter(some_rhy, diff_rhythmic)$ProbeName)),
-                '/', dim(df_total)[1], ' amp-filtered vP genes are DR')) +
+  scale_color_manual(values = c("tissue" = "#d1495b", "subject" = "#00798c"), guide="none") +
+  scale_fill_manual(values = c("tissue" = "#d1495b", "subject" = "#00798c"), guide="none") +
+  #ggtitle(paste(length(which(df_total$ProbeName %in% filter(some_rhy, diff_rhythmic)$ProbeName)),
+  #              '/', dim(df_total)[1], ' amp-filtered vP genes are DR')) +
   labs(x='amplitude coefficient of variation', y='phase coefficient of variation')
+
+
+fig2 <- plot_grid(fig2A, NULL, fig2B, NULL, fig2C, nrow=5, 
+                  labels = c("A", "", "B", "", "C"), rel_heights = c(1,0.1,1.5,0.1,1.5))
+fig2 %>% ggsave('figures/fig2.pdf', ., width = 11, height = 9)
 
 # Correlations of variances vs means
 variation_full$rhythmic_par = factor(variation_full$rhythmic_par, levels=c('magnitude','amplitude','phase'))
 variation_full$variable= factor(variation_full$variable, levels=c('tissue','subject'))
 variation_full %<>%
   mutate(Symbol_it = paste0("italic('", Symbol, "')"))
-figIII <- ggplot(variation_full %>% 
-                   gather(effect, value, -ProbeName, -rhythmic_par, -variable, -cv, -sd, -Symbol, -Symbol_it)) +
-  geom_histogram(aes(value, fill=variable), color='black', bins=50, alpha=0.6) + 
-  facet_wrap(effect~rhythmic_par, scales="free") +
-  scale_fill_manual(values = c("tissue" = "#d1495b", "subject" = "#00798c")) +
+
+suppfig3_part1 <- ggplot(variation_full %>% dplyr::select(rhythmic_par, value_fit, variable)
+#                   gather(effect, value, -ProbeName, -rhythmic_par, -variable, -cv, -sd, -Symbol, -Symbol_it)
+                   ) +
+  geom_histogram(aes(value_fit, fill=variable), color='black', bins=50, alpha=0.6) + 
+  facet_wrap(~rhythmic_par, scales="free") +
+  scale_fill_manual(values = c("tissue" = "#d1495b", "subject" = "#00798c"), guide="none") #+
   ggtitle('distribution of fixed effects')
 
-figIII_B <- ggplot(variation_full) + 
+suppfig3_part2 <- ggplot(variation_full) + 
   facet_wrap(variable ~ rhythmic_par, scales="free") +
   facetted_pos_scales(
     y = list(scale_y_continuous(limits = c(0, 25)), scale_y_continuous(limits = c(0, 0.3)), scale_y_continuous(limits = c(0, 3)),
@@ -492,10 +513,13 @@ figIII_B <- ggplot(variation_full) +
   geom_text_repel(data=filter(variation_full, Symbol %in% clock_genes), 
                   aes(x= value_fit, y=variance, label=Symbol_it), 
                   max.overlaps=Inf, box.padding=1.1, point.padding=.5, parse=TRUE, color="black", size=2.5) +
-  scale_color_manual(values = c("tissue" = "#d1495b", "subject" = "#00798c"))+
-  scale_fill_manual(values = c("tissue" = "#d1495b", "subject" = "#00798c"))
+  scale_color_manual(values = c("tissue" = "#d1495b", "subject" = "#00798c"), guide="none")+
+  scale_fill_manual(values = c("tissue" = "#d1495b", "subject" = "#00798c"), guide="none") 
 
-
+suppfig3_new <- plot_grid(suppfig3_part1, NULL, suppfig3_part2, labels=c("A","","B"), nrow=3, rel_heights=c(1,0.1,2))
+suppfig3_new %>% ggsave('figures/suppfig3_new.pdf', ., width = 11, height = 9)
+###############################################
+#up to here 11.04.2022
 
 # Time-telling genes
 ZZ_genes_D <- c("KLF8", "PER3", "ABCC5", "RBM14", "EIF4A2", "HNRNPH3", "ZNF692", 
