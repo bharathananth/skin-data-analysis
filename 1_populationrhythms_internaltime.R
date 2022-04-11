@@ -301,14 +301,14 @@ suppfig2B <- ggplot(rhy_results %>% filter(Symbol %in% clock_genes) %>%
                     #mutate(phase_clock = format(.POSIXct(3600*phase_clock1, "UTC"), "%Y-%m-%d %H:%M:%S")) %>%
                     #mutate(time_of_day=hms::hms(second(phase_clock),minute(phase_clock),hour(phase_clock))) %>%
                     mutate(Symbol_it = paste0("italic('", Symbol, "')")),                  
-                aes(x=phase_value%%24, y=amp_value)) +
+                aes(x=phase_value%%24, y=2^(2*amp_value))) +
   geom_point(aes(color=tissue)) +
   coord_polar(start = 0, direction=1) + 
   scale_x_continuous(limits=c(0,24), breaks = c(0, 6, 12, 18), labels = c(0, 6, 12, 18)) +
-  scale_y_continuous(breaks = seq(0.2,0.8,0.2)) +
+  #scale_y_continuous(breaks = seq(0.2,0.8,0.2)) +
   facet_wrap(~tissue, ncol=2, nrow=1) +
   geom_segment(aes(x=phase_value%%24, y=0, 
-                   xend=phase_value%%24, yend=amp_value, color=tissue)) +
+                   xend=phase_value%%24, yend=2^(2*amp_value), color=tissue)) +
   geom_text_repel(aes(label=Symbol_it), max.overlaps=Inf, box.padding=1, size=3.5, point.padding=.5,
                   segment.color="grey70", color="grey50", parse=TRUE) +
   xlab("") + ylab(bquote(~log[2]*' fold amplitude')) + guides(color = FALSE) + 
@@ -332,7 +332,7 @@ fig1D_1 <- ggplot(toplot, aes(x=phase_value%%24, y=FC_amp, color=tissue, shape=c
                   max.overlaps=Inf, box.padding=1.1, point.padding=.5,  size=3,
                   segment.color="black", color="black", parse=TRUE)  +
   scale_x_continuous(limits=c(0,24), breaks = c(0, 3, 6, 9, 12, 15, 18, 21, 24) ) + 
-  scale_y_continuous(limits=c(1,4.6), trans='log2')+
+  scale_y_continuous(limits=c(1,5), breaks=seq(1:4), trans='log2') +
   ylab("Amplitude fold change") + xlab(bquote('time after'*~MSF[sc])) + 
   theme_custom() + theme(aspect.ratio = 0.7) +
   guides(color = FALSE) + 
@@ -354,7 +354,7 @@ fig1D_2 <- ggplot(toplot, aes(x=phase_value%%24, y=FC_amp, color=tissue, shape=c
                   max.overlaps=Inf, box.padding=1.1, point.padding=.5, size=3,
                   segment.color="black", color="black", parse=TRUE)  +
   scale_x_continuous(limits=c(0,24), breaks = c(0, 3, 6, 9, 12, 15, 18, 21, 24) ) + 
-  scale_y_continuous(limits=c(1,4.6), trans='log2')+
+  scale_y_continuous(limits=c(1,5), breaks=seq(1:4), trans='log2')+
   ylab("Amplitude fold change") +xlab(bquote('time after'*~MSF[sc])) + 
   theme_custom() + theme(aspect.ratio = 0.7) +
   guides(color = FALSE) + 
@@ -374,28 +374,31 @@ both_rhy <- rhy_results[which(rhy_results$Symbol %in% rhy_results[duplicated(rhy
 both_rhy_amp <- both_rhy %>% dplyr::select(Symbol, tissue, amp_value) %>% spread(tissue, amp_value) %>% 
   mutate(Symbol_it = paste0("italic('", Symbol, "')")) %>% arrange(desc(dermis)) %>%
   mutate(clock_gene=ifelse(Symbol %in% clock_genes, TRUE, FALSE))
+both_rhy_amp$ampFC_dermis <- 2^(2*both_rhy_amp$dermis)
+both_rhy_amp$ampFC_epidermis <- 2^(2*both_rhy_amp$epidermis)
 
 # from the genes that are rhythmic in both layers, how many are DIFFERENTIALLY rhythmic?
 both_rhy_DR <- results %>% filter(diff_rhythmic==TRUE) %>% filter(Symbol %in% both_rhy$Symbol)
 
-fig1E <- ggplot(both_rhy_amp, aes(x=dermis, y=epidermis, shape=clock_gene)) + 
+fig1E <- ggplot(both_rhy_amp, aes(x=ampFC_dermis, y=ampFC_epidermis, shape=clock_gene)) + 
   geom_abline(slope=1, intercept=0, lty='dashed', color="gray") + 
   geom_point(color="#7570B3", alpha=0.3) +
   geom_point(data = filter(both_rhy_amp, Symbol %in% clock_genes), 
-             aes(x=dermis, y=epidermis), color="black", shape=8) + # #DC0000B2
+             aes(x=ampFC_dermis, y=ampFC_epidermis), color="black", shape=8) + # #DC0000B2
   geom_point(data=both_rhy_amp %>% filter(Symbol %in% both_rhy_DR$Symbol), 
-             aes(x=dermis, y=epidermis, shape=clock_gene), color="coral1") +
-  scale_shape_manual(values=c(16,8), guide="none") +
-  geom_text_repel(data = filter(both_rhy_amp, Symbol %in% clock_genes),  box.padding=1., max.overlaps=10, 
-                  size=3., aes(x=dermis, y=epidermis, label=Symbol_it), color="black", parse=TRUE, point.padding = .5) +
+             aes(x=ampFC_dermis, y=ampFC_epidermis, shape=clock_gene), color="coral1") +
+  scale_shape_manual(values=c(16,8), guide=FALSE) +
+  geom_text_repel(data = filter(both_rhy_amp, Symbol %in% clock_genes),  box.padding=1., 
+                  size=3., aes(x=ampFC_dermis, y=ampFC_epidermis, label=Symbol_it), color="black", 
+                  parse=TRUE, point.padding = .5, max.overlaps=Inf) +
   coord_fixed() + theme_bw() + 
   xlab(bquote(~log[2]*' fold amp. dermis')) + ylab(bquote(~log[2]*' fold amp. epidermis')) +
   #xlab("Amplitude dermis") + ylab("Amplitude epidermis") +
   theme_custom() + 
-  scale_x_continuous(limits=c(0.20,1.2), breaks = seq(0.2, 1.2, by=0.2), trans='log2') +
-  scale_y_continuous(limits=c(0.20,1.2), breaks = seq(0.2, 1.2, by=0.2), trans='log2') +
-  annotate(geom='text', label=paste0(' ', no_common, ' genes'), x=0.2, y=1.2, hjust=0, vjust=1, color="#7570B3") +
-  annotate(geom='text', label=paste0(' ', no_common_DR, ' genes'), x=0.2, y=1.0, hjust=0, vjust=1, color="coral1")
+  scale_x_continuous(limits=c(1, 5), breaks=seq(1:4), trans='log2') +
+  scale_y_continuous(limits=c(1, 5), breaks=seq(1:4), trans='log2') +
+  annotate(geom='text', label=paste0(' ', no_common, ' genes'), x=1.0, y=5, hjust=0, vjust=1, color="#7570B3") +
+  annotate(geom='text', label=paste0(' ', no_common_DR, ' genes'), x=1.00, y=4.2, hjust=0, vjust=1, color="coral1")
 
 
 
