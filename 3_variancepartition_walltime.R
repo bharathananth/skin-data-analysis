@@ -188,74 +188,90 @@ df_total %<>% filter(Amp>.15) # filter genes with low amp_fit that result in hig
 hist(df_total$Amp, breaks=100)
 
 # PLOT DISTRIBUTIONS OF RANDOM EFFECTS -> HOW VARIABLE ARE MAGNITUDES, AMPLITUDES AND PHASES ACROSS LAYERS/SUBJECTS?
+#ranef_total_subj <- data.frame('(Intercept)'=NULL, 'inphase'=NULL, 'outphase'=NULL, 'gene'=NULL)
+#ranef_total_lay  <- data.frame('(Intercept)'=NULL, 'inphase'=NULL, 'outphase'=NULL, 'gene'=NULL)
+#for (g in c(1:length(fitList))){
+#  
+#  #ranef_g_subj <- ranef(fitList[[g]])$subject %>% as.data.frame
+#  #ranef_g_lay <- ranef(fitList[[g]])$tissue%>% as.data.frame
+#  
+#  ranef_total_subj <- rbind(ranef_total_subj, ranef_g_subj)
+#  ranef_total_lay <- rbind(ranef_total_lay, ranef_g_lay)
+#}
+
+
 ranef_total_subj <- data.frame('(Intercept)'=NULL, 'inphase'=NULL, 'outphase'=NULL, 'gene'=NULL)
+for (g in c(1:length(fitList))){
+  #new_gene <- ranef_g_subj[r,]
+  new_gene <- ranef(fitList[[g]])$subject %>% as.data.frame
+  new_gene$gene <- paste0('gene', g)
+  ranef_total_subj <- rbind(ranef_total_subj, new_gene)
+}
 ranef_total_lay  <- data.frame('(Intercept)'=NULL, 'inphase'=NULL, 'outphase'=NULL, 'gene'=NULL)
 for (g in c(1:length(fitList))){
-  
-  ranef_g_subj <- ranef(fitList[[g]])$subject %>% as.data.frame
-  ranef_g_lay <- ranef(fitList[[g]])$tissue%>% as.data.frame
-  
-  ranef_g_subj <- data.frame('(Intercept)'=NULL, 'inphase'=NULL, 'outphase'=NULL, 'gene'=NULL)
-  for (r in c(1:nrow(ranef_g_subj))){
-    new_row <- ranef_g_subj[r,]
-    new_row$gene <- paste0('gene', g)
-    ranef_g_subj <- rbind(ranef_g_subj, new_row)
-  }
-  ranef_g_lay  <- data.frame('(Intercept)'=NULL, 'inphase'=NULL, 'outphase'=NULL, 'gene'=NULL)
-  for (r in c(1:nrow(ranef_g_lay))){
-    new_row <- ranef_g_lay[r,]
-    new_row$gene <- paste0('gene', g)
-    ranef_g_lay <- rbind(ranef_g_lay, new_row)
-  }
-  
-  ranef_total_subj <- rbind(ranef_total_subj, ranef_g_subj)
-  ranef_total_lay <- rbind(ranef_total_lay, ranef_g_lay)
+  #new_gene <- ranef_g_lay[r,]
+  new_gene <- ranef(fitList[[g]])$tissue %>% as.data.frame
+  new_gene$gene <- paste0('gene', g)
+  ranef_total_lay <- rbind(ranef_total_lay, new_gene)
 }
-
 
 ranef_total_subj$effect <- 'subject'
 ranef_total_subj$factor <- rep(unique(info_exp$subject), times=length(fitList))
-ranef_total_lay$effect <- 'tissue'
+ranef_total_lay$effect <- 'layer'
 ranef_total_lay$factor  <- rep(unique(info_exp$tissue), times=length(fitList))
 
 ranef_total <- full_join(ranef_total_lay, ranef_total_subj) %>% dplyr::rename(c('magnitude'='(Intercept)'))
 ranef_total$amplitude <- sqrt(ranef_total$inphase^2 + ranef_total$outphase^2) #log2
 ranef_total$phase <- atan2(ranef_total$outphase, ranef_total$inphase)*12/pi
 ranef_total$phase <- ifelse(ranef_total$phase + 8 < 0, ranef_total$phase + 8 + 24, ranef_total$phase + 8)
-ranef_total_gath <- ranef_total %>% select(-inphase, -outphase) %>% gather(rhythmic_par, value, -gene, -effect, -factor)
-ranef_total_gath$rhythmic_par = factor(ranef_total_gath$rhythmic_par, levels=c('magnitude','amplitude','phase'))
+ranef_total_gath <- ranef_total %>% select(-amplitude, -phase) %>% gather(rhythmic_par, value, -gene, -effect, -factor)
+#ranef_total_gath <- ranef_total %>% select(-inphase, -outphase) %>% gather(rhythmic_par, value, -gene, -effect, -factor)
+ranef_total_gath$rhythmic_par = factor(ranef_total_gath$rhythmic_par, levels=c('magnitude','inphase','outphase'))
 
-p1 <- ggplot(ranef_total_gath %>% filter(rhythmic_par=="magnitude")) + 
-  geom_jitter(aes(y=effect, x=value, group=effect, color=effect, fill=effect), alpha=0.3) +
-  geom_boxplot(aes(y=effect, x=value, fill=effect), alpha=0.1) +
-  #facet_wrap(~rhythmic_par, scales='free') + 
-  scale_fill_manual(values = c("tissue" = "#d1495b", "subject" = "#00798c"))  +
-  scale_color_manual(values = c("tissue" = "#d1495b", "subject" = "#00798c"))  +
-  guides(color=FALSE, fill=FALSE) + 
-  labs(x='magnitude random effect', y='')
-p1 <- ggExtra::ggMarginal(p1, groupFill = TRUE, type="density", margins = "x", xparams = list(size = .3))
+#p1 <- ggplot(ranef_total_gath %>% filter(rhythmic_par=="magnitude")) + 
+#  geom_jitter(aes(y=effect, x=value, group=effect, color=effect, fill=effect), alpha=0.3, size=.5) +
+#  geom_boxplot(aes(y=effect, x=value, fill=effect), alpha=0.1, width=0.33, fill="white", outlier.size = 1) +
+#  #facet_wrap(~rhythmic_par, scales='free') + 
+#  scale_fill_manual(values = c("layer" = "#d1495b", "subject" = "#00798c"))  +
+#  scale_color_manual(values = c("layer" = "#d1495b", "subject" = "#00798c"))  +
+#  guides(color=FALSE, fill=FALSE) + 
+#  labs(x='variability in m', y='') 
+#p1 <- ggExtra::ggMarginal(p1, groupFill = TRUE, type="density", margins = "x", xparams = list(size = .3), size=1.5)
+#
+#p2 <- ggplot(ranef_total_gath %>% filter(rhythmic_par=="inphase")) + 
+#  geom_jitter(aes(y=effect, x=value, group=effect, color=effect, fill=effect), alpha=0.1, size=.5) +
+#  geom_boxplot(aes(y=effect, x=value, fill=effect), alpha=0.1, outlier.size = 1, width=0.33, fill="white") +
+#  #facet_wrap(~rhythmic_par, scales='free') + 
+#  scale_fill_manual(values = c("layer" = "#d1495b", "subject" = "#00798c"))  +
+#  scale_color_manual(values = c("layer" = "#d1495b", "subject" = "#00798c"))  +
+#  guides(color=FALSE, fill=FALSE)  + labs(x='variability in a', y='')
+#p2 <- ggExtra::ggMarginal(p2, groupFill = TRUE, type="density", margins = "x", xparams = list(size = .3), size=1.5)
+#
+#p3 <- ggplot(ranef_total_gath %>% filter(rhythmic_par=="outphase")) + 
+#  geom_jitter(aes(y=effect, x=value, group=effect, color=effect, fill=effect), alpha=0.1, size=.5) +
+#  geom_boxplot(aes(y=effect, x=value, fill=effect), alpha=0.1, width=0.33, fill="white", outlier.size = 1) +
+#  #facet_wrap(~rhythmic_par, scales='free') + 
+#  scale_fill_manual(values = c("layer" = "#d1495b", "subject" = "#00798c"))  +
+#  scale_color_manual(values = c("layer" = "#d1495b", "subject" = "#00798c"))  +
+#  guides(color=FALSE, fill=FALSE) +
+#  #scale_x_continuous(breaks=c(0,6,12,18,24)) + 
+#  labs(x='variability in b', y='')
+#p3 <- ggExtra::ggMarginal(p3, groupFill = TRUE, type="density", margins = "x", xparams = list(size = .3),  size=1.5)
+#
+#fig2A <- ggpubr::ggarrange(p1, NULL, p2, NULL, p3, nrow=1, ncol=5, widths = c(1, -0.5, 1, -0.5, 1))
 
-p2 <- ggplot(ranef_total_gath %>% filter(rhythmic_par=="amplitude")) + 
-  geom_jitter(aes(y=effect, x=2^(2*value), group=effect, color=effect, fill=effect), alpha=0.3) +
-  geom_boxplot(aes(y=effect, x=2^(2*value), fill=effect), alpha=0.1) +
-  #facet_wrap(~rhythmic_par, scales='free') + 
-  scale_fill_manual(values = c("tissue" = "#d1495b", "subject" = "#00798c"))  +
-  scale_color_manual(values = c("tissue" = "#d1495b", "subject" = "#00798c"))  +
-  guides(color=FALSE, fill=FALSE)  + labs(x='amplitude random effect', y='')
-p2 <- ggExtra::ggMarginal(p2, groupFill = TRUE, type="density", margins = "x", xparams = list(size = .3))
-
-p3 <- ggplot(ranef_total_gath %>% filter(rhythmic_par=="phase")) + 
-  geom_jitter(aes(y=effect, x=value, group=effect, color=effect, fill=effect), alpha=0.3) +
-  geom_boxplot(aes(y=effect, x=value, fill=effect), alpha=0.1) +
-  #facet_wrap(~rhythmic_par, scales='free') + 
-  scale_fill_manual(values = c("tissue" = "#d1495b", "subject" = "#00798c"))  +
-  scale_color_manual(values = c("tissue" = "#d1495b", "subject" = "#00798c"))  +
+ranef_total_gath$effect <- factor(ranef_total_gath$effect, levels=c("layer", "subject"))
+fig2A <- ggplot(ranef_total_gath) + 
+  geom_jitter(aes(y=effect, x=value, group=effect, color=effect, fill=effect), alpha=0.1, size=.5) +
+  geom_boxplot(aes(y=effect, x=value, fill=effect), alpha=0.1, width=0.33, fill="white", outlier.size = 1) +
+  facet_wrap(~rhythmic_par, scales='free') + 
+  scale_fill_manual(values = c("layer" = "#d1495b", "subject" = "#00798c"))  +
+  scale_color_manual(values = c("layer" = "#d1495b", "subject" = "#00798c"))  +
   guides(color=FALSE, fill=FALSE) +
-  scale_x_continuous(breaks=c(0,6,12,18,24)) + labs(x='phase random effect', y='')
-p3 <- ggExtra::ggMarginal(p3, groupFill = TRUE, type="density", margins = "x", xparams = list(size = .3))
-
-fig2A <- ggpubr::ggarrange(p1, p2, p3, nrow=1, ncol=3)
-
+  #scale_x_continuous(breaks=c(0,6,12,18,24)) + 
+  labs(x='variability', y='') +
+  ggtitle('better distribution of sds?') +
+  theme( panel.spacing = unit(2.5, "lines"))
 
 
 # Save 50 genes with least magnitude variability (variance) across subjects -> supplementary Table 3
@@ -298,6 +314,20 @@ variation_full <- rbind(variation_A %>% dplyr::rename(c("value_fit"="Amp")),
   mutate(rhythmic_par=ifelse(rhythmic_par == "A", "amplitude", 
                              ifelse(rhythmic_par=="phi", "phase", "magnitude")),
          variable=ifelse(variable == "S", "subject", "tissue")) 
+
+variation_full$rhythmic_par <- factor(variation_full$rhythmic_par, levels=c("magnitude", "amplitude", "phase"))
+variation_full$effect <- ifelse(variation_full$variable=="tissue", "layer", "subject")
+variation_full$effect <- factor(variation_full$effect, levels=c("layer", "subject"))
+fig2A_2 <- ggplot(variation_full %>% dplyr::select(rhythmic_par, sd, Symbol, effect)) +
+  geom_jitter(aes(y=effect, x=sd, group=effect, color=effect, fill=effect), alpha=0.1, size=.5) +
+  geom_boxplot(aes(y=effect, x=sd, fill=effect), alpha=0.1, width=0.33, fill="white", outlier.size = 1) +
+  facet_wrap(~rhythmic_par, scales='free') + 
+  scale_fill_manual(values = c("layer" = "#d1495b", "subject" = "#00798c"))  +
+  scale_color_manual(values = c("layer" = "#d1495b", "subject" = "#00798c"))  +
+  guides(color=FALSE, fill=FALSE) +
+  #scale_x_continuous(breaks=c(0,6,12,18,24)) + 
+  labs(x='standard deviation', y='') +
+  theme( panel.spacing = unit(1.6, "lines"))
 
 #plotVarPart(sortCols(df_total %>% dplyr::select(Symbol, var_A_layer, var_A_subject, var_phi_layer, 
 #                                                var_phi_subject,  var_magn_layer, var_magn_subject) %>% 
@@ -365,28 +395,108 @@ clock_genes <- c("PER1","PER2","PER3", "CRY1", "CRY2", "NR1D1", "NR1D2", "ARNTL"
                  "NPAS2","RORA","RORB","RORC", "CSNK1D", "CSNK1E", "DBP")
 ZZ_genes <- c(ZZ_genes_D, ZZ_genes_E) %>% unique
 
-fig2C <- ggplot(df_fraction_variance %>% filter(variable=="subject")) +
-  #geom_histogram(aes(value), alpha=0.6, position='identity', colour="black", fill="white", bins=50) +
-  geom_density(aes(value, fill=variable, group=variable), alpha=0.6) + #, position="fill"
-  geom_vline(data=filter(df_fraction_variance, Symbol %in% clock_genes & variable=="subject"), 
-             aes(xintercept=value), color="black", size=.1, linetype="dashed") +
-  #geom_point(data=filter(df_fraction_variance, Symbol %in% clock_genes & variable=="subject"), 
-  #           aes(x=value, y=2.5), color="red") +
-  geom_text_repel(data=filter(df_fraction_variance, Symbol %in% clock_genes & variable=="subject") %>%
-                    mutate(Symbol_it = paste0("italic('", Symbol, "')")),
-                  aes(x=value, y=2.5, label=Symbol_it),  parse=TRUE, color="black",
-                  max.overlaps=Inf, #box.padding=1.1, point.padding=.5,
-                  force_pull   = 0, # do not pull toward data points
-                  nudge_y      = 0.05,
-                  direction    = "x",
-                  angle        = 90,
-                  hjust        = 0,
-                  segment.size = 0.2,
-                  max.iter = 1e4, max.time = 1) +
-  facet_wrap(~rhythm_par) + ylim(0, 3) + 
+df_fraction_variance$rhythm_par = factor(df_fraction_variance$rhythm_par, levels=c('magnitude','amplitude','phase'))
+fig2C_1 <- ggplot(df_fraction_variance %>% filter(variable=="subject")) +
+  geom_histogram(aes(value, y=..density.., fill=variable), 
+                 alpha=0.6, position='identity', colour="white", bins=50) +
+  geom_density(aes(value, fill=variable, group=variable), alpha=0.3) + #, position="fill"
+  #geom_text_repel(
+  #  data=filter(df_fraction_variance, Symbol %in% clock_genes & variable=="subject")%>%
+  #    mutate(Symbol_it = paste0("italic('", Symbol, "')")),
+  #  aes(
+  #    x = value,
+  #    y = 2.5,
+  #    label=Symbol_it
+  #  ),
+  #  size=2.8, parse = TRUE, max.overlaps = Inf, box.padding = 1.
+  #) + 
+  #stat_bin(bins=50) + ylim(c(0, 3)) +  
+  #stat_bin(bins=50, geom="text", aes(label=..count..), vjust=-1.5) 
+  #geom_vline(data=filter(df_fraction_variance, Symbol %in% clock_genes & variable=="subject"), 
+  #           aes(xintercept=value), color="black", size=.1, linetype="dashed") +
+  facet_wrap(~rhythm_par, scales="free") + 
+  coord_cartesian(ylim=c(0, 3.5))+ # ylim(0, 3.5) + 
   scale_fill_manual(values = c("tissue" = "#d1495b", "subject" = "#00798c"), guide="none") +
-  labs(x='Fraction of variance explained by subject', y='Density')  
+  labs(x='Fraction of variance explained by subject', y='Density')  +
+  theme(panel.spacing = unit(2.8, "lines"))
 #https://ggrepel.slowkow.com/articles/examples.html#align-labels-on-the-left-or-right-edge-1
+
+# bin information of magnitude panel
+info_hist_magn <- layer_data(fig2C, 1) %>% filter(PANEL==1)
+only_CGs_magn <- filter(df_fraction_variance, Symbol %in% clock_genes & variable=="subject" & rhythm_par=="magnitude") %>%
+  mutate(Symbol_it = paste0("italic('", Symbol, "')")) %>% dplyr::select(Symbol, Symbol_it, rhythm_par, value) 
+idxs_magn <- c()
+for (v in only_CGs_magn$value){
+  m <- (info_hist_magn$xmax - v) > 0
+  m2 <- min(which(m == TRUE))
+  idxs_magn <- append(idxs_magn, m2)
+  print(m2)
+}
+only_CGs_magn$hist_xvalue <- info_hist_magn[idxs_magn, "x"]
+only_CGs_magn$hist_yvalue <- info_hist_magn[idxs_magn, "y"]
+only_CGs_magn$rhythm_par <- "magnitude"
+
+# bin information of amplitude panel
+info_hist_amp <- layer_data(fig2C, 1) %>% filter(PANEL==2)
+only_CGs_amp <- filter(df_fraction_variance, Symbol %in% clock_genes & variable=="subject" & rhythm_par=="amplitude") %>%
+  mutate(Symbol_it = paste0("italic('", Symbol, "')")) %>% dplyr::select(Symbol, Symbol_it, rhythm_par, value) 
+idxs_amp <- c()
+for (v in only_CGs_amp$value){
+  m <- (info_hist_amp$xmax - v) > 0
+  m2 <- min(which(m == TRUE))
+  idxs_amp <- append(idxs_amp, m2)
+  print(m2)
+}
+only_CGs_amp$hist_xvalue <- info_hist_amp[idxs_amp, "x"]
+only_CGs_amp$hist_yvalue <- info_hist_amp[idxs_amp, "y"]
+only_CGs_amp$rhythm_par <- "amplitude"
+
+
+# bin information of phase panel
+info_hist_phi <- layer_data(fig2C, 1) %>% filter(PANEL==3)
+only_CGs_phi <- filter(df_fraction_variance, Symbol %in% clock_genes & variable=="subject" & rhythm_par=="phase") %>%
+  mutate(Symbol_it = paste0("italic('", Symbol, "')")) %>% dplyr::select(Symbol, Symbol_it, rhythm_par, value) 
+idxs_phi <- c()
+for (v in only_CGs_phi$value){
+  m <- (info_hist_phi$xmax - v) > 0
+  m2 <- min(which(m == TRUE))
+  idxs_phi <- append(idxs_phi, m2)
+  print(m2)
+}
+only_CGs_phi$hist_xvalue <- info_hist_phi[idxs_phi, "x"]
+only_CGs_phi$hist_yvalue <- info_hist_phi[idxs_phi, "y"]
+only_CGs_phi$rhythm_par <- "phase"
+
+only_CGs <- rbind(only_CGs_magn, only_CGs_amp, only_CGs_phi)
+
+df_fraction_variance$rhythm_par = factor(df_fraction_variance$rhythm_par, levels=c('magnitude','amplitude','phase'))
+only_CGs$rhythm_par = factor(only_CGs$rhythm_par, levels=c('magnitude','amplitude','phase'))
+only_CGs$hist_yvalue <- ifelse(only_CGs$hist_yvalue>3.5, 3.5, only_CGs$hist_yvalue)
+fig2C <- fig2C_1 +   
+  geom_text_repel(
+    data=only_CGs,# %>% filter(Symbol %in% c("ARNTL", "CRY1",  "DBP"  , "NPAS2")),
+    aes(x = hist_xvalue, y = hist_yvalue, label=Symbol_it),
+    size=2.8, parse = TRUE, max.overlaps = Inf, box.padding = 1.,
+    force_pull   = 0, # do not pull toward data points
+    nudge_y      = 1,
+    direction    = "x",
+    angle        = 0,
+    hjust        = 0,
+    segment.size = 0.2,
+    max.iter = 1e4, max.time = 1, segment.color="grey50")  #+
+  geom_text_repel(
+    data=only_CGs %>% filter(Symbol %in% c("NR1D1", "NR1D2", "PER1",  "PER2",  "PER3" )),
+    aes(x = hist_xvalue, y = hist_yvalue, label=Symbol_it),
+    size=2.8, parse = TRUE, max.overlaps = Inf, box.padding = 1.,
+    #force_pull   = 0.05, # do not pull toward data points
+    nudge_y      = 2,
+    direction    = "x",
+    angle        = 0,
+    hjust        = 0,
+    segment.size = 0.2,
+    max.iter = 1e4, max.time = 1, segment.color="grey")  
+
+###########
 
 fig2C_3 <- ggplot(df_fraction_variance ) +
   #geom_histogram(aes(value, y=..density..), 
@@ -447,7 +557,7 @@ df <- variation_A %>% mutate(variable=ifelse(variable=="A_T", "tissue", "subject
   mutate(Symbol_it = paste0("italic('", Symbol, "')"))
 
   
-df$variable <- as.factor(df$variable)
+df$variable <- as.factor(df$variable, levels=c("tissue", "subject"))
 pairs(df[,c(3:5)],
       col = alpha(c("#00798c", "#d1495b"), 0.4)[df$variable],   
       pch = 19,                                                
@@ -460,28 +570,45 @@ pairs(df[,c(3:5)],
 DR_genes    <- filter(some_rhy, diff_rhythmic)$Symbol
 nonDR_genes <- filter(some_rhy, diff_rhythmic==FALSE)$Symbol
 
+df$variable <- factor(df$variable, levels=c("tissue", "subject"))
 fig2B <- ggplot(df %>% mutate(clock_gene = ifelse(Symbol %in% clock_genes, TRUE, FALSE))) +
-  geom_point(aes(x=cv_amp, y=cv_phi), alpha=0.3, color="grey") + 
+  geom_point(aes(x=cv_amp, y=cv_phi), alpha=0.3, color="grey", size=.8) + 
   geom_point(data=filter(df, Symbol %in% DR_genes),      
-             aes(x=cv_amp, y=cv_phi, color=variable), alpha=0.5) + 
-  facet_wrap(~variable) +
+             aes(x=cv_amp, y=cv_phi, color=variable), alpha=0.5,size=.8) + 
+  facet_wrap(~variable, scales="free") +
   geom_point(data=filter(df, Symbol %in% clock_genes & Symbol %in% nonDR_genes),      
              aes(x=cv_amp, y=cv_phi), alpha=1, shape=21, color="black", size=3, fill="grey20") +
   geom_point(data=filter(df, Symbol %in% clock_genes & Symbol %in% DR_genes),      
              aes(x=cv_amp, y=cv_phi, fill=variable), alpha=1, shape=21, color="black", size=3) +
   geom_text_repel(data=filter(df, Symbol %in% clock_genes), 
                   aes(x=cv_amp, y=cv_phi, label=Symbol_it), 
-                  max.overlaps=Inf, box.padding=1.1, point.padding=.5, parse=TRUE, color="black") +
+                  force        = 0.5,
+                  nudge_x      = 2.0,
+                  direction    = "y",
+                  hjust        = 0,
+                  segment.size = 0.2, 
+                  parse=TRUE, size=2.8, segment.color="grey") +
+                  #max.overlaps=Inf, box.padding=1.1, point.padding=.5, parse=TRUE, color="black") +
   scale_color_manual(values = c("tissue" = "#d1495b", "subject" = "#00798c"), guide="none") +
-  scale_fill_manual(values = c("tissue" = "#d1495b", "subject" = "#00798c"), guide="none") +
+  scale_fill_manual(values = c("tissue" = "#d1495b", "subject" = "#00798c")) +
   #ggtitle(paste(length(which(df_total$ProbeName %in% filter(some_rhy, diff_rhythmic)$ProbeName)),
   #              '/', dim(df_total)[1], ' amp-filtered vP genes are DR')) +
-  labs(x='amplitude coefficient of variation', y='phase coefficient of variation')
+  labs(x='amplitude coefficient of variation', y='phase coefficient of variation') +
+  theme(legend.position = "right",
+        strip.text = element_blank(),
+        panel.spacing = unit(2.5, "lines")) +
+  scale_y_continuous(limits=c(0,0.08)) + scale_x_continuous(limits=c(0,1.8))
 
 
-fig2 <- plot_grid(fig2A, NULL, fig2B, NULL, fig2C, nrow=5, 
-                  labels = c("A", "", "B", "", "C"), rel_heights = c(1,0.1,1.5,0.1,1.5))
+fig2 <- plot_grid(fig2A_2, NULL, 
+                  plot_grid(NULL, fig2B, NULL, ncol=3, rel_widths = c(.015,1,0.25)), 
+                  NULL, fig2C, nrow=5, 
+                  labels = c("A", "", "B", "", "C"), rel_heights = c(1,0.1,.9,0.1,1),align = "v")
+#fig2 <- plot_grid(plot_grid(fig2A_2, fig2B, ncol=2, rel_widths = c(.6,.4), labels = c("A", "B")), 
+#                  NULL, fig2C, nrow=3, 
+#                  labels = c("", "", "C"), rel_heights = c(1,0.1,1),align = "v")
 fig2 %>% ggsave('figures/fig2.pdf', ., width = 11, height = 9)
+
 
 # Correlations of variances vs means
 variation_full$rhythmic_par = factor(variation_full$rhythmic_par, levels=c('magnitude','amplitude','phase'))
@@ -492,7 +619,7 @@ variation_full %<>%
 suppfig3_part1 <- ggplot(variation_full %>% dplyr::select(rhythmic_par, value_fit, variable)
 #                   gather(effect, value, -ProbeName, -rhythmic_par, -variable, -cv, -sd, -Symbol, -Symbol_it)
                    ) +
-  geom_histogram(aes(value_fit, fill=variable), color='black', bins=50, alpha=0.6) + 
+  geom_histogram(aes(value_fit, fill=variable), color='white', bins=50, alpha=0.6) + 
   facet_wrap(~rhythmic_par, scales="free") +
   scale_fill_manual(values = c("tissue" = "#d1495b", "subject" = "#00798c"), guide="none") #+
   ggtitle('distribution of fixed effects')
