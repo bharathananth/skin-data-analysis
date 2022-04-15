@@ -281,37 +281,40 @@ vGath <- vGath %>% mutate(sign = ifelse(Coefficient < 0, "-", "+"),
 vGath$Coefficient <- abs(vGath$Coefficient)
 if (!file.exists("visualize/data/zeitzeiger_dermis_epidermis_internal.csv")){
   write.csv(vGath %>% dplyr::select(Symbol, spc, Coefficient, tissue, sign), 
-            "visualize/data/zeitzeiger_dermis_epidermis_internal.csv")}
+            "visualize/data/zeitzeiger_dermis_epidermis_internal.csv")
+}
 
-# Check which ZeitZeiger genes are also found as highly time-variant genes through variance partition
-vp.D <- read.csv("visualize/data/variancePartition_dermis.csv") %>% dplyr::select(-X)
-vp.E <- read.csv("visualize/data/variancePartition_epidermis.csv") %>% dplyr::select(-X)
-vp.full <- read.csv("visualize/data/variancePartition_full.csv") %>% dplyr::select(-X) %>% #NOTE that this is from full!!!
-  rename(c("timetissue"="time.tissue", "timesubject"="time.subject"))
+# Check which ZeitZeiger genes are also found as lowly magnitude-variant genes across subjects through variance partition
+vp.D <- read.csv("visualize/data/variance_rhythmic_parameters_dermis.csv") %>% dplyr::select(-X)
+vp.E <- read.csv("visualize/data/variance_rhythmic_parameters_epidermis.csv") %>% dplyr::select(-X)
+vp.full <- read.csv("visualize/data/variance_rhythmic_parameters_full.csv") %>% dplyr::select(-X) 
+vp.D %<>% filter(Amp>.15)
+vp.E %<>% filter(Amp>.15)
+vp.full %<>% filter(Amp>.15)
 
-vp_time.D <- vp.D %>% arrange(desc(time)) %>% dplyr::select(Symbol, time) %>% mutate(tissue="dermis") %>% head(20)
-vp_time.E <- vp.E %>% arrange(desc(time)) %>% dplyr::select(Symbol, time) %>% mutate(tissue="epidermis") %>% head(20)
-vp_time <- rbind(vp_time.D, vp_time.E) %>% rename(c("time_vp" = "time"))
+vp_magnSubj.D <- vp.D %>% arrange(var_magn_subject) %>% dplyr::select(Symbol, var_magn_subject) %>% mutate(tissue="dermis") %>% head(20)
+vp_magnSubj.E <- vp.E %>% arrange(var_magn_subject) %>% dplyr::select(Symbol, var_magn_subject) %>% mutate(tissue="epidermis") %>% head(20)
+vp_magnSubj <- rbind(vp_magnSubj.D, vp_magnSubj.E)
 
-vp_timetissue.full <- vp.full %>% arrange(desc(timetissue)) %>% 
-  dplyr::select(Symbol, timetissue) %>% head(20) %>% rename(c("timetissue_vp" = "timetissue"))
+vp_ampSubj.D <- vp.D %>% arrange(var_A_subject) %>% dplyr::select(Symbol, var_A_subject) %>% mutate(tissue="dermis") %>% head(20)
+vp_ampSubj.E <- vp.E %>% arrange(var_A_subject) %>% dplyr::select(Symbol, var_A_subject) %>% mutate(tissue="epidermis") %>% head(20)
+vp_ampSubj <- rbind(vp_ampSubj.D, vp_ampSubj.E)
 
-vGath <- vGath %>% 
-  left_join(vp_time) %>% mutate(varPart_time_gene=ifelse(is.na(time_vp), FALSE, TRUE)) %>% dplyr::select(-time_vp) %>%
-  left_join(vp_timetissue.full) %>% mutate(varPart_timetissue_gene=ifelse(is.na(timetissue_vp), FALSE, TRUE)) %>% 
-  dplyr::select(-timetissue_vp) 
-vGath$varPart_gene <- ifelse(vGath$varPart_time_gene == FALSE & vGath$varPart_timetissue_gene == TRUE, "time:tissue", 
-                             ifelse(vGath$varPart_time_gene == TRUE  & vGath$varPart_timetissue_gene == FALSE, "time", 
-                                    vGath$varPart_gene <- ifelse(vGath$varPart_time_gene == TRUE  & 
-                                                                   vGath$varPart_timetissue_gene == TRUE, 
-                                                                 "time & time:tissue", FALSE)))
-vGath %<>% select(-varPart_time_gene, -varPart_timetissue_gene)
+vGath <- left_join(vGath, vp_magnSubj) %>% 
+  mutate(varPart_lowMagn=ifelse(is.na(var_magn_subject), FALSE, TRUE)) %>%
+  left_join(vp_ampSubj) %>% mutate(varPart_lowAmp=ifelse(is.na(var_A_subject), FALSE, TRUE))
+
+vGath$varPart_gene <- ifelse(vGath$varPart_lowMagn == FALSE & vGath$varPart_lowAmp == TRUE, "low Amplitude var", 
+                             ifelse(vGath$varPart_lowMagn == TRUE  & vGath$varPart_lowAmp  == FALSE, "low Magnitude var", 
+                                    vGath$varPart_gene <- ifelse(vGath$varPart_lowMagn == TRUE  & 
+                                                                   vGath$varPart_lowAmp == TRUE, 
+                                                                 "low Amplitude & Magnitude var", FALSE)))
 
 fig3A_1 <- ggplot(vGath %>% filter(tissue=="dermis")) + facet_wrap(~spc, scales="free") +
   geom_label(aes(x=spc, y=feature, label=Symbol_it, size=Coefficient, color=sign, fill=varPart_gene), 
              label.size=NA, parse=TRUE) + 
   scale_color_manual(values=c("#d11141", "steelblue3")) + 
-  scale_fill_manual(values=c("transparent", "#ffe62f", "tan1", "#00B159")) +
+  scale_fill_manual(values=c("transparent", "#04bedb", "#fa8e9d", "#4B0082")) +
   theme_custom() + labs(size="SPC coefficient\n(absolute)") +
   theme(axis.ticks = element_blank(),
         axis.text = element_blank(),
@@ -324,13 +327,14 @@ fig3A_1 <- ggplot(vGath %>% filter(tissue=="dermis")) + facet_wrap(~spc, scales=
         strip.text = element_text(size=16),
         aspect.ratio=2.5) + ggtitle(paste0("dermis, sumabsv=", sumabsv_D)) +
   scale_size(limits = c(NA, NA), range = c(3, 8)) + guides(fill=FALSE)
+# none of the ZZ genes are highly amp/phase-varying genes across subjects, neither low amp-varying genes across subjects
 # https://stackoverflow.com/questions/63393553/color-legend-key-labels-with-r-ggplot2-and-remove-the-keys
 
 fig3A_2 <- ggplot(vGath %>% filter(tissue=="epidermis")) + facet_wrap(~spc, scales="free") +
   geom_label(aes(x=spc, y=feature, label=Symbol_it, size=Coefficient, color=sign, fill=varPart_gene), 
              label.size=NA, parse=TRUE) +
   scale_color_manual(values=c("#d11141", "steelblue3")) + 
-  scale_fill_manual(values=c("transparent", "#ffe62f", "tan1", "#00B159")) +
+  scale_fill_manual(values=c("transparent", "#04bedb", "#fa8e9d", "#4B0082")) +
   theme_custom() + labs(size="SPC coefficient\n(absolute)") + 
   theme(axis.ticks = element_blank(),
         axis.text = element_blank(),
@@ -406,23 +410,70 @@ suppfig5B <- ggpubr::ggarrange(suppfig5B_1, NULL, suppfig5B_2, ncol=3, nrow=1,
                                common.legend=TRUE, legend="right", heights=c(1.,0.1,0.6))
 
 
-# Zeitzeiger genes should have little inter-subject mean variation (variance Partition):
-# --------------------------------------------------------------------------------------
-zz.genes_D <- vp.D %>% filter(Symbol %in% zz.genes_D$Symbol) %>% column_to_rownames("Symbol")
-zz.genes_E <- vp.E %>% filter(Symbol %in% zz.genes_E$Symbol) %>% column_to_rownames("Symbol")
+# Where are the ZeitZeiger genes in the scatterplot of variability in amplitude/magnitude/phase across subjects?
+# --------------------------------------------------------------------------------------------------------------
+#zz.genes_D <- vp.D %>% filter(Symbol %in% zz.genes_D$Symbol) %>% column_to_rownames("Symbol")
+#zz.genes_E <- vp.E %>% filter(Symbol %in% zz.genes_E$Symbol) %>% column_to_rownames("Symbol")
 
-suppfig5C_1 <- plotVarPart(zz.genes_D) + 
-  theme_custom() + ylab("Percentage of\nvariance explained") + 
-  theme(aspect.ratio=0.7, legend.position = "none", ) +
-  scale_fill_manual(values = c("tissue" = "#d1495b", "subject" = "gray48", "time" = "#1B9E77", "Residuals" = "grey80")) +
-  scale_x_discrete(labels = c("tissue" = "Inter-tissue\nmean\nvariation", "subject" = "Inter-subject\nmean dermis\nvariation", 
-                              "time" = "Dermis\ncircadian\nvariation", "Residuals" = "Residual\ndermis\nvariation"))
-suppfig5C_2 <- plotVarPart(zz.genes_E) + 
-  theme_custom() + ylab("Percentage of\nvariance explained") + 
-  theme(aspect.ratio=0.7, legend.position = "none", ) +
-  scale_fill_manual(values = c("tissue" = "#d1495b", "subject" = "gray48", "time" = "#D95F02", "Residuals" = "grey80")) +
-  scale_x_discrete(labels = c("tissue" = "Inter-tissue\nmean\nvariation", "subject" = "Inter-subject\nmean epidermis\nvariation", 
-                              "time" = "Epidermis\ncircadian\nvariation", "Residuals" = "Residual\nepidermis\nvariation"))
+
+# Calculate cv from variances -> this is from the full vP, not D vs E
+variation_A   <- vp.full %>% dplyr::select(ProbeName, Amp, var_A_subject, var_A_layer) %>% 
+  gather(variable, variance, -ProbeName, -Amp) %>%
+  mutate(variable = ifelse(variable=="var_A_subject", "A_S", "A_T"),
+         sd = sqrt(variance),
+         cv = sd/Amp) %>% arrange(desc(cv)) %>% inner_join(yave$genes %>% dplyr::select(ProbeName, Symbol))
+variation_phi <- vp.full %>% dplyr::select(ProbeName, phase, var_phi_subject, var_phi_layer) %>%
+  gather(variable, variance, -ProbeName, -phase) %>%
+  mutate(variable = ifelse(variable=="var_phi_subject", "phi_S", "phi_T"),
+         sd = sqrt(variance),
+         cv = sd/24) %>% arrange(desc(cv)) %>% inner_join(yave$genes %>% dplyr::select(ProbeName, Symbol))
+variation_magn <- vp.full %>% dplyr::select(ProbeName, magn, var_magn_subject, var_magn_layer) %>%
+  gather(variable, variance, -ProbeName, -magn) %>%
+  mutate(variable = ifelse(variable=="var_magn_subject", "magn_S", "magn_T"),
+         sd = sqrt(variance),
+         cv = sd/magn) %>% arrange(desc(cv)) %>% inner_join(yave$genes %>% dplyr::select(ProbeName, Symbol))
+
+variation_full <- rbind(variation_A %>% dplyr::rename(c("value_fit"="Amp")), 
+                        variation_phi %>% dplyr::rename(c("value_fit"="phase")) %>%
+                          mutate(value_fit = ifelse(value_fit < 0, value_fit + 24, value_fit))) %>% 
+  rbind(variation_magn %>% dplyr::rename(c("value_fit"="magn"))) %>%
+  tidyr::separate(variable, c("rhythmic_par","variable"), sep = "_", convert = TRUE) %>%
+  mutate(rhythmic_par=ifelse(rhythmic_par == "A", "amplitude", 
+                             ifelse(rhythmic_par=="phi", "phase", "magnitude")),
+         variable=ifelse(variable == "S", "subject", "tissue")) 
+
+variation_full$rhythmic_par <- factor(variation_full$rhythmic_par, levels=c("magnitude", "amplitude", "phase"))
+variation_full$effect <- ifelse(variation_full$variable=="tissue", "layer", "subject")
+variation_full$effect <- factor(variation_full$effect, levels=c("layer", "subject"))
+variation_full$Symbol_it <- paste0("italic('", variation_full$Symbol, "')")
+
+df_cv_magn_amp <- variation_full %>% 
+  dplyr::select(rhythmic_par, variable, cv, Symbol, Symbol_it) %>% 
+  filter(variable=="subject", rhythmic_par != "phase") %>% 
+  spread(rhythmic_par, cv) 
+df_cv_magn_phi <- variation_full %>% 
+  dplyr::select(rhythmic_par, variable, cv, Symbol, Symbol_it) %>% 
+  filter(variable=="subject", rhythmic_par != "amplitude") %>% 
+  spread(rhythmic_par, cv) 
+
+suppfig5C_1 <- ggplot(df_cv_magn_amp) +
+    geom_point(aes(x=magnitude, y=amplitude), color="#00798c", alpha=0.6) +
+    geom_point(data=filter(df_cv_magn_amp, Symbol %in% zz.genes_D$Symbol | Symbol %in% zz.genes_E$Symbol),
+               aes(x=magnitude, y=amplitude), color="red", alpha=1) +
+    # geom_text_repel(data=filter(df_cv_magn_amp, Symbol %in% unique(c(ZZ_genes_D, ZZ_genes_E))),
+    #                 aes(x=magnitude, y=amplitude, label=Symbol_it), 
+    #                 color="black", max.overlaps=Inf, box.padding=1.1, point.padding=.5, parse=TRUE) +
+    labs(x='magnitude CV', y='amplitude CV') + #BECN1 and FOCAD missing!!
+    ggtitle('BECN1 and FOCAD missing!! (actually not rhy)')
+suppfig5C_2 <- ggplot(df_cv_magn_phi) +
+    geom_point(aes(x=magnitude, y=phase), color="#00798c", alpha=0.6) +
+    geom_point(data=filter(df_cv_magn_phi, Symbol %in% zz.genes_D$Symbol | Symbol %in% zz.genes_E$Symbol),
+               aes(x=magnitude, y=phase), color="red", alpha=1) +
+    #geom_text_repel(data=filter(df_cv_magn_phi, Symbol %in% unique(c(ZZ_genes_D, ZZ_genes_E))),
+    #                aes(x=magnitude, y=phase, label=Symbol_it), 
+    #                color="black", max.overlaps=Inf, box.padding=1.1, point.padding=.5, parse=TRUE) +
+    labs(x='magnitude CV', y='phase CV') +
+    ggtitle('BECN1 and FOCAD missing!! (actually not rhy)')
 
 suppfig5C <- plot_grid(NULL, suppfig5C_1, NULL, suppfig5C_2, ncol=4, rel_widths = c(0.1,1,0.1,1))
 

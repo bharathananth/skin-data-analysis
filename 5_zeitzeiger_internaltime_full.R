@@ -161,28 +161,6 @@ spcResultFinal <- zeitzeigerSpc(fitResultFinal$xFitMean, fitResultFinal$xFitResi
 dfVar <- data.frame(spc = 1:length(spcResultFinal$d), propVar = spcResultFinal$d^2 / sum(spcResultFinal$d^2))
 
 
-## Plot the phase portrait of SPCs over time: Figure 3B
-## ----------------------------------------------------
-#z <- x %*% spcResultFinal$v[, 1:2]
-#colnames(z) <- c('SPC1', 'SPC2')
-#
-#z <- data.frame(z, obs=1:nObs, Time=time, check.names=FALSE) %>% mutate(tissue="dermis") %>% 
-#  tibble::rownames_to_column() %>% tidyr::separate(rowname, c("subject","junk"), sep = "_", convert = TRUE) %>% select(-junk)
-#
-#data.arrow <- data.frame(SPC1_start = max(z %$% SPC1),
-#                         SPC2_start = (max(z %$% SPC2)-1),
-#                         SPC1_end   = (max(z %$% SPC1)-1),
-#                         SPC2_end   = max(z %$% SPC2))
-#
-#suppfig7D <- ggplot(z) + 
-#  geom_point(aes(x=SPC1, y=SPC2, color=as.character(Time)), size=2) + theme_custom() + 
-#  scale_color_viridis(discrete=TRUE, option='E') +
-#  geom_curve(data=data.arrow, aes(x=SPC1_start, y=SPC2_start, xend=SPC1_end, yend=SPC2_end), 
-#             arrow=arrow(length=unit(0.03, "npc")), lineend="round") + #expand_limits(y=-5) +
-#  facet_wrap(.~tissue, scales='free', nrow=2) + theme(legend.position="none") +
-#  scale_y_continuous(expand = c(0.04, 0.75, 0.04, 0.75)) + scale_x_continuous(expand = c(0.04, 0.75, 0.04, 0.75))
-
-
 # Plot coefficients of the features (time-telling genes) for the SPCs: Figure 3A
 # ------------------------------------------------------------------------------
 v <- data.frame(spcResultFinal$v[, 1:2])
@@ -203,28 +181,27 @@ vGath <- gather(v, key=spc, value=Coefficient, -feature, -Symbol) %>%
   filter(!is.na(Coefficient))
 vGath$Coefficient <- abs(vGath$Coefficient)
 
-# Check which ZeitZeiger genes are also found as highly time-variant genes through variance partition
-vp <- read.csv("visualize/data/variancePartition_full.csv") %>% dplyr::select(-X) %>% rename("timetissue"="time.tissue")
-vp_time.full <- vp %>% arrange(desc(time)) %>% dplyr::select(Symbol, time) %>% mutate(tissue="dermis") %>% head(20)
-vp_timetissue.full <- vp %>% arrange(desc(timetissue)) %>% dplyr::select(Symbol, timetissue) %>% 
-  mutate(tissue="dermis") %>% head(20)
+# Check which ZeitZeiger genes are also found as lowly magnitude-variant genes across layers through variance partition
+vp <- read.csv("visualize/data/variance_rhythmic_parameters_full.csv") %>% dplyr::select(-X) #%>% rename("timetissue"="time.tissue")
+vp_magnLay.full <- vp %>% arrange(var_magn_layer) %>% dplyr::select(Symbol, var_magn_layer) %>% head(20)
+vp_magnSubj.full <- vp %>% arrange(var_magn_subject) %>% dplyr::select(Symbol, var_magn_subject) %>% head(20)
 
-vGath <- vGath %>% 
-  left_join(vp_time.full) %>% mutate(varPart_time_gene=ifelse(is.na(time), FALSE, TRUE)) %>% dplyr::select(-time) %>%
-  left_join(vp_timetissue.full) %>% mutate(varPart_timetissue_gene=ifelse(is.na(timetissue), FALSE, TRUE)) %>% 
-  dplyr::select(-timetissue) 
+vGath <- left_join(vGath, vp_magnLay.full) %>%
+  mutate(low_magnLayer_var_gene=ifelse(is.na(var_magn_layer), FALSE, TRUE)) %>% 
+  left_join(vp_magnSubj.full) %>% 
+  mutate(low_magnSubj_var_gene=ifelse(is.na(var_magn_subject), FALSE, TRUE)) 
 
-vGath$varPart_gene <- ifelse(vGath$varPart_time_gene == FALSE & vGath$varPart_timetissue_gene == TRUE, "time:tissue", 
-                             ifelse(vGath$varPart_time_gene == TRUE  & vGath$varPart_timetissue_gene == FALSE, "time", 
-                                    vGath$varPart_gene <- ifelse(vGath$varPart_time_gene == TRUE  & 
-                                                                   vGath$varPart_timetissue_gene == TRUE, 
-                                                                 "time & time:tissue", FALSE)))
-
+vGath$varPart_gene <- ifelse(vGath$low_magnLayer_var_gene == FALSE & vGath$low_magnSubj_var_gene == TRUE, "subject", 
+                             ifelse(vGath$low_magnLayer_var_gene == TRUE  & vGath$low_magnSubj_var_gene == FALSE, "layer", 
+                                    vGath$varPart_gene <- ifelse(vGath$low_magnLayer_var_gene == TRUE  & 
+                                                                   vGath$low_magnSubj_var_gene == TRUE, 
+                                                                 "subject & layer", FALSE)))
+vGath$varPart_gene <- factor(vGath$varPart_gene, levels=c(FALSE, "layer", "subject", "subject & layer"))
 suppfig4B <- ggplot(vGath) + facet_wrap(~spc, scales="free") +
   geom_label(aes(x=spc, y=feature, label=Symbol_it, size=Coefficient, color=sign, fill=varPart_gene), 
              label.size=NA, parse=TRUE) + 
   scale_color_manual(values=c("#d11141", "steelblue3")) + 
-  scale_fill_manual(values=c("transparent", "khaki1", "#F39B7FB2", "#00B159")) +
+  scale_fill_manual(values=c("transparent", "#04bedb", "#fa8e9d", "#4B0082")) +
   theme_custom() + labs(size="SPC coefficient\n(absolute)") +
   theme(axis.ticks = element_blank(),
         axis.text = element_blank(),
@@ -237,6 +214,8 @@ suppfig4B <- ggplot(vGath) + facet_wrap(~spc, scales="free") +
         strip.text = element_text(size=16),
         aspect.ratio=2.5) + ggtitle(paste0("sumabsv=", sumabsv)) +
   scale_size(limits = c(NA, NA), range = c(3, 8)) + guides(fill=FALSE)
+# none of these genes are highly amplitude-varying or phase-varying across layers/subjects, neither low-amp
+# just depicted those that are lowly magnitude-varying genes across layers (red) / subjects (blue)
 # https://stackoverflow.com/questions/63393553/color-legend-key-labels-with-r-ggplot2-and-remove-the-keys
 
 
