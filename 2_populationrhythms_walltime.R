@@ -246,19 +246,21 @@ clock_genes <- c("PER1","PER2","PER3", "CRY1", "CRY2", "NR1D1", "NR1D2", "ARNTL"
                  "NFIL3", "TEF", "BHLHE40", "BHLHE41")#, "HLF"
 
 toplot <- rhy_results %>% select(Symbol, tissue, amp_value, analysis) %>% spread(analysis, amp_value) %>% 
-  mutate(Symbol_it = paste0("italic('", Symbol, "')"))
+  mutate(Symbol_it = paste0("italic('", Symbol, "')"),
+         FCamp_internal_time = 2^(2*internal_time),
+         FCamp_wall_time = 2^(2*wall_time))
 
 highamp_cutoff <- 0.75
-suppfig1B <- ggplot(toplot, aes(x=internal_time, y=wall_time, color=tissue)) +
+suppfig1B <- ggplot(toplot, aes(x=FCamp_internal_time, y=FCamp_wall_time, color=tissue)) +
   geom_abline(slope=1, intercept=0, lty='dashed', color="gray") + 
   geom_point(alpha=0.3) + 
-  geom_point(data = filter(toplot, Symbol %in% clock_genes), aes(x=wall_time, y=internal_time), color="black") +
+  geom_point(data = filter(toplot, Symbol %in% clock_genes), aes(x=FCamp_wall_time, y=FCamp_internal_time), color="black") +
   geom_text_repel(data = filter(toplot, Symbol %in% clock_genes), aes(label=Symbol_it), 
                   max.overlaps=Inf, box.padding=1., point.padding=.5,  size=3, 
                   segment.color="black", color="black", parse=TRUE) + 
   facet_wrap(~tissue, scales="free") + guides(color=FALSE) +
-  scale_y_continuous(limits=c(0.1,1.2), breaks = seq(0.2, 1.2, by=0.2), trans='log2') +
-  scale_x_continuous(limits=c(0.1,1.2), breaks = seq(0.2, 1.2, by=0.2), trans='log2') +
+  scale_y_continuous(limits=c(1, 5), breaks=seq(1:4), trans='log2') +
+  scale_x_continuous(limits=c(1, 5), breaks=seq(1:4), trans='log2') +
   xlab(bquote(~log[2]*' (fold amplitude) internal time')) + 
   ylab(bquote(~log[2]*' (fold amplitude) wall time')) + theme_custom() 
 
