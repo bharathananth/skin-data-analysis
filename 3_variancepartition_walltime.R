@@ -16,7 +16,7 @@ suppressPackageStartupMessages(library(lme4))
 suppressPackageStartupMessages(library(clusterProfiler))
 suppressPackageStartupMessages(library(ggh4x))
 
-setwd("~/Documents/WORK/POSTDOC/projects/skin-data-analysis")
+#setwd("~/Documents/WORK/POSTDOC/projects/skin-data-analysis")
 
 # R graphics stuff
 scale_colour_discrete <- function(...) {
@@ -53,6 +53,7 @@ update_geom_defaults("line", list(size = 0.8))
 # Optional step to run analysis in parallel on multicore machines (here we use 4 threads)
 cl <- makeCluster(4)
 registerDoParallel(cl)
+bpparam <- MulticoreParam(workers = 6)
 
 
 #################################
@@ -109,7 +110,7 @@ info_exp <- info_exp %>% full_join(experiment) %>%
 # 2. EXECUTE LINEAR MIXED MODEL WITH VARIANCE PARTITION
 # -----------------------------------------------------
 form <- ~ 1 + inphase + outphase + (1 + inphase + outphase|subject) + (1 + inphase + outphase||tissue)
-fitList <- fitVarPartModel(geneExpr, form, info_exp, showWarnings=FALSE) 
+fitList <- fitVarPartModel(geneExpr, form, info_exp, showWarnings=FALSE, BPPARAM = bpparam) 
 
 # Calculate variance in amplitude and phase from all rhythmic genes -> Error propagation
 df_total = data.frame(ProbeName=NULL, Amp=NULL, var_A_layer=NULL, var_A_subject=NULL,
@@ -213,17 +214,17 @@ variation_A   <- df_total %>% dplyr::select(ProbeName, Amp, var_A_subject, var_A
   gather(variable, variance, -ProbeName, -Amp) %>%
   mutate(variable = ifelse(variable=="var_A_subject", "A_S", "A_T"),
          sd = sqrt(variance),
-         cv = sd/Amp) %>% arrange(desc(cv)) %>% inner_join(yave$genes %>% dplyr::select(ProbeName, Symbol))
+         cv = sd/Amp) %>% arrange(desc(cv)) %>% inner_join(yave$genes %>% dplyr::select(ProbeName, Symbol, EntrezID))
 variation_phi <- df_total %>% dplyr::select(ProbeName, phase, var_phi_subject, var_phi_layer) %>%
   gather(variable, variance, -ProbeName, -phase) %>%
   mutate(variable = ifelse(variable=="var_phi_subject", "phi_S", "phi_T"),
          sd = sqrt(variance),
-         cv = sd/24) %>% arrange(desc(cv)) %>% inner_join(yave$genes %>% dplyr::select(ProbeName, Symbol))
+         cv = sd/24) %>% arrange(desc(cv)) %>% inner_join(yave$genes %>% dplyr::select(ProbeName, Symbol, EntrezID))
 variation_magn <- df_total %>% dplyr::select(ProbeName, magn, var_magn_subject, var_magn_layer) %>%
   gather(variable, variance, -ProbeName, -magn) %>%
   mutate(variable = ifelse(variable=="var_magn_subject", "magn_S", "magn_T"),
          sd = sqrt(variance),
-         cv = sd/magn) %>% arrange(desc(cv)) %>% inner_join(yave$genes %>% dplyr::select(ProbeName, Symbol))
+         cv = sd/magn) %>% arrange(desc(cv)) %>% inner_join(yave$genes %>% dplyr::select(ProbeName, Symbol, EntrezID))
 
 variation_full <- rbind(variation_A %>% dplyr::rename(c("value_fit"="Amp")), 
                         variation_phi %>% dplyr::rename(c("value_fit"="phase")) %>%
@@ -272,9 +273,8 @@ corr_fixef_var <- ggplot(variation_full) +
 
 # Fig2A: Distribution of sds -> How variable are magnitudes, amplitudes and phases across layers/subjects?
 fig2A_2 <- ggplot(variation_full %>% dplyr::select(rhythmic_par, sd, Symbol, effect)) +
-  geom_jitter(aes(y=effect, x=sd, group=effect, color=effect, fill=effect), alpha=0.1, size=.5) +
-  geom_boxplot(aes(y=effect, x=sd, fill=effect), alpha=0.1, width=0.33, fill="white", outlier.size = 1) +
-  facet_wrap(~rhythmic_par, scales='free') + 
+  geom_violin(aes(y=effect, x=sd, fill=effect, color=effect), alpha=0.5, width=0.75) +
+  facet_wrap(~rhythmic_par, scales='free_x') + 
   scale_fill_manual(values = c("layer" = "#d1495b", "subject" = "#00798c"))  +
   scale_color_manual(values = c("layer" = "#d1495b", "subject" = "#00798c"))  +
   guides(color=FALSE, fill=FALSE) +
@@ -293,7 +293,7 @@ df <- variation_A %>% mutate(variable=ifelse(variable=="A_T", "tissue", "subject
   full_join(variation_magn %>% mutate(variable=ifelse(variable=="magn_T", "tissue", "subject")) %>% 
               dplyr::select(Symbol, variable, cv) %>% dplyr::rename(c("cv_magn"="cv"))) %>%
   mutate(Symbol_it = paste0("italic('", Symbol, "')"))
-df$variable <- factor(df$variable, levels=c("tissue", "subject"))
+df$variable <- factor(df$variable, levels=c("tissue", "subject")) %>% fct_recode(layer="tissue")
 
 pairs(df[,c(3:5)],
       col = alpha(c("#00798c", "#d1495b"), 0.4)[df$variable],   
@@ -305,7 +305,7 @@ pairs(df[,c(3:5)],
 
 # Fig2B: Correlations of cv_phi vs cv_amp -> where are the DR/non_DR genes located?
 fig2B <- ggplot(df %>% mutate(clock_gene = ifelse(Symbol %in% clock_genes, TRUE, FALSE))) +
-  geom_point(aes(x=cv_amp, y=cv_phi), alpha=0.3, color="grey", size=.8) + 
+  geom_point(aes(x=cv_amp, y=cv_phi), alpha=0.75, color="grey", size=.8) + 
   geom_point(data=filter(df, Symbol %in% DR_genes),      
              aes(x=cv_amp, y=cv_phi, color=variable), alpha=0.5,size=.8) + 
   facet_wrap(~variable, scales="free") +
@@ -321,15 +321,15 @@ fig2B <- ggplot(df %>% mutate(clock_gene = ifelse(Symbol %in% clock_genes, TRUE,
                   hjust        = 0,
                   segment.size = 0.2, 
                   parse=TRUE, size=2.8, segment.color="grey50") +
-  scale_color_manual(values = c("tissue" = "#d1495b", "subject" = "#00798c"), guide="none") +
-  scale_fill_manual(values = c("tissue" = "#d1495b", "subject" = "#00798c")) +
+  scale_color_manual(values = c("layer" = "#d1495b", "subject" = "#00798c"), guide="none") +
+  scale_fill_manual(values = c("layer" = "#d1495b", "subject" = "#00798c")) +
   #ggtitle(paste(length(which(df_total$ProbeName %in% filter(some_rhy, diff_rhythmic)$ProbeName)),
   #              '/', dim(df_total)[1], ' amp-filtered vP genes are DR')) +
   labs(x='amplitude coefficient of variation', y='phase coefficient of variation') +
-  theme(legend.position = "right",
+  theme(legend.position = "top",
         strip.text = element_blank(),
         panel.spacing = unit(2.5, "lines")) +
-  scale_y_continuous(limits=c(0,0.08)) + scale_x_continuous(limits=c(0,1.8))
+  scale_y_continuous(limits=c(0,0.07)) + scale_x_continuous(limits=c(0,1.8))
 
 
 # 5. DETERMINE FRACTIONS OF VARIANCE -> How much of the variability is associated to subject/layer in each gene?
@@ -385,10 +385,10 @@ fig2C_1 <- ggplot(df_fraction_variance %>% filter(variable=="subject")) +
   geom_histogram(aes(value, y=..density.., fill=variable), 
                  alpha=0.6, position='identity', colour="white", bins=50) +
   geom_density(aes(value, fill=variable, group=variable), alpha=0.3) + #, position="fill"
-  facet_wrap(~rhythm_par, scales="free") + 
+  facet_wrap(~rhythm_par) + 
   coord_cartesian(ylim=c(0, 3.5)) + 
   scale_fill_manual(values = c("tissue" = "#d1495b", "subject" = "#00798c"), guide="none") +
-  labs(x='Fraction of variance explained by subject', y='Density')  +
+  labs(x='fraction of variance explained by subject', y='density')  +
   theme(panel.spacing = unit(2.8, "lines"))
 #https://ggrepel.slowkow.com/articles/examples.html#align-labels-on-the-left-or-right-edge-1
 
@@ -448,11 +448,12 @@ fig2C <- fig2C_1 +
     data=only_CGs,
     aes(x = hist_xvalue, y = hist_yvalue, label=Symbol_it),
     size=2.8, parse = TRUE, max.overlaps = Inf, box.padding = 1.,
+    force = 2,
     force_pull   = 0, # do not pull toward data points
-    nudge_y      = 1,
-    direction    = "x",
-    angle        = 0,
-    hjust        = 0,
+    nudge_y      = 3.25,
+    direction = "x",
+    angle        = 90,
+    hjust        = 0.5,
     segment.size = 0.2,
     max.iter = 1e4, max.time = 1, segment.color="grey50")  
 
@@ -526,8 +527,8 @@ geneExpr.D <- yave$E %>% as.data.frame() %>% dplyr::select(contains("D")) %>%   
 geneExpr.E <- yave$E %>% as.data.frame() %>% dplyr::select(contains("E")) %>%   #rhy genes in epidermis
   filter(rownames(.) %in% filter(some_rhy, rhythmic_in_E)$ProbeName)
 
-fitList.D <- fitVarPartModel(geneExpr.D, form, info_exp %>% filter(tissue=="dermis"), showWarnings=TRUE) 
-fitList.E <- fitVarPartModel(geneExpr.E, form, info_exp %>% filter(tissue=="epidermis"), showWarnings=TRUE) 
+fitList.D <- fitVarPartModel(geneExpr.D, form, info_exp %>% filter(tissue=="dermis"), showWarnings=TRUE, BPPARAM = bpparam) 
+fitList.E <- fitVarPartModel(geneExpr.E, form, info_exp %>% filter(tissue=="epidermis"), showWarnings=TRUE, BPPARAM = bpparam) 
 
 # Calculate variance in amplitude and phase from all rhythmic genes in D -> Error propagation
 df_total.D = data.frame(ProbeName=NULL, Amp=NULL, var_A_subject=NULL,
@@ -640,22 +641,53 @@ variation_magn <- df_total %>% dplyr::select(ProbeName, magn, var_magn_subject, 
          cv = sd/magn,
          rhythmic_par = "magnitude") %>% arrange(desc(cv)) %>% inner_join(yave$genes %>% dplyr::select(ProbeName, Symbol))
 
-variation_full <- rbind(variation_A %>% dplyr::rename(c("value_fit"="Amp")), 
+variation_complete <- rbind(variation_A %>% dplyr::rename(c("value_fit"="Amp")), 
                         variation_phi %>% dplyr::rename(c("value_fit"="phase")) %>%
                           mutate(value_fit = ifelse(value_fit < 0, value_fit + 24, value_fit))) %>% 
   rbind(variation_magn %>% dplyr::rename(c("value_fit"="magn"))) 
-variation_full$rhythmic_par <- factor(variation_full$rhythmic_par, levels=c("magnitude", "amplitude", "phase"))
+variation_complete$rhythmic_par <- factor(variation_complete$rhythmic_par, levels=c("magnitude", "amplitude", "phase"))
 
-fig2D <- ggplot(variation_full, aes(x=sd, y=tissue, color=tissue)) +
-  geom_jitter(alpha=0.1, size=.5) +
-  geom_boxplot(alpha=0.1, width=0.33, fill="white", outlier.size = 1, color="black") +
+fig2D <- ggplot(variation_complete, aes(x=sd, color=tissue)) +
+  stat_density(size=1.5, geom="line", position="identity") +
   facet_wrap(~rhythmic_par, scales="free") +
-  guides(color="none") +
   labs(x='standard deviation', y='') +
-  theme( panel.spacing = unit(1.6, "lines"))
+  theme( panel.spacing = unit(1.6, "lines"),
+         legend.position = "top")
   
 # QUESTIONS:
 # ZeitZeiger genes, where are they in fig2D?
+
+c5.bp <- readRDS("resources/Hs.c5.bp.v7.1.entrez.rds")
+
+c5.bp <- c5.bp[vapply(c5.bp, length, integer(1L))>=5]
+
+statistic <- filter(variation_A, variable == "A_T")$variance
+names(statistic) <- filter(variation_A, variable == "A_T")$EntrezID
+c5.bp.indices <- ids2indices(c5.bp, filter(variation_A, variable == "A_T")$EntrezID)
+
+A_GO_T <- cameraPR(statistic, c5.bp.indices, use.ranks = TRUE)
+head(A_GO_T)
+
+statistic <- filter(variation_phi, variable == "A_S")$variance
+names(statistic) <- filter(variation_A, variable == "A_S")$EntrezID
+c5.bp.indices <- ids2indices(c5.bp, filter(variation_A, variable == "A_S")$EntrezID)
+
+A_GO_S <- cameraPR(statistic, c5.bp.indices, use.ranks = TRUE)
+head(A_GO_S)
+
+statistic <- filter(variation_phi, variable == "phi_T")$variance
+names(statistic) <- filter(variation_phi, variable == "phi_T")$EntrezID
+c5.bp.indices <- ids2indices(c5.bp, filter(variation_phi, variable == "phi_T")$EntrezID)
+
+phi_GO_T <- cameraPR(statistic, c5.bp.indices, use.ranks = FALSE)
+head(phi_GO_T)
+
+statistic <- filter(variation_phi, variable == "phi_S")$variance
+names(statistic) <- filter(variation_phi, variable == "phi_S")$EntrezID
+c5.bp.indices <- ids2indices(c5.bp, filter(variation_phi, variable == "phi_S")$EntrezID)
+
+phi_GO_S <- cameraPR(statistic, c5.bp.indices, use.ranks = FALSE)
+head(phi_GO_S)
 
 
 
@@ -663,10 +695,10 @@ fig2D <- ggplot(variation_full, aes(x=sd, y=tissue, color=tissue)) +
 # Arrange plots in a grid
 # ------------------------
 fig2 <- plot_grid(fig2A_2, NULL, 
-                  plot_grid(NULL, fig2B, NULL, ncol=3, rel_widths = c(.015,1,0.25)), 
-                  NULL, fig2C, NULL, fig2D, nrow=7, 
-                  labels = c("A", "", "B", "", "C", "", "D"), rel_heights = c(1,0.1,.9,0.1,1, .1, 1),align = "v")
-fig2 %>% ggsave('figures/fig2.pdf', ., width = 11, height = 11)
+                  fig2C, 
+                  NULL, fig2B, NULL, fig2D, nrow=7, 
+                  labels = c("A", "", "B", "", "C", "", "D"), rel_heights = c(1,0.1,1,0.1,1,0.1, 1), align = "v", axis = "l")
+fig2 %>% ggsave('figures/fig2.pdf', ., width = 9, height = 11)
 
 
 sfig3 <- plot_grid(NULL, suppfig3A, NULL, suppfig3B, nrow=1, ncol=4, labels=c("A", "", "B", ""), rel_widths=c(0.1,1,0.1,1))
