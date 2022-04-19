@@ -239,6 +239,47 @@ variation_full$rhythmic_par <- factor(variation_full$rhythmic_par, levels=c("mag
 variation_full$effect <- ifelse(variation_full$variable=="tissue", "layer", "subject")
 variation_full$effect <- factor(variation_full$effect, levels=c("layer", "subject"))
 
+c5.bp <- readRDS("resources/Hs.c7.all.v7.1.entrez.rds")
+c5.bp.indices <- ids2indices(c5.bp, filter(variation_A, variable == "A_T")$EntrezID)
+c5.bp.indices <- c5.bp.indices[vapply(c5.bp.indices, length, integer(1L))>=10]
+
+statistic <- filter(variation_A, variable == "A_T")$variance
+names(statistic) <- filter(variation_A, variable == "A_T")$EntrezID
+
+A_GO_T <- cameraPR(statistic, c5.bp.indices, use.ranks = TRUE)
+head(A_GO_T)
+
+statistic <- filter(variation_A, variable == "A_S")$variance
+names(statistic) <- filter(variation_A, variable == "A_S")$EntrezID
+
+A_GO_S <- cameraPR(statistic, c5.bp.indices, use.ranks = TRUE)
+head(A_GO_S)
+
+statistic <- filter(variation_phi, variable == "phi_T")$variance
+names(statistic) <- filter(variation_phi, variable == "phi_T")$EntrezID
+
+phi_GO_T <- cameraPR(statistic, c5.bp.indices, use.ranks = FALSE)
+head(phi_GO_T)
+
+statistic <- filter(variation_phi, variable == "phi_S")$variance
+names(statistic) <- filter(variation_phi, variable == "phi_S")$EntrezID
+
+phi_GO_S <- cameraPR(statistic, c5.bp.indices, use.ranks = FALSE)
+head(phi_GO_S)
+
+statistic <- filter(variation_magn, variable == "magn_T")$variance
+names(statistic) <- filter(variation_magn, variable == "magn_T")$EntrezID
+
+magn_GO_T <- cameraPR(statistic, c5.bp.indices, use.ranks = FALSE)
+head(magn_GO_T)
+
+statistic <- filter(variation_magn, variable == "magn_S")$variance
+names(statistic) <- filter(variation_magn, variable == "magn_S")$EntrezID
+
+magn_GO_S <- cameraPR(statistic, c5.bp.indices, use.ranks = FALSE)
+head(magn_GO_S)
+
+
 # Distribution of fixed effects 
 hist_fixef <- ggplot(variation_full %>% dplyr::select(rhythmic_par, value_fit, effect)) +
   geom_histogram(aes(value_fit, fill=effect), color='white', bins=50, alpha=0.6) + 
@@ -293,7 +334,7 @@ df <- variation_A %>% mutate(variable=ifelse(variable=="A_T", "tissue", "subject
   full_join(variation_magn %>% mutate(variable=ifelse(variable=="magn_T", "tissue", "subject")) %>% 
               dplyr::select(Symbol, variable, cv) %>% dplyr::rename(c("cv_magn"="cv"))) %>%
   mutate(Symbol_it = paste0("italic('", Symbol, "')"))
-df$variable <- factor(df$variable, levels=c("tissue", "subject")) %>% fct_recode(layer="tissue")
+df$variable <- factor(df$variable, levels=c("tissue", "subject")) %>% forcats::fct_recode(layer="tissue")
 
 pairs(df[,c(3:5)],
       col = alpha(c("#00798c", "#d1495b"), 0.4)[df$variable],   
@@ -656,40 +697,6 @@ fig2D <- ggplot(variation_complete, aes(x=sd, color=tissue)) +
   
 # QUESTIONS:
 # ZeitZeiger genes, where are they in fig2D?
-
-c5.bp <- readRDS("resources/Hs.c5.bp.v7.1.entrez.rds")
-
-c5.bp <- c5.bp[vapply(c5.bp, length, integer(1L))>=5]
-
-statistic <- filter(variation_A, variable == "A_T")$variance
-names(statistic) <- filter(variation_A, variable == "A_T")$EntrezID
-c5.bp.indices <- ids2indices(c5.bp, filter(variation_A, variable == "A_T")$EntrezID)
-
-A_GO_T <- cameraPR(statistic, c5.bp.indices, use.ranks = TRUE)
-head(A_GO_T)
-
-statistic <- filter(variation_phi, variable == "A_S")$variance
-names(statistic) <- filter(variation_A, variable == "A_S")$EntrezID
-c5.bp.indices <- ids2indices(c5.bp, filter(variation_A, variable == "A_S")$EntrezID)
-
-A_GO_S <- cameraPR(statistic, c5.bp.indices, use.ranks = TRUE)
-head(A_GO_S)
-
-statistic <- filter(variation_phi, variable == "phi_T")$variance
-names(statistic) <- filter(variation_phi, variable == "phi_T")$EntrezID
-c5.bp.indices <- ids2indices(c5.bp, filter(variation_phi, variable == "phi_T")$EntrezID)
-
-phi_GO_T <- cameraPR(statistic, c5.bp.indices, use.ranks = FALSE)
-head(phi_GO_T)
-
-statistic <- filter(variation_phi, variable == "phi_S")$variance
-names(statistic) <- filter(variation_phi, variable == "phi_S")$EntrezID
-c5.bp.indices <- ids2indices(c5.bp, filter(variation_phi, variable == "phi_S")$EntrezID)
-
-phi_GO_S <- cameraPR(statistic, c5.bp.indices, use.ranks = FALSE)
-head(phi_GO_S)
-
-
 
 
 # Arrange plots in a grid
