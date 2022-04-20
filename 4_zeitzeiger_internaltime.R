@@ -169,8 +169,8 @@ cvResultGathGroup <- rbind(cvResultGathGroup_D, cvResultGathGroup_E)
 
 suppfig5A <- ggplot(cvResultGathGroup) + facet_wrap(~tissue, scales='free') + theme_custom() +
   geom_point(aes(x=nSpc, y=medae*24, shape=sumabsv, color=tissue), alpha=0.8, 
-             size=5) +
-  labs(x='Number of SPCs', y='Median absolute error (h)') + guides(color=FALSE) +
+             size=3) +
+  labs(x='Number of SPCs', y='Median absolute error (h)') + guides(color="none") +
   scale_y_continuous(limits=c(0.03*24, 0.16*24)) + scale_x_continuous(breaks=c(1,2,3,4,5,6)) + expand_limits(x=c(1,6)) +
   theme(legend.title = element_text(),
         legend.position = "right",
@@ -387,7 +387,7 @@ yGath_E <- yE %>% gather(key, expression, -Symbol) %>%
 suppfig5B_1 <- ggplot(yGath_D) + geom_line(aes(x=internal_time, y=expression, color=subject)) + 
   facet_wrap(~Symbol, scales="free", ncol=5, nrow=5) + xlab("internal time") + ylab(bquote(~log[2]*'expression (normalized)')) +
   theme_custom() + theme(strip.text = element_text(face="bold.italic"),
-                         legend.position="right",
+                         legend.position="none",
                          legend.title=element_text(),
                          strip.background = element_rect(fill=alpha("#1B9E77", 0.5)),
                          panel.border = element_rect(fill="transparent"),
@@ -398,7 +398,7 @@ suppfig5B_1 <- ggplot(yGath_D) + geom_line(aes(x=internal_time, y=expression, co
 suppfig5B_2 <- ggplot(yGath_E) + geom_line(aes(x=internal_time, y=expression, color=subject)) + 
   facet_wrap(~Symbol, scales="free", ncol=5, nrow=5) + xlab("internal time") + ylab(bquote(~log[2]*'expression (normalized)')) +
   theme_custom() + theme(strip.text = element_text(face="bold.italic"),
-                         legend.position="right",
+                         legend.position="none",
                          legend.title=element_text(),
                          strip.background = element_rect(fill=alpha("#D95F02", 0.5)),
                          panel.border = element_rect(fill="transparent"),
@@ -463,8 +463,7 @@ suppfig5C_1 <- ggplot(df_cv_magn_amp) +
     # geom_text_repel(data=filter(df_cv_magn_amp, Symbol %in% unique(c(ZZ_genes_D, ZZ_genes_E))),
     #                 aes(x=magnitude, y=amplitude, label=Symbol_it), 
     #                 color="black", max.overlaps=Inf, box.padding=1.1, point.padding=.5, parse=TRUE) +
-    labs(x='magnitude CV', y='amplitude CV') + #BECN1 and FOCAD missing!!
-    ggtitle('BECN1 and FOCAD missing!! (actually not rhy)')
+    labs(x='magnitude CV', y='amplitude CV') #BECN1 and FOCAD missing!!
 suppfig5C_2 <- ggplot(df_cv_magn_phi) +
     geom_point(aes(x=magnitude, y=phase), color="#00798c", alpha=0.6) +
     geom_point(data=filter(df_cv_magn_phi, Symbol %in% zz.genes_D$Symbol | Symbol %in% zz.genes_E$Symbol),
@@ -472,8 +471,7 @@ suppfig5C_2 <- ggplot(df_cv_magn_phi) +
     #geom_text_repel(data=filter(df_cv_magn_phi, Symbol %in% unique(c(ZZ_genes_D, ZZ_genes_E))),
     #                aes(x=magnitude, y=phase, label=Symbol_it), 
     #                color="black", max.overlaps=Inf, box.padding=1.1, point.padding=.5, parse=TRUE) +
-    labs(x='magnitude CV', y='phase CV') +
-    ggtitle('BECN1 and FOCAD missing!! (actually not rhy)')
+    labs(x='magnitude CV', y='phase CV')
 
 suppfig5C <- plot_grid(NULL, suppfig5C_1, NULL, suppfig5C_2, ncol=4, rel_widths = c(0.1,1,0.1,1))
 
@@ -486,10 +484,7 @@ suppfig5C <- plot_grid(NULL, suppfig5C_1, NULL, suppfig5C_2, ncol=4, rel_widths 
 fig3 <- plot_grid(NULL, fig3A, NULL, fig3B, labels=c("A","","B", ""), ncol=4, nrow=1, rel_widths=c(0.03,1.15,0.08,0.3))
 fig3 %>% ggsave('figures/fig3.pdf', ., width = 11, height = 5.)
 
-sfig5_part1 <- plot_grid(suppfig5A, NULL, suppfig5B_1, NULL, suppfig5B_2, NULL, suppfig5C, labels=c("A", "", "B", "", "C", "", "D"), nrow=7, rel_heights=c(0.25,0.05,1,0.05,1,0.05,0.25))
-sfig5_part2 <- 
-sfig5_part3 <- plot_grid(sfig5_part2, NULL, suppfig5C, nrow=3, 
-                         rel_heights=c(1.81,0.1, 1, 2), labels=c("", "C","","D"))
-
-sfig5_part1 %>% ggsave('figures/suppfig5_1.pdf', ., width = 11, height = 13.)
-sfig5_part3 %>% ggsave('figures/suppfig5_2.pdf', ., width = 11, height = 15.4)
+sfig5 <- plot_grid(plot_grid(suppfig5A, suppfig5C, nrow=1, rel_widths = c(1,1), labels = c("A", "B")), NULL, suppfig5B_1, NULL, suppfig5B_2, 
+                         labels=c("", "", "C", "", "D"), nrow=5, 
+                         rel_heights=c(0.75,0.05,1,0.05,1.5)) %T>%
+        ggsave('figures/suppfig5.pdf', ., width = 8, height = 10)
