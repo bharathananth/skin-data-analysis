@@ -16,7 +16,7 @@ suppressPackageStartupMessages(library(lme4))
 suppressPackageStartupMessages(library(clusterProfiler))
 suppressPackageStartupMessages(library(ggh4x))
 
-#setwd("~/Documents/WORK/POSTDOC/projects/skin-data-analysis")
+setwd("~/Documents/WORK/POSTDOC/projects/skin-data-analysis")
 
 # R graphics stuff
 scale_colour_discrete <- function(...) {
@@ -239,45 +239,39 @@ variation_full$rhythmic_par <- factor(variation_full$rhythmic_par, levels=c("mag
 variation_full$effect <- ifelse(variation_full$variable=="tissue", "layer", "subject")
 variation_full$effect <- factor(variation_full$effect, levels=c("layer", "subject"))
 
-c5.bp <- readRDS("resources/Hs.c7.all.v7.1.entrez.rds")
+c5.bp <- readRDS("resources/Hs.c2.cp.kegg.v7.1.entrez.rds") #https://bioinf.wehi.edu.au/MSigDB/v7.1/
 c5.bp.indices <- ids2indices(c5.bp, filter(variation_A, variable == "A_T")$EntrezID)
 c5.bp.indices <- c5.bp.indices[vapply(c5.bp.indices, length, integer(1L))>=10]
 
-statistic <- filter(variation_A, variable == "A_T")$variance
+statistic <- filter(variation_A, variable == "A_T")$cv
 names(statistic) <- filter(variation_A, variable == "A_T")$EntrezID
-
 A_GO_T <- cameraPR(statistic, c5.bp.indices, use.ranks = TRUE)
-head(A_GO_T)
+head(A_GO_T, 25)
 
-statistic <- filter(variation_A, variable == "A_S")$variance
+statistic <- filter(variation_A, variable == "A_S")$cv
 names(statistic) <- filter(variation_A, variable == "A_S")$EntrezID
-
 A_GO_S <- cameraPR(statistic, c5.bp.indices, use.ranks = TRUE)
-head(A_GO_S)
+head(A_GO_S, 25)
 
-statistic <- filter(variation_phi, variable == "phi_T")$variance
+statistic <- filter(variation_phi, variable == "phi_T")$cv
 names(statistic) <- filter(variation_phi, variable == "phi_T")$EntrezID
-
 phi_GO_T <- cameraPR(statistic, c5.bp.indices, use.ranks = FALSE)
-head(phi_GO_T)
+head(phi_GO_T, 25)
 
-statistic <- filter(variation_phi, variable == "phi_S")$variance
+statistic <- filter(variation_phi, variable == "phi_S")$cv
 names(statistic) <- filter(variation_phi, variable == "phi_S")$EntrezID
-
 phi_GO_S <- cameraPR(statistic, c5.bp.indices, use.ranks = FALSE)
-head(phi_GO_S)
+head(phi_GO_S, 25)
 
-statistic <- filter(variation_magn, variable == "magn_T")$variance
+statistic <- filter(variation_magn, variable == "magn_T")$cv
 names(statistic) <- filter(variation_magn, variable == "magn_T")$EntrezID
-
 magn_GO_T <- cameraPR(statistic, c5.bp.indices, use.ranks = FALSE)
-head(magn_GO_T)
+head(magn_GO_T, 25)
 
-statistic <- filter(variation_magn, variable == "magn_S")$variance
+statistic <- filter(variation_magn, variable == "magn_S")$cv
 names(statistic) <- filter(variation_magn, variable == "magn_S")$EntrezID
-
 magn_GO_S <- cameraPR(statistic, c5.bp.indices, use.ranks = FALSE)
-head(magn_GO_S)
+head(magn_GO_S, 25)
 
 
 # Distribution of fixed effects 
@@ -705,7 +699,7 @@ fig2 <- plot_grid(fig2A_2, NULL,
                   fig2C, 
                   NULL, fig2B, NULL, fig2D, nrow=7, 
                   labels = c("A", "", "B", "", "C", "", "D"), rel_heights = c(1,0.1,1,0.1,1,0.1, 1), align = "v", axis = "l")
-fig2 %>% ggsave('figures/fig2.pdf', ., width = 9, height = 11)
+fig2 %>% ggsave('figures/fig2.pdf', ., width = 11, height = 11)
 
 
 sfig3 <- plot_grid(NULL, suppfig3A, NULL, suppfig3B, nrow=1, ncol=4, labels=c("A", "", "B", ""), rel_widths=c(0.1,1,0.1,1))

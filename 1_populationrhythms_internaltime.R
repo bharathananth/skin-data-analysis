@@ -184,7 +184,7 @@ fig1B <- ggplot(experiment) +
   scale_y_continuous(breaks=seq(18,32,2)) +
   scale_x_datetime(date_breaks = "2 hours", date_labels = "%H:%M", limits=lims) +
   theme(aspect.ratio=1) + 
-  xlab("Mid sleep time") + ylab("Age (years)") + theme_custom()
+  xlab(bquote(''*~MSF[sc])) + ylab("Age (years)") + theme_custom()
 
 
 #####
@@ -311,7 +311,7 @@ suppfig2B <- ggplot(rhy_results %>% filter(Symbol %in% clock_genes) %>%
                    xend=phase_value%%24, yend=2^(2*amp_value), color=tissue)) +
   geom_text_repel(aes(label=Symbol_it), max.overlaps=Inf, box.padding=1, size=3.5, point.padding=.5,
                   segment.color="grey70", color="grey50", parse=TRUE) +
-  xlab("") + ylab(bquote(~log[2]*' fold amplitude')) + guides(color = FALSE) + 
+  xlab("") + ylab("Amplitude fold change") +  guides(color = FALSE) + #ylab(bquote(~log[2]*' fold amplitude')) +
   theme_custom() + theme(panel.grid.major = element_line(), panel.grid.minor = element_line())
 
 
@@ -333,7 +333,7 @@ fig1D_1 <- ggplot(toplot, aes(x=phase_value%%24, y=FC_amp, color=tissue, shape=c
                   segment.color="black", color="black", parse=TRUE)  +
   scale_x_continuous(limits=c(0,24), breaks = c(0, 3, 6, 9, 12, 15, 18, 21, 24) ) + 
   scale_y_continuous(limits=c(1,5), breaks=seq(1:4), trans='log2') +
-  ylab("Amplitude fold change") + xlab(bquote('time after'*~MSF[sc])) + 
+  ylab("Amplitude fold change") + xlab(bquote('time after'*~MSF[sc]*' (h)')) + 
   theme_custom() + theme(aspect.ratio = 0.7) +
   guides(color = FALSE) + 
   ggtitle("\ndermis") +
@@ -355,7 +355,7 @@ fig1D_2 <- ggplot(toplot, aes(x=phase_value%%24, y=FC_amp, color=tissue, shape=c
                   segment.color="black", color="black", parse=TRUE)  +
   scale_x_continuous(limits=c(0,24), breaks = c(0, 3, 6, 9, 12, 15, 18, 21, 24) ) + 
   scale_y_continuous(limits=c(1,5), breaks=seq(1:4), trans='log2')+
-  ylab("Amplitude fold change") +xlab(bquote('time after'*~MSF[sc])) + 
+  ylab("Amplitude fold change") +xlab(bquote('time after'*~MSF[sc]*' (h)')) + 
   theme_custom() + theme(aspect.ratio = 0.7) +
   guides(color = FALSE) + 
   ggtitle("\nepidermis") +
@@ -392,7 +392,8 @@ fig1E <- ggplot(both_rhy_amp, aes(x=ampFC_dermis, y=ampFC_epidermis, shape=clock
                   size=3., aes(x=ampFC_dermis, y=ampFC_epidermis, label=Symbol_it), color="black", 
                   parse=TRUE, point.padding = .5, max.overlaps=Inf) +
   coord_fixed() + theme_bw() + 
-  xlab(bquote(~log[2]*' fold amp. dermis')) + ylab(bquote(~log[2]*' fold amp. epidermis')) +
+  xlab('Amplitude fold change, dermis') + ylab('Amplitude fold change, epidermis') +
+  #xlab(bquote(~log[2]*' fold amp. dermis')) + ylab(bquote(~log[2]*' fold amp. epidermis')) +
   #xlab("Amplitude dermis") + ylab("Amplitude epidermis") +
   theme_custom() + 
   scale_x_continuous(limits=c(1, 5), breaks=seq(1:4), trans='log2') +
@@ -590,15 +591,15 @@ if (!file.exists("visualize/data/phases_fig1_D.csv")){
   rhy_D_or_E %>% filter(rhythmic_in_D) %>%
     mutate(phase_value = phaseD%%24) %>% 
     #mutate(phase_clock1 = ifelse(phase_clock1 < 0, phase_clock1 + 24, phase_clock1)) %>%
-    select(Symbol, phase_value) %>% mutate(phase_value=round(phase_value, 0) %>% as.numeric()) %>%
+    dplyr::select(Symbol, phase_value) %>% mutate(phase_value=round(phase_value, 0) %>% as.numeric()) %>%
     write.table(file = "visualize/data/PSEA/phasesforPSEA_fig1_D.txt", row.names=FALSE, col.names=FALSE, sep='\t', quote=FALSE)
 }
 
 if (!file.exists("visualize/data/phases_fig1_E.csv")){ 
   rhy_D_or_E %>% filter(rhythmic_in_E) %>%
-    mutate(phase_value = phaseE + 8) %>% 
+    mutate(phase_value = phaseE%%24) %>% 
     #mutate(phase_clock1 = ifelse(phase_clock1 < 0, phase_clock1 + 24, phase_clock1)) %>%
-    select(Symbol, phase_value) %>% mutate(phase_value=round(phase_value, 0) %>% as.numeric()) %>%
+    dplyr::select(Symbol, phase_value) %>% mutate(phase_value=round(phase_value, 0) %>% as.numeric()) %>%
     write.table(file = "visualize/data/PSEA/phasesforPSEA_fig1_E.txt", row.names=FALSE, col.names=FALSE, sep='\t', quote=FALSE)
 }
 
@@ -612,26 +613,26 @@ PSEA_e_K <- read.csv("visualize/data/PSEA/epidermis_C2all/results.txt", sep='\t'
   filter(Set.N >= 5)
 PSEA_e_K <- PSEA_e_K[PSEA_e_K[,4] <  q_cutoff, ] %>% mutate(tissue = "epidermis")
 
-PSEA_K <- full_join(PSEA_d_K %>% select(Set.ID, Set.N, Vector.average.value, tissue), 
-                    PSEA_e_K %>% select(Set.ID, Set.N, Vector.average.value, tissue)) %>%
+PSEA_K <- full_join(PSEA_d_K %>% dplyr::select(Set.ID, Set.N, Vector.average.value, tissue), 
+                    PSEA_e_K %>% dplyr::select(Set.ID, Set.N, Vector.average.value, tissue)) %>%
   mutate(term = gsub("_", " ", Set.ID)) %>% mutate(term=gsub("KEGG", "", term)) %>% mutate(term = term %>% tolower()) %>%
   mutate(term = mgsub::mgsub(term, c("rna ", "dna ", "tgf ", "nod ", "jak stat ", "ecm ", " i "), 
                              c("RNA ", "DNA ", "TGF ", "NOD ", "JAK STAT ","ECM ", " I ")))
 
 m_c2 <- msigdbr(species = "Homo sapiens", category = "C2", subcategory = "CP:KEGG") #https://www.gsea-msigdb.org/gsea/msigdb/genesets.jsp
 m_kegg <- m_c2 %>% dplyr::select(gs_name, gene_symbol) %>% as.data.frame() %>% 
-  inner_join(PSEA_K %>% rename(c("gs_name"="Set.ID"))) %>%
-  inner_join(rhy_results %>% rename(c("gene_symbol"="Symbol"))) %>% #see which rhythmic genes belong to which category
-  select(-gs_name, - ProbeName, -amp_value, -AveExpr) %>%
-  mutate(phase_clock1 = phase_value + 8) %>% 
-  mutate(phase_clock1 = ifelse(phase_clock1 < 0, phase_clock1 + 24, phase_clock1)) %>% select(-phase_value)
+  inner_join(PSEA_K %>% dplyr::rename(c("gs_name"="Set.ID"))) %>%
+  inner_join(rhy_results %>% dplyr::rename(c("gene_symbol"="Symbol"))) %>% #see which rhythmic genes belong to which category
+  dplyr::select(-gs_name, - ProbeName, -amp_value, -AveExpr) %>%
+  #mutate(phase_clock1 = phase_value + 8) %>% 
+  mutate(phase_clock1 = ifelse(phase_value < 0, phase_value + 24, phase_value))# %>% dplyr::select(-phase_value)
 
 suppfig2D <- ggplot(m_kegg) + 
   geom_point(aes(x=phase_clock1, y=reorder(term, Vector.average.value), color=tissue), alpha=0.5, size=1, shape=4) + 
   geom_point(aes(x=Vector.average.value, y=reorder(term, Vector.average.value), 
                  fill=tissue, size=Set.N), color="black", shape=21) + 
   facet_grid(scales="free_y", space="free",rows=vars(tissue), switch="y") +
-  xlab("Phase (h)") + ylab("KEGG pathway") + labs(size='# of genes') + guides(color=FALSE, fill=FALSE) +
+  xlab(bquote('time after'*~MSF[sc]*' (h)')) + ylab("KEGG pathway") + labs(size='# of genes') + guides(color=FALSE, fill=FALSE) +
   theme_bw() + theme(axis.line = element_line(colour = "black"),
                      panel.border = element_blank(),
                      panel.background = element_blank(),
@@ -654,25 +655,26 @@ PSEA_e_G <- read.csv("visualize/data/PSEA/epidermis_C5GOBP/results.txt", sep='\t
   filter(Set.N >= 5)
 PSEA_e_G <- PSEA_e_G[PSEA_e_G[,4] <  q_cutoff, ] %>% mutate(tissue = "epidermis")
 
-PSEA_G <- full_join(PSEA_d_G %>% select(Set.ID, Set.N, Vector.average.value, tissue), 
-                    PSEA_e_G %>% select(Set.ID, Set.N, Vector.average.value, tissue)) %>%
+PSEA_G <- full_join(PSEA_d_G %>% dplyr::select(Set.ID, Set.N, Vector.average.value, tissue), 
+                    PSEA_e_G %>% dplyr::select(Set.ID, Set.N, Vector.average.value, tissue)) %>%
   mutate(term = gsub("_", " ", Set.ID)) %>% mutate(term=gsub("GOBP", "", term)) %>% mutate(term = term %>% tolower()) %>%
   mutate(term = mgsub::mgsub(term, c("rna ", "dna ", "tgf ", "nod ", "jak stat ", "ecm ", " i "), 
                              c("RNA ", "DNA ", "TGF ", "NOD ", "JAK STAT ","ECM ", " I ")))
 
 m_c5 <- msigdbr(species = "Homo sapiens", category = "C5", subcategory = "GO:BP")
 m_gobp <- m_c5 %>% dplyr::select(gs_name, gene_symbol) %>% as.data.frame() %>% 
-  inner_join(PSEA_G %>% rename(c("gs_name"="Set.ID"))) %>%
-  inner_join(rhy_results %>% rename(c("gene_symbol"="Symbol")))  %>% select(-gs_name, - ProbeName, -amp_value, -AveExpr) %>%
-  mutate(phase_clock1 = phase_value + 8) %>% 
-  mutate(phase_clock1 = ifelse(phase_clock1 < 0, phase_clock1 + 24, phase_clock1)) %>% select(-phase_value)
+  inner_join(PSEA_G %>% dplyr::rename(c("gs_name"="Set.ID"))) %>%
+  inner_join(rhy_results %>% dplyr::rename(c("gene_symbol"="Symbol")))  %>% 
+  dplyr::select(-gs_name, - ProbeName, -amp_value, -AveExpr) %>%
+  #mutate(phase_clock1 = phase_value + 8) %>% 
+  mutate(phase_clock1 = ifelse(phase_value < 0, phase_value + 24, phase_value)) %>% dplyr::select(-phase_value)
 
 suppfig2E <- ggplot(m_gobp) + 
   geom_point(aes(x=phase_clock1, y=reorder(term, Vector.average.value), color=tissue), alpha=0.5, size=1, shape=4) + 
   geom_point(aes(x=Vector.average.value, y=reorder(term, Vector.average.value), fill=tissue, size=Set.N), 
              color="black", shape=21) + 
   facet_grid(scales="free_y", space="free",rows=vars(tissue), switch="y") +
-  xlab("Phase (h)") + ylab("GO:BP term") + labs(size='# of genes') + guides(color=FALSE, fill=FALSE) +
+  xlab(bquote('time after'*~MSF[sc]*' (h)'))  + ylab("GO:BP term") + labs(size='# of genes') + guides(color=FALSE, fill=FALSE) +
   theme_bw() + theme(axis.line = element_line(colour = "black"),
                      panel.border = element_blank(),
                      panel.background = element_blank(),
@@ -707,9 +709,9 @@ fig1 %>% ggsave('figures/fig1.pdf', ., width = 11, height = 11)
 sfig2_1 <- plot_grid(suppfig2A, NULL, suppfig2B, ncol=3, nrow=1, labels=c("A", "", "B"), rel_widths = c(1,0.1,0.9))
 sfig2_2 <- plot_grid(suppfig2C, labels="C")
 sfig2_3 <- plot_grid(NULL, NULL, labels=c("D", "E"), rel_widths = c(1,1.15))
-suppfig2D <- plot_grid(suppfig2D, NULL, labels=c("", ""), ncol=1, rel_heights = c(1,1))
+suppfig2D <- plot_grid(suppfig2D, NULL, labels=c("", ""), ncol=1, rel_heights = c(1,.4))
 sfig2_4 <- plot_grid(suppfig2D, suppfig2E, labels=c("", ""), rel_widths = c(1,1.15))
 sfig2 <- plot_grid(sfig2_1, NULL, sfig2_2, sfig2_3, sfig2_4, align='v', nrow=5, 
-                   rel_heights = c(1.5, 0.1, 1.8, 0.1, 2.))#, 0.1, 1.5))
+                   rel_heights = c(1.5, 0.1, 1.8, 0.1, 1.5))#, 0.1, 1.5))
 
 sfig2 %>% ggsave('figures/suppfig2.pdf', ., width = 11, height = 12.8)

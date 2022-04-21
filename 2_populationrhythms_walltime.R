@@ -251,7 +251,7 @@ toplot <- rhy_results %>% select(Symbol, tissue, amp_value, analysis) %>% spread
          FCamp_wall_time = 2^(2*wall_time))
 
 highamp_cutoff <- 0.75
-suppfig1B <- ggplot(toplot, aes(x=FCamp_internal_time, y=FCamp_wall_time, color=tissue)) +
+suppfig1B <- ggplot(toplot, aes(x=2^(2*internal_time), y=2^(2*wall_time), color=tissue)) +
   geom_abline(slope=1, intercept=0, lty='dashed', color="gray") + 
   geom_point(alpha=0.3) + 
   geom_point(data = filter(toplot, Symbol %in% clock_genes), aes(x=FCamp_wall_time, y=FCamp_internal_time), color="black") +
@@ -261,8 +261,9 @@ suppfig1B <- ggplot(toplot, aes(x=FCamp_internal_time, y=FCamp_wall_time, color=
   facet_wrap(~tissue, scales="free") + guides(color=FALSE) +
   scale_y_continuous(limits=c(1, 5), breaks=seq(1:4), trans='log2') +
   scale_x_continuous(limits=c(1, 5), breaks=seq(1:4), trans='log2') +
-  xlab(bquote(~log[2]*' (fold amplitude) internal time')) + 
-  ylab(bquote(~log[2]*' (fold amplitude) wall time')) + theme_custom() 
+  xlab('Amplitude fold change, internal time') + #xlab(bquote(~log[2]*' (fold amplitude) internal time')) + 
+  xlab('Amplitude fold change, wall time') + #ylab(bquote(~log[2]*' (fold amplitude) wall time')) + 
+  theme_custom() 
 
 amp_dermis <- filter(toplot, tissue=="dermis") %>% na.omit()
 print(paste0(which(amp_dermis$internal_time > amp_dermis$wall_time) %>% length(), "/", dim(amp_dermis)[1], 
@@ -293,7 +294,9 @@ suppfig1C <- ggplot(toplot, aes(x=internal_time, y=wall_time, color=tissue)) +
   facet_wrap(~tissue, scales="free") + 
   scale_y_continuous(limits=c(0,24), breaks = seq(0, 24, by=6)) +
   scale_x_continuous(limits=c(0,24), breaks = seq(0, 24, by=6)) +
-  xlab("Phase (h) internal time") + ylab("Phase (h) wall time") + theme_custom() 
+  #xlab(bquote('time after'*~MSF[sc]*' (h), internal time')) +  ylab(bquote('time after'*~MSF[sc]*' (h), wall time'))  + 
+  xlab('Phase (h), internal time') +  ylab('Phase (h), wall time')  + 
+  theme_custom() 
 
 
 #########

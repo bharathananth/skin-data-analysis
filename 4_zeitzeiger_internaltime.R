@@ -15,7 +15,7 @@ suppressPackageStartupMessages(library(cowplot))
 suppressPackageStartupMessages(library(variancePartition))
 
 
-#setwd("~/Documents/WORK/POSTDOC/projects/skin-data-analysis")
+setwd("~/Documents/WORK/POSTDOC/projects/skin-data-analysis")
 
 # R graphics stuff
 scale_colour_discrete <- function(...) {
@@ -284,34 +284,34 @@ if (!file.exists("visualize/data/zeitzeiger_dermis_epidermis_internal.csv")){
             "visualize/data/zeitzeiger_dermis_epidermis_internal.csv")
 }
 
-# Check which ZeitZeiger genes are also found as lowly magnitude-variant genes across subjects through variance partition
+## Check which ZeitZeiger genes are also found as lowly magnitude-variant genes across subjects through variance partition
 vp.D <- read.csv("visualize/data/variance_rhythmic_parameters_dermis.csv") %>% dplyr::select(-X)
 vp.E <- read.csv("visualize/data/variance_rhythmic_parameters_epidermis.csv") %>% dplyr::select(-X)
 vp.full <- read.csv("visualize/data/variance_rhythmic_parameters_full.csv") %>% dplyr::select(-X) 
 vp.D %<>% filter(Amp>.15)
 vp.E %<>% filter(Amp>.15)
 vp.full %<>% filter(Amp>.15)
-
-vp_magnSubj.D <- vp.D %>% arrange(var_magn_subject) %>% dplyr::select(Symbol, var_magn_subject) %>% mutate(tissue="dermis") %>% head(20)
-vp_magnSubj.E <- vp.E %>% arrange(var_magn_subject) %>% dplyr::select(Symbol, var_magn_subject) %>% mutate(tissue="epidermis") %>% head(20)
-vp_magnSubj <- rbind(vp_magnSubj.D, vp_magnSubj.E)
-
-vp_ampSubj.D <- vp.D %>% arrange(var_A_subject) %>% dplyr::select(Symbol, var_A_subject) %>% mutate(tissue="dermis") %>% head(20)
-vp_ampSubj.E <- vp.E %>% arrange(var_A_subject) %>% dplyr::select(Symbol, var_A_subject) %>% mutate(tissue="epidermis") %>% head(20)
-vp_ampSubj <- rbind(vp_ampSubj.D, vp_ampSubj.E)
-
-vGath <- left_join(vGath, vp_magnSubj) %>% 
-  mutate(varPart_lowMagn=ifelse(is.na(var_magn_subject), FALSE, TRUE)) %>%
-  left_join(vp_ampSubj) %>% mutate(varPart_lowAmp=ifelse(is.na(var_A_subject), FALSE, TRUE))
-
-vGath$varPart_gene <- ifelse(vGath$varPart_lowMagn == FALSE & vGath$varPart_lowAmp == TRUE, "low Amplitude var", 
-                             ifelse(vGath$varPart_lowMagn == TRUE  & vGath$varPart_lowAmp  == FALSE, "low Magnitude var", 
-                                    vGath$varPart_gene <- ifelse(vGath$varPart_lowMagn == TRUE  & 
-                                                                   vGath$varPart_lowAmp == TRUE, 
-                                                                 "low Amplitude & Magnitude var", FALSE)))
+#
+#vp_magnSubj.D <- vp.D %>% arrange(var_magn_subject) %>% dplyr::select(Symbol, var_magn_subject) %>% mutate(tissue="dermis") %>% head(20)
+#vp_magnSubj.E <- vp.E %>% arrange(var_magn_subject) %>% dplyr::select(Symbol, var_magn_subject) %>% mutate(tissue="epidermis") %>% head(20)
+#vp_magnSubj <- rbind(vp_magnSubj.D, vp_magnSubj.E)
+#
+#vp_ampSubj.D <- vp.D %>% arrange(var_A_subject) %>% dplyr::select(Symbol, var_A_subject) %>% mutate(tissue="dermis") %>% head(20)
+#vp_ampSubj.E <- vp.E %>% arrange(var_A_subject) %>% dplyr::select(Symbol, var_A_subject) %>% mutate(tissue="epidermis") %>% head(20)
+#vp_ampSubj <- rbind(vp_ampSubj.D, vp_ampSubj.E)
+#
+#vGath <- left_join(vGath, vp_magnSubj) %>% 
+#  mutate(varPart_lowMagn=ifelse(is.na(var_magn_subject), FALSE, TRUE)) %>%
+#  left_join(vp_ampSubj) %>% mutate(varPart_lowAmp=ifelse(is.na(var_A_subject), FALSE, TRUE))
+#
+#vGath$varPart_gene <- ifelse(vGath$varPart_lowMagn == FALSE & vGath$varPart_lowAmp == TRUE, "low Amplitude var", 
+#                             ifelse(vGath$varPart_lowMagn == TRUE  & vGath$varPart_lowAmp  == FALSE, "low Magnitude var", 
+#                                    vGath$varPart_gene <- ifelse(vGath$varPart_lowMagn == TRUE  & 
+#                                                                   vGath$varPart_lowAmp == TRUE, 
+#                                                                 "low Amplitude & Magnitude var", FALSE)))
 
 fig3A_1 <- ggplot(vGath %>% filter(tissue=="dermis")) + facet_wrap(~spc, scales="free") +
-  geom_label(aes(x=spc, y=feature, label=Symbol_it, size=Coefficient, color=sign, fill=varPart_gene), 
+  geom_label(aes(x=spc, y=feature, label=Symbol_it, size=Coefficient, color=sign), 
              label.size=NA, parse=TRUE) + 
   scale_color_manual(values=c("#d11141", "steelblue3")) + 
   scale_fill_manual(values=c("transparent", "#04bedb", "#fa8e9d", "#4B0082")) +
@@ -331,7 +331,7 @@ fig3A_1 <- ggplot(vGath %>% filter(tissue=="dermis")) + facet_wrap(~spc, scales=
 # https://stackoverflow.com/questions/63393553/color-legend-key-labels-with-r-ggplot2-and-remove-the-keys
 
 fig3A_2 <- ggplot(vGath %>% filter(tissue=="epidermis")) + facet_wrap(~spc, scales="free") +
-  geom_label(aes(x=spc, y=feature, label=Symbol_it, size=Coefficient, color=sign, fill=varPart_gene), 
+  geom_label(aes(x=spc, y=feature, label=Symbol_it, size=Coefficient, color=sign), 
              label.size=NA, parse=TRUE) +
   scale_color_manual(values=c("#d11141", "steelblue3")) + 
   scale_fill_manual(values=c("transparent", "#04bedb", "#fa8e9d", "#4B0082")) +
@@ -481,10 +481,10 @@ suppfig5C <- plot_grid(NULL, suppfig5C_1, NULL, suppfig5C_2, ncol=4, rel_widths 
 
 # Arrange plots in grid
 # ---------------------
-fig3 <- plot_grid(NULL, fig3A, NULL, fig3B, labels=c("A","","B", ""), ncol=4, nrow=1, rel_widths=c(0.03,1.15,0.08,0.3))
+fig3 <- plot_grid(NULL, fig3A, NULL, fig3B, labels=c("A","","B", ""), ncol=4, nrow=1, rel_widths=c(0.01,1.15,0.04,0.33))
 fig3 %>% ggsave('figures/fig3.pdf', ., width = 11, height = 5.)
 
 sfig5 <- plot_grid(plot_grid(suppfig5A, suppfig5C, nrow=1, rel_widths = c(1,1), labels = c("A", "B")), NULL, suppfig5B_1, NULL, suppfig5B_2, 
                          labels=c("", "", "C", "", "D"), nrow=5, 
                          rel_heights=c(0.75,0.05,1,0.05,1.5)) %T>%
-        ggsave('figures/suppfig5.pdf', ., width = 8, height = 10)
+        ggsave('figures/suppfig5.pdf', ., width = 11, height = 10)
