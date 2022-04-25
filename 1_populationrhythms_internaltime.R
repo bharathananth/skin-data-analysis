@@ -22,7 +22,7 @@ suppressPackageStartupMessages(library(clusterProfiler))
 suppressPackageStartupMessages(library(DOSE))
 suppressPackageStartupMessages(library(mgsub))
 
-setwd("~/Documents/WORK/POSTDOC/projects/skin-data-analysis")
+#setwd("~/Documents/WORK/POSTDOC/projects/skin-data-analysis")
 
 # R graphics stuff
 scale_colour_discrete <- function(...) {
@@ -438,28 +438,28 @@ fig1F <- ggplot(both_rhy_phase, aes(x=dermis, y=epidermis, shape=clock_gene)) +
 # with clusterProfiler (but results confirmed with limma, msigdbr and other online tools)
 gD <- enrichGO(yave[yave$genes$Symbol %in% filter(rhy_results, tissue=="dermis")$Symbol,]$genes$EntrezID,
                  universe = yave$genes$EntrezID, ont="BP",
-                 'org.Hs.eg.db', pvalueCutoff = 1.0, qvalueCutoff = 1.0, minGSSize = 5) %>%
+                 'org.Hs.eg.db', pvalueCutoff = 1.0, qvalueCutoff = 1.0, minGSSize = 10) %>%
   as.data.frame() %>%
   tidyr::separate(GeneRatio, c("DE","junk"), convert = TRUE, sep = "/") %>% 
   tidyr::separate(BgRatio, c("N","junk"), convert = TRUE, sep = "/")
 
 gE <- enrichGO(yave[yave$genes$Symbol %in% filter(rhy_results, tissue=="epidermis")$Symbol,]$genes$EntrezID,
                  universe = yave$genes$EntrezID, ont="BP",
-                 'org.Hs.eg.db', pvalueCutoff = 1.0, qvalueCutoff = 1.0, minGSSize = 5) %>%
+                 'org.Hs.eg.db', pvalueCutoff = 1.0, qvalueCutoff = 1.0, minGSSize = 10) %>%
   as.data.frame() %>%
   tidyr::separate(GeneRatio, c("DE","junk"), convert = TRUE, sep = "/") %>% 
   tidyr::separate(BgRatio, c("N","junk"), convert = TRUE, sep = "/")
 
-#if (!file.exists("visualize/data/enrichment/rhygenes_dermis_inttime.txt")){
-#  write.table(yave[yave$genes$Symbol %in% filter(rhy_results, tissue=="dermis")$Symbol,]$genes$ENSEMBL,
-#              "visualize/data/enrichment/rhygenes_dermis_inttime.txt", sep=',', row.names=FALSE, col.names=FALSE, quote=FALSE)
-#  write.table(yave[yave$genes$Symbol %in% filter(rhy_results, tissue=="epidermis")$Symbol,]$genes$ENSEMBL,
-#              "visualize/data/enrichment/rhygenes_epidermis_inttime.txt", sep=',', row.names=FALSE, col.names=FALSE, quote=FALSE)
-#  write.table(yave_D$genes$ENSEMBL, "visualize/data/enrichment/exprgenes_dermis_inttime.txt", 
-#              sep=',', row.names = FALSE, col.names=FALSE, quote=FALSE)
-#  write.table(yave_E$genes$ENSEMBL, "visualize/data/enrichment/exprgenes_epidermis_inttime.txt", 
-#              sep=',', row.names = FALSE, col.names=FALSE, quote=FALSE)
-#}
+if (!file.exists("visualize/data/enrichment/rhygenes_dermis_inttime.txt")){
+ write.table(yave[yave$genes$Symbol %in% filter(rhy_results, tissue=="dermis")$Symbol,]$genes$ENSEMBL,
+             "visualize/data/enrichment/rhygenes_dermis_inttime.txt", sep=',', row.names=FALSE, col.names=FALSE, quote=FALSE)
+ write.table(yave[yave$genes$Symbol %in% filter(rhy_results, tissue=="epidermis")$Symbol,]$genes$ENSEMBL,
+             "visualize/data/enrichment/rhygenes_epidermis_inttime.txt", sep=',', row.names=FALSE, col.names=FALSE, quote=FALSE)
+ write.table(yave$genes$ENSEMBL, "visualize/data/enrichment/exprgenes_dermis_inttime.txt",
+             sep=',', row.names = FALSE, col.names=FALSE, quote=FALSE)
+ write.table(yave$genes$ENSEMBL, "visualize/data/enrichment/exprgenes_epidermis_inttime.txt",
+             sep=',', row.names = FALSE, col.names=FALSE, quote=FALSE)
+}
 
 g <- gE %>% top_n(20, wt=-pvalue) %>% mutate(hits=DE*100/N, tissue="epidermis") %>% as.data.frame() %>%
   rbind(gD %>% top_n(20, wt=-pvalue) %>% mutate(hits=DE*100/N, tissue="dermis") %>% as.data.frame()) %>%
@@ -529,17 +529,33 @@ suppfig2F <- ggplot(data = corrmat, aes(x=key, y=rowname, fill=value)) + facet_w
 # with clusterProfiler (also done with limma and msigdbr but less overlap than GOBP enrichment)
 kD <- enrichKEGG(yave[yave$genes$Symbol %in% filter(rhy_results, tissue=="dermis")$Symbol,]$genes$EntrezID,
                    universe = yave$genes$EntrezID,
-                   organism = "hsa", keyType = "ncbi-geneid", pvalueCutoff = 1.0, qvalueCutoff = 1.0, minGSSize = 5) %>%
+                   organism = "hsa", keyType = "ncbi-geneid", pvalueCutoff = 1.0, qvalueCutoff = 1.0, minGSSize = 20) %>%
   as.data.frame() %>%
   tidyr::separate(GeneRatio, c("DE","junk"), convert = TRUE, sep = "/") %>% 
   tidyr::separate(BgRatio, c("N","junk"), convert = TRUE, sep = "/")
 
 kE <- enrichKEGG(yave[yave$genes$Symbol %in% filter(rhy_results, tissue=="epidermis")$Symbol,]$genes$EntrezID,
                    universe = yave$genes$EntrezID,
-                   organism = "hsa", keyType = "ncbi-geneid", pvalueCutoff = 1.0, qvalueCutoff = 1.0, minGSSize = 5) %>%
+                   organism = "hsa", keyType = "ncbi-geneid", pvalueCutoff = 1.0, qvalueCutoff = 1.0, minGSSize = 20) %>%
   as.data.frame() %>%
   tidyr::separate(GeneRatio, c("DE","junk"), convert = TRUE, sep = "/") %>% 
   tidyr::separate(BgRatio, c("N","junk"), convert = TRUE, sep = "/")
+
+rE <- enrichPathway(yave[yave$genes$Symbol %in% filter(rhy_results, tissue=="epidermis")$Symbol,]$genes$EntrezID,
+                    universe = yave$genes$EntrezID, pvalueCutoff = 0.05, qvalueCutoff = 1.0, minGSSize = 20)
+
+rD <- enrichPathway(yave[yave$genes$Symbol %in% filter(rhy_results, tissue=="dermis")$Symbol,]$genes$EntrezID,
+                    universe = yave$genes$EntrezID, pvalueCutoff = 0.05, qvalueCutoff = 1.0, minGSSize = 20)
+
+df_rD <- setReadable(rD, 'org.Hs.eg.db', 'ENTREZID')
+cnetplot(df_rD)
+
+
+rDE <- enrichPathway(gene = filter(results, !is.na(adj_p_val_DR) & diff_rhythmic)$EntrezID, 
+                     universe = filter(results, !is.na(adj_p_val_DR))$EntrezID, minGSSize = 20, pvalueCutoff = 0.05, qvalueCutoff = 1.0)
+df_rDE <- setReadable(rDE, 'org.Hs.eg.db', 'ENTREZID')
+cnetplot(df_rDE)
+
   
 k <- kE %>% top_n(20, wt=-pvalue) %>% mutate(hits=DE*100/N, tissue="epidermis") %>% as.data.frame() %>%
   rbind(kD %>% top_n(20, wt=-pvalue) %>% mutate(hits=DE*100/N, tissue="dermis") %>% as.data.frame()) %>%
