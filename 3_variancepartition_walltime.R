@@ -317,6 +317,15 @@ fig2A_2 <- ggplot(variation_full %>% dplyr::select(rhythmic_par, sd, Symbol, eff
   labs(x='standard deviation', y='') +
   theme( panel.spacing = unit(1.6, "lines"))
 
+suppfig3A <- ggplot(variation_full %>% dplyr::select(rhythmic_par, cv, Symbol, effect)) +
+  geom_violin(aes(y=effect, x=cv, fill=effect, color=effect), alpha=0.5, width=0.75) +
+  facet_wrap(~rhythmic_par, scales='free_x') + 
+  scale_fill_manual(values = c("layer" = "#d1495b", "subject" = "#00798c"))  +
+  scale_color_manual(values = c("layer" = "#d1495b", "subject" = "#00798c"))  +
+  guides(color=FALSE, fill=FALSE) +
+  #scale_x_continuous(breaks=c(0,6,12,18,24)) + 
+  labs(x='coefficient of variation', y='') +
+  theme( panel.spacing = unit(1.6, "lines"))
 
 # 4. COEFFICIENT OF VARIATION -> Normalization of variability to the fixed effect: Where are the clock genes?
 # -----------------------------------------------------------------------------------------------------------
@@ -522,7 +531,7 @@ varPart <- varPart %>% as.data.frame() %>% mutate(ProbeName=rownames(.)) %>%
   inner_join(genes %>% dplyr::select(ProbeName, Symbol, EntrezID)) %>% tibble::column_to_rownames("Symbol") #%>%
 vp <- sortCols(varPart %>% dplyr::select(-ProbeName, -EntrezID)) 
 
-suppfig3A <- plotVarPart(vp) + #ggtitle('Variance partition on 1000 non-rhythmic genes') + 
+suppfig3B <- plotVarPart(vp) + #ggtitle('Variance partition on 1000 non-rhythmic genes') + 
   theme_custom() + theme(aspect.ratio=0.5, legend.position = "none") +
   ylab("Percentage of variance explained") + 
   scale_fill_manual(values = c("tissue" = "#d1495b", "subject" = "#00798c", 
@@ -542,7 +551,7 @@ varPart <- varPart %>% as.data.frame() %>% mutate(ProbeName=rownames(.)) %>%
   inner_join(genes %>% dplyr::select(ProbeName, Symbol, EntrezID)) %>% tibble::column_to_rownames("Symbol")
 vp <- sortCols(varPart %>% dplyr::select(-ProbeName, -EntrezID)) 
 
-suppfig3B <- plotVarPart(vp) + #ggtitle('Variance partition on clock genes') + 
+suppfig3C <- plotVarPart(vp) + #ggtitle('Variance partition on clock genes') + 
   theme_custom() + theme(aspect.ratio=0.5, legend.position = "none") +
   ylab("Percentage of variance explained") + 
   scale_fill_manual(values = c("tissue" = "#d1495b", "subject" = "#00798c", 
@@ -702,5 +711,7 @@ fig2 <- plot_grid(fig2A_2, NULL,
 fig2 %>% ggsave('figures/fig2.pdf', ., width = 11, height = 11)
 
 
-sfig3 <- plot_grid(NULL, suppfig3A, NULL, suppfig3B, nrow=1, ncol=4, labels=c("A", "", "B", ""), rel_widths=c(0.1,1,0.1,1))
+sfig3_1 <- suppfig3A
+sfig3_2 <- plot_grid(NULL, suppfig3B, NULL, suppfig3C, nrow=1, ncol=4, labels=c("B", "", "C", ""), rel_widths=c(0.1,1,0.1,1))
+sfig3 <- plot_grid(sfig3_1, NULL, sfig3_2, ncol=3, rel_heights=c(1,.1,1), labels=c("A", "", ""))
 sfig3 %>% ggsave('figures/suppfig3.pdf', ., width = 11, height = 3)

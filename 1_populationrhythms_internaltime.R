@@ -21,8 +21,9 @@ suppressPackageStartupMessages(library(tidytext))
 suppressPackageStartupMessages(library(clusterProfiler))
 suppressPackageStartupMessages(library(DOSE))
 suppressPackageStartupMessages(library(mgsub))
+suppressPackageStartupMessages(library(ReactomePA))
 
-#setwd("~/Documents/WORK/POSTDOC/projects/skin-data-analysis")
+setwd("~/Documents/WORK/POSTDOC/projects/skin-data-analysis")
 
 # R graphics stuff
 scale_colour_discrete <- function(...) {
@@ -467,7 +468,7 @@ g <- gE %>% top_n(20, wt=-pvalue) %>% mutate(hits=DE*100/N, tissue="epidermis") 
          pvalue = scales::scientific(pvalue, digits = 3),
          p.adjust = scales::scientific(p.adjust, digits = 3),
          P.DE=as.numeric(pvalue)) %>% 
-  select(-ID, -junk, -Count) %>% rename(c("Term"="Description"))
+  dplyr::select(-ID, -junk, -Count) %>% rename(c("Term"="Description"))
 
 
 fig1G <- ggplot(g, aes(x=-log10(P.DE), y=reorder_within(Term, -log10(P.DE), tissue), color=tissue, size=hits)) + 
@@ -541,21 +542,6 @@ kE <- enrichKEGG(yave[yave$genes$Symbol %in% filter(rhy_results, tissue=="epider
   tidyr::separate(GeneRatio, c("DE","junk"), convert = TRUE, sep = "/") %>% 
   tidyr::separate(BgRatio, c("N","junk"), convert = TRUE, sep = "/")
 
-rE <- enrichPathway(yave[yave$genes$Symbol %in% filter(rhy_results, tissue=="epidermis")$Symbol,]$genes$EntrezID,
-                    universe = yave$genes$EntrezID, pvalueCutoff = 0.05, qvalueCutoff = 1.0, minGSSize = 20)
-
-rD <- enrichPathway(yave[yave$genes$Symbol %in% filter(rhy_results, tissue=="dermis")$Symbol,]$genes$EntrezID,
-                    universe = yave$genes$EntrezID, pvalueCutoff = 0.05, qvalueCutoff = 1.0, minGSSize = 20)
-
-df_rD <- setReadable(rD, 'org.Hs.eg.db', 'ENTREZID')
-cnetplot(df_rD)
-
-
-rDE <- enrichPathway(gene = filter(results, !is.na(adj_p_val_DR) & diff_rhythmic)$EntrezID, 
-                     universe = filter(results, !is.na(adj_p_val_DR))$EntrezID, minGSSize = 20, pvalueCutoff = 0.05, qvalueCutoff = 1.0)
-df_rDE <- setReadable(rDE, 'org.Hs.eg.db', 'ENTREZID')
-cnetplot(df_rDE)
-
   
 k <- kE %>% top_n(20, wt=-pvalue) %>% mutate(hits=DE*100/N, tissue="epidermis") %>% as.data.frame() %>%
   rbind(kD %>% top_n(20, wt=-pvalue) %>% mutate(hits=DE*100/N, tissue="dermis") %>% as.data.frame()) %>%
@@ -569,38 +555,65 @@ k <- kE %>% top_n(20, wt=-pvalue) %>% mutate(hits=DE*100/N, tissue="epidermis") 
 suppfig2C <- ggplot(k, aes(x=-log10(P.DE), y=reorder_within(Pathway, -log10(P.DE), tissue), color=tissue, size=hits)) + 
   geom_point() +  
   facet_wrap(~tissue, scales='free_y') + expand_limits(x=c(0.75,4.0)) + 
-  labs(x=bquote(~-log[10]*italic(' p')~'value'), y="KEGG pathway", size="Percentage of hits\nfrom each term") + 
+  labs(x=bquote(~-log[10]*italic(' p')~'value'), y="KEGG pathway", size="Percentage of hits\nfrom each pathway") + 
   guides(color = FALSE) +
   theme_custom() + scale_y_reordered() +
   theme(aspect.ratio=2.3, legend.position = "right", legend.title = element_text(color="black"),
         panel.grid.major = element_line(), panel.grid.minor = element_line()) 
 
 
+rE <- enrichPathway(yave[yave$genes$Symbol %in% filter(rhy_results, tissue=="epidermis")$Symbol,]$genes$EntrezID,
+                    universe = yave$genes$EntrezID, pvalueCutoff = 0.05, qvalueCutoff = 1.0, minGSSize = 20)
+
+rD <- enrichPathway(yave[yave$genes$Symbol %in% filter(rhy_results, tissue=="dermis")$Symbol,]$genes$EntrezID,
+                    universe = yave$genes$EntrezID, pvalueCutoff = 0.05, qvalueCutoff = 1.0, minGSSize = 20)
+
+df_rD <- setReadable(rD, 'org.Hs.eg.db', 'ENTREZID') 
+fig1G_2 <- cnetplot(df_rD, color_gene = "#1B9E77", cex_label_gene = .7,layout="kk", foldChange = NULL)
+fig1G_2 <- fig1G_2 + theme(legend.position = "none")
+
+
+rDE <- enrichPathway(gene = filter(results, !is.na(adj_p_val_DR) & diff_rhythmic)$EntrezID, 
+                     universe = filter(results, !is.na(adj_p_val_DR))$EntrezID, minGSSize = 20, pvalueCutoff = 0.05, qvalueCutoff = 1.0)
+df_rDE <- setReadable(rDE, 'org.Hs.eg.db', 'ENTREZID') %>% as.data.frame() %>%
+  tidyr::separate(GeneRatio, c("DE","junk"), convert = TRUE, sep = "/") %>% 
+  tidyr::separate(BgRatio, c("N","junk"), convert = TRUE, sep = "/") %>%
+  mutate(hits=DE*100/N) %>%
+  mutate(Description = Description %>% tolower())
+fig1H <- ggplot(df_rDE, aes(x=-log10(p.adjust), y=reorder(Description, -log10(p.adjust)), size=DE)) + 
+  geom_point( color='coral1') +  
+  #facet_wrap(~tissue, scales='free_y') + 
+  expand_limits(x=c(0,2.0)) + 
+  labs(x=bquote(~-log[10]*' adj.'~italic('p')~'value'), y="Pathway", size="Percentage\nof hits") + 
+  guides(color = FALSE) +
+  theme_custom() + scale_y_reordered() +
+  theme(aspect.ratio=.35, legend.position = "right", legend.title = element_text(color="black"),
+        panel.grid.major = element_line(), panel.grid.minor = element_line()) 
 #####
 
 # Supplementary figure 2D, E: PSEA
 ## in a terminal, execute the .jar PSEA file: > java -jar PSEA-master/PSEA1.1_VectorGraphics.jar 
 ## (go to directory where PSEA is)
 ## PSEA parameter choice: (0, 24, 5, 10000, 0.05) -> gene sets downloaded from https://www.gsea-msigdb.org/gsea/msigdb/index.jsp
-fdr_cutoff_PSEA <- 0.1 #less significant cutoff for PSEA analysis
+#fdr_cutoff_PSEA <- 0.1 #less significant cutoff for PSEA analysis
 
 # Repeat DR analysis with a less stringent fdr cutoff
-rhy_D_or_E <- results[(results$adj_P_Val_D_or_E < fdr_cutoff_PSEA) & # fdr < cutoff
+rhy_D_or_E <- results[(results$adj_P_Val_D_or_E < fdr_cutoff) & # fdr < cutoff
                         (pmax(results$A_D, results$A_E) > amp_cutoff),]
-diff_rhy_contrast <- limma::makeContrasts(tissueD_inphase - tissueE_inphase, tissueD_outphase - tissueE_outphase, levels = design)
-diff_rhy_fit <- limma::contrasts.fit(fit, diff_rhy_contrast)
-diff_rhy_fit <- limma::eBayes(diff_rhy_fit, robust = TRUE, trend = TRUE)
-diff_rhy_results <- limma::topTable(diff_rhy_fit, number = Inf, sort.by = "none")
-diff_rhy_results <- diff_rhy_results[rhy_D_or_E$ProbeName, ]
-
-rhy_D_or_E$adj_p_val_DR <- stats::p.adjust(diff_rhy_results$P.Value, method = "BH")
-rhy_D_or_E$diff_rhythmic <- rhy_D_or_E$adj_p_val_DR < fdr_cutoff
-
-# which genes are rhythmic in D, E or both?
-rhy_D_or_E$rhythmic_in_D <- ifelse(rhy_D_or_E$diff_rhythmic==FALSE, TRUE, 
-                                   ifelse(rhy_D_or_E$diff_rhythmic==TRUE & rhy_D_or_E$A_D > amp_cutoff, TRUE, FALSE))
-rhy_D_or_E$rhythmic_in_E <- ifelse(rhy_D_or_E$diff_rhythmic==FALSE, TRUE, 
-                                   ifelse(rhy_D_or_E$diff_rhythmic==TRUE & rhy_D_or_E$A_E > amp_cutoff, TRUE, FALSE))
+#diff_rhy_contrast <- limma::makeContrasts(tissueD_inphase - tissueE_inphase, tissueD_outphase - tissueE_outphase, levels = design)
+#diff_rhy_fit <- limma::contrasts.fit(fit, diff_rhy_contrast)
+#diff_rhy_fit <- limma::eBayes(diff_rhy_fit, robust = TRUE, trend = TRUE)
+#diff_rhy_results <- limma::topTable(diff_rhy_fit, number = Inf, sort.by = "none")
+#diff_rhy_results <- diff_rhy_results[rhy_D_or_E$ProbeName, ]
+#
+#rhy_D_or_E$adj_p_val_DR <- stats::p.adjust(diff_rhy_results$P.Value, method = "BH")
+#rhy_D_or_E$diff_rhythmic <- rhy_D_or_E$adj_p_val_DR < fdr_cutoff
+#
+## which genes are rhythmic in D, E or both?
+#rhy_D_or_E$rhythmic_in_D <- ifelse(rhy_D_or_E$diff_rhythmic==FALSE, TRUE, 
+#                                   ifelse(rhy_D_or_E$diff_rhythmic==TRUE & rhy_D_or_E$A_D > amp_cutoff, TRUE, FALSE))
+#rhy_D_or_E$rhythmic_in_E <- ifelse(rhy_D_or_E$diff_rhythmic==FALSE, TRUE, 
+#                                   ifelse(rhy_D_or_E$diff_rhythmic==TRUE & rhy_D_or_E$A_E > amp_cutoff, TRUE, FALSE))
 
 # save for PSEA analysis
 if (!file.exists("visualize/data/phases_fig1_D.csv")){ 
@@ -620,7 +633,7 @@ if (!file.exists("visualize/data/phases_fig1_E.csv")){
 }
 
 # Supplementary figure 2D: PSEA with KEGG
-q_cutoff <- 0.25# 0.25 for KEGG, 0.05 for GO:BP
+q_cutoff <- 0.05# 0.25 for KEGG, 0.05 for GO:BP
 
 PSEA_d_K <- read.csv("visualize/data/PSEA/dermis_C2all/results.txt", sep='\t') %>% 
   filter(Set.N >= 5)
@@ -648,7 +661,8 @@ suppfig2D <- ggplot(m_kegg) +
   geom_point(aes(x=Vector.average.value, y=reorder(term, Vector.average.value), 
                  fill=tissue, size=Set.N), color="black", shape=21) + 
   facet_grid(scales="free_y", space="free",rows=vars(tissue), switch="y") +
-  xlab(bquote('time after'*~MSF[sc]*' (h)')) + ylab("KEGG pathway") + labs(size='# of genes') + guides(color=FALSE, fill=FALSE) +
+  xlab(bquote('time after'*~MSF[sc]*' (h)')) + ylab("KEGG pathway") + labs(size='# of genes') + 
+  guides(color=FALSE, fill=FALSE) +
   theme_bw() + theme(axis.line = element_line(colour = "black"),
                      panel.border = element_blank(),
                      panel.background = element_blank(),
@@ -662,7 +676,7 @@ suppfig2D <- ggplot(m_kegg) +
   scale_size(breaks=c(5,10,15)) + scale_fill_brewer(palette="Dark2")
 
 # Supplementary figure 2E: PSEA with GOBP
-q_cutoff <- 0.05# 0.25 for KEGG, 0.05 for GO:BP
+q_cutoff <- 0.01# 0.25 for KEGG, 0.05 for GO:BP
 
 PSEA_d_G <- read.csv("visualize/data/PSEA/dermis_C5GOBP/results.txt", sep='\t') %>% 
   filter(Set.N >= 5)
@@ -714,20 +728,21 @@ fig1_1 <- plot_grid(NULL, fig1B, fig1C, ncol=3, nrow=1, labels=c("A", "B", "C"),
 fig1_2 <- plot_grid(fig1D, NULL, 
                     fig1E + ggtitle("\n"), NULL, fig1F + ggtitle("\n"), 
                     ncol=5, labels=c("D", "", "E", "", "F"), rel_widths = c(2.7, 0.02, 0.9, 0.02, 0.86))
-fig1_3 <- plot_grid(fig1G, labels="G")
+fig1H_2 <- plot_grid(fig1H, NULL, nrow=2, ncol=1, rel_heights = c(1,0.8))
+fig1_3 <- plot_grid(NULL, fig1G_2, NULL, fig1H_2, nrow=1, labels=c("G","", "H", ""), rel_widths = c(.05,.8,.05,1))
 fig1 <- plot_grid(fig1_1, NULL, fig1_2, NULL, fig1_3, align='v', nrow=5, 
-                  rel_heights = c(1.5, 0.05,1.6, 0.02, 1.8))
+                  rel_heights = c(1.5, 0.05,1.6, 0.05, 1.1))
 
-fig1 %>% ggsave('figures/fig1.pdf', ., width = 11, height = 11)
+fig1 %>% ggsave('figures/fig1.pdf', ., width = 11, height = 9.5)
 
 ###
 
-sfig2_1 <- plot_grid(suppfig2A, NULL, suppfig2B, ncol=3, nrow=1, labels=c("A", "", "B"), rel_widths = c(1,0.1,0.9))
+sfig2_1 <- plot_grid(suppfig2A, NULL, suppfig2B, ncol=3, nrow=1, labels=c("A", "", "B"), rel_widths = c(1,0.2,1.))
 sfig2_2 <- plot_grid(suppfig2C, labels="C")
-sfig2_3 <- plot_grid(NULL, NULL, labels=c("D", "E"), rel_widths = c(1,1.15))
+sfig2_3 <- plot_grid(NULL, NULL, labels=c("C", "D"), rel_widths = c(1,1.15))
 suppfig2D <- plot_grid(suppfig2D, NULL, labels=c("", ""), ncol=1, rel_heights = c(1,.4))
 sfig2_4 <- plot_grid(suppfig2D, suppfig2E, labels=c("", ""), rel_widths = c(1,1.15))
-sfig2 <- plot_grid(sfig2_1, NULL, sfig2_2, sfig2_3, sfig2_4, align='v', nrow=5, 
-                   rel_heights = c(1.5, 0.1, 1.8, 0.1, 1.5))#, 0.1, 1.5))
+sfig2 <- plot_grid(sfig2_1, NULL, sfig2_3, sfig2_4, align='v', nrow=4, 
+                   rel_heights = c(1.5, 0.1, 0.1, 1.5))#, 0.1, 1.5))
 
-sfig2 %>% ggsave('figures/suppfig2.pdf', ., width = 11, height = 12.8)
+sfig2_1 %>% ggsave('figures/suppfig2.pdf', ., width = 11, height = 3.5)
