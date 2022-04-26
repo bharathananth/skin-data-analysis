@@ -713,5 +713,5 @@ fig2 %>% ggsave('figures/fig2.pdf', ., width = 11, height = 11)
 
 sfig3_1 <- suppfig3A
 sfig3_2 <- plot_grid(NULL, suppfig3B, NULL, suppfig3C, nrow=1, ncol=4, labels=c("B", "", "C", ""), rel_widths=c(0.1,1,0.1,1))
-sfig3 <- plot_grid(sfig3_1, NULL, sfig3_2, ncol=3, rel_heights=c(1,.1,1), labels=c("A", "", ""))
-sfig3 %>% ggsave('figures/suppfig3.pdf', ., width = 11, height = 3)
+sfig3 <- plot_grid(sfig3_1, NULL, sfig3_2, nrow=3, rel_heights=c(1,.1,1), labels=c("A", "", ""))
+sfig3_1 %>% ggsave('figures/suppfig3.pdf', ., width = 11, height = 3)
