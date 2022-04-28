@@ -264,6 +264,7 @@ toplot <- yave$E %>% transform(ProbeName = yave$genes$ProbeName,
   tidyr::gather(junk, value, -ProbeName, -Symbol) %>%
   tidyr::separate(junk, c("tissuetime","subject"), sep = "_", convert = TRUE) %>%
   tidyr::separate(tissuetime, c("tissue","time"), convert = TRUE, sep = 1) %>%
+  full_join(experiment %>% dplyr::select(subject, time, internal_time)) %>%
   inner_join(rhy_results %>% mutate(tissue=ifelse(tissue=="dermis", "D", "E")) ) %>%
   group_by(ProbeName, Symbol, tissue, subject) %>%
   mutate(z.score=(value-mean(value)) / sd(value)) %>% as.data.frame() %>%
@@ -275,16 +276,16 @@ toplot %<>% as.data.frame() %>% mutate(tissue=ifelse(tissue=="D", "dermis", "epi
   rename(c("phase"="phase_value")) %>% arrange(phase) 
 toplot$Symbol_ord <- factor(toplot$Symbol, levels = rev(unique(toplot$Symbol)), ordered=TRUE)
 
-suppfig2A <- ggplot(toplot %>% arrange(phase), 
-                aes(x=time, y=Symbol_ord)) +
+suppfig2A <- ggplot(toplot %>% arrange(phase) %>% as.data.frame(), 
+                aes(x=time-8, y=Symbol_ord)) +
   geom_tile(aes(fill=z.score)) + 
-  labs(x="time (h)", y="", fill=expression(italic('z')~'score')) + 
+  labs(x=bquote('time after'*~MSF[sc]*' (h)'), y="", fill=expression(italic('z')~'score')) + 
   guides(color = FALSE) +
   facet_wrap(~tissue, scales="free_y", ncol=2, nrow=1) + theme_custom() +
   theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.title.y = element_blank(),
         legend.position = "right", legend.title = element_text(color="black")) + 
   scale_fill_distiller(palette = "RdBu", limits=c(-1.75,1.75), breaks = c(1.5, 0, -1.5)) + 
-  scale_x_continuous(breaks = c(8, 12, 16, 20, 24, 28, 32), labels = c(8, 12, 16, 20, 24, 28, 32)) 
+  scale_x_continuous(breaks = c(0, 4, 8, 12, 16, 20, 24), labels = c(0, 4, 8, 12, 16, 20, 24)) 
 
 
 #####
@@ -741,8 +742,8 @@ sfig2_1 <- plot_grid(suppfig2A, NULL, suppfig2B, ncol=3, nrow=1, labels=c("A", "
 sfig2_2 <- plot_grid(suppfig2C, labels="C")
 sfig2_3 <- plot_grid(NULL, NULL, labels=c("C", "D"), rel_widths = c(1,1.15))
 suppfig2D <- plot_grid(suppfig2D, NULL, labels=c("", ""), ncol=1, rel_heights = c(1,.4))
-sfig2_4 <- plot_grid(suppfig2D, suppfig2E, labels=c("", ""), rel_widths = c(1,1.15))
-sfig2 <- plot_grid(sfig2_1, NULL, sfig2_3, sfig2_4, align='v', nrow=4, 
-                   rel_heights = c(1.5, 0.1, 0.1, 1.5))#, 0.1, 1.5))
+#sfig2_4 <- plot_grid(suppfig2D, suppfig2E, labels=c("", ""), rel_widths = c(1,1.15))
+#sfig2 <- plot_grid(sfig2_1, NULL, sfig2_3, sfig2_4, align='v', nrow=4, 
+#                   rel_heights = c(1.5, 0.1, 0.1, 1.5))#, 0.1, 1.5))
 
 sfig2_1 %>% ggsave('figures/suppfig2.pdf', ., width = 11, height = 3.5)

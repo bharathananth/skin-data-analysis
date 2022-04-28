@@ -385,7 +385,8 @@ yGath_E <- yE %>% gather(key, expression, -Symbol) %>%
   inner_join(experiment %>% select(tissue, time, subject, internal_time))
 
 suppfig5B_1 <- ggplot(yGath_D) + geom_line(aes(x=internal_time, y=expression, color=subject)) + 
-  facet_wrap(~Symbol, scales="free", ncol=5, nrow=5) + xlab("internal time") + ylab(bquote(~log[2]*'expression (normalized)')) +
+  facet_wrap(~Symbol, scales="free", ncol=4, nrow=5) + 
+  xlab(bquote('time after'*~MSF[sc]*' (h)')) + ylab(bquote(~log[2]*'expression (normalized)')) +
   theme_custom() + theme(strip.text = element_text(face="bold.italic"),
                          legend.position="none",
                          legend.title=element_text(),
@@ -393,10 +394,11 @@ suppfig5B_1 <- ggplot(yGath_D) + geom_line(aes(x=internal_time, y=expression, co
                          panel.border = element_rect(fill="transparent"),
                          axis.line = element_blank(),
                          legend.text=element_blank()) + labs(color="subjects\n1 to 11") +
-  scale_color_viridis(discrete=TRUE) + scale_x_continuous(breaks=c(8,20,32)) + expand_limits(x=c(6,34)) 
+  scale_color_viridis(discrete=TRUE) + scale_x_continuous(breaks=c(0,12,24)) + expand_limits(x=c(0,12,24)) 
 
 suppfig5B_2 <- ggplot(yGath_E) + geom_line(aes(x=internal_time, y=expression, color=subject)) + 
-  facet_wrap(~Symbol, scales="free", ncol=5, nrow=5) + xlab("internal time") + ylab(bquote(~log[2]*'expression (normalized)')) +
+  facet_wrap(~Symbol, scales="free", ncol=4, nrow=5) + 
+  xlab(bquote('time after'*~MSF[sc]*' (h)')) + ylab(bquote(~log[2]*'expression (normalized)')) +
   theme_custom() + theme(strip.text = element_text(face="bold.italic"),
                          legend.position="none",
                          legend.title=element_text(),
@@ -404,7 +406,7 @@ suppfig5B_2 <- ggplot(yGath_E) + geom_line(aes(x=internal_time, y=expression, co
                          panel.border = element_rect(fill="transparent"),
                          axis.line = element_blank(),
                          legend.text=element_blank()) + labs(color="subjects\n1 to 11") +
-  scale_color_viridis(discrete=TRUE) + scale_x_continuous(breaks=c(8,20,32)) + expand_limits(x=c(6,34)) 
+  scale_color_viridis(discrete=TRUE) + scale_x_continuous(breaks=c(0,12,24)) + expand_limits(x=c(0,12,24)) 
 
 suppfig5B <- ggpubr::ggarrange(suppfig5B_1, NULL, suppfig5B_2, ncol=3, nrow=1, 
                                common.legend=TRUE, legend="right", heights=c(1.,0.1,0.6))
@@ -484,7 +486,7 @@ suppfig5C <- plot_grid(NULL, suppfig5C_1, NULL, suppfig5C_2, ncol=4, rel_widths 
 fig3 <- plot_grid(NULL, fig3A, NULL, fig3B, labels=c("A","","B", ""), ncol=4, nrow=1, rel_widths=c(0.01,1.15,0.04,0.33))
 fig3 %>% ggsave('figures/fig3.pdf', ., width = 11, height = 5.)
 
-sfig5 <- plot_grid(plot_grid(suppfig5A, suppfig5C, nrow=1, rel_widths = c(1,1), labels = c("A", "B")), NULL, suppfig5B_1, NULL, suppfig5B_2, 
-                         labels=c("", "", "C", "", "D"), nrow=5, 
-                         rel_heights=c(0.75,0.05,1,0.05,1.5)) %T>%
-        ggsave('figures/suppfig5.pdf', ., width = 11, height = 10)
+sfig5 <- plot_grid(plot_grid(suppfig5A, suppfig5C, nrow=1, rel_widths = c(1,1), labels = c("A", "B")), 
+                   plot_grid(suppfig5B_1, NULL, suppfig5B_2, nrow=1, rel_widths = c(1,.1,1), labels = c("C", "", "D")),
+                   rel_heights=c(0.75,1.), nrow=2) %T>%
+        ggsave('figures/suppfig5.pdf', ., width = 11, height = 8.5)
