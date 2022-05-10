@@ -704,11 +704,15 @@ fig2D <- ggplot(variation_complete, aes(x=sd, color=tissue)) +
 
 # Arrange plots in a grid
 # ------------------------
-fig2 <- plot_grid(fig2A_2, NULL, 
-                  fig2C, 
-                  NULL, fig2B, NULL, fig2D, nrow=7, 
-                  labels = c("A", "", "B", "", "C", "", "D"), rel_heights = c(1,0.1,1,0.1,1,0.1, 1), align = "v", axis = "l")
-fig2 %>% ggsave('figures/fig2.pdf', ., width = 11, height = 11)
+
+fig2_1 <- plot_grid(fig2A_2, NULL, fig2C,
+                    #plot_grid(NULL, fig2C, ncol=2, rel_widths=c(.07,1)), 
+                    nrow=3, rel_heights=c(.75,.1,1.5), labels = c("A", "", "B"))
+fig2_2 <- plot_grid(plot_grid(NULL, fig2B, rel_heights = c(-0.3,1), nrow=2), 
+                    NULL, fig2D, 
+                    nrow=3, rel_heights=c(1,-0.5,.75), labels = c("C", "", "D"))
+fig2 <- plot_grid(fig2_1, NULL, fig2_2, ncol=3, rel_widths=c(1,0.05,.66))
+fig2 %>% ggsave('figures/fig2.pdf', ., width = 11, height = 5.5)
 
 
 sfig3_1 <- suppfig3A

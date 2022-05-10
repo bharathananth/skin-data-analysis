@@ -127,6 +127,13 @@ info_subjects_DLMOlong <- info_subjects_DLMOlong %>%
          DLMO_mean    = round_hms(as_hms(DLMO_mean), 60)
   )
 info_subjects = info_subjects_DLMOlong %>% dplyr::select(-Comments_5, -Comments_10)
+DLMO_JdL <- data.frame(subject=c("P103", "P107", "P108", "P111", "P115", "P100", "P113", "P102", "P106", "P109", "P114"),
+                       DLMO_JdL=c("21:49", "20:50", "22:21", "20:47", "19:48", "22:08", "22:01", "22:09", NA, NA, NA))
+DLMO_JdL$DLMO_JdL <- as.numeric(lubridate::as.difftime(lubridate::hm(DLMO_JdL$DLMO_JdL)))
+DLMO_JdL$DLMO_JdL <- make_difftime(DLMO_JdL$DLMO_JdL, units="second") %>% seconds_to_period()
+DLMO_JdL$DLMO_JdL <- round(DLMO_JdL$DLMO_JdL %>% time_length(), 0) %>% as_hms
+DLMO_JdL$DLMO_JdL <- round_hms(as_hms(DLMO_JdL$DLMO_JdL), 60)
+info_subjects %<>% full_join(DLMO_JdL)
 if (!file.exists('resources/info_subjects_short.csv')){
   write.csv(info_subjects, 'resources/info_subjects_short.csv')
 }

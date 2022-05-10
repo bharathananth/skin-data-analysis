@@ -224,7 +224,7 @@ fig3B <- ggplot(z) +
   scale_color_viridis(discrete=TRUE, option='E') +
   geom_curve(data=data.arrow, aes(x=SPC1_start, y=SPC2_start, xend=SPC1_end, yend=SPC2_end), 
              arrow=arrow(length=unit(0.03, "npc")), lineend="round") + #expand_limits(y=-5) +
-  facet_wrap(tissue~., scales='free', nrow=2) + 
+  facet_wrap(tissue~., scales='free', ncol=2) + 
   theme(legend.position="none", 
         strip.background = element_rect(fill=alpha("#1B9E77", 0.5), color="white")) +
   scale_y_continuous(expand = c(0.04, 0.75, 0.04, 0.75)) + scale_x_continuous(expand = c(0.04, 0.75, 0.04, 0.75))
@@ -325,8 +325,8 @@ fig3A_1 <- ggplot(vGath %>% filter(tissue=="dermis")) + facet_wrap(~spc, scales=
         legend.title = element_text(face="bold"),
         strip.background = element_rect(fill=alpha("#1B9E77", 0.5)),
         strip.text = element_text(size=16),
-        aspect.ratio=2) + ggtitle(paste0("dermis, sumabsv=", sumabsv_D)) +
-  scale_size(limits = c(NA, NA), range = c(3, 8)) + guides(fill=FALSE)
+        aspect.ratio=1.5) + ggtitle(paste0("dermis, sumabsv=", sumabsv_D)) +
+  scale_size(limits = c(NA, NA), range = c(4, 7)) + guides(fill=FALSE)
 # none of the ZZ genes are highly amp/phase-varying genes across subjects, neither low amp-varying genes across subjects
 # https://stackoverflow.com/questions/63393553/color-legend-key-labels-with-r-ggplot2-and-remove-the-keys
 
@@ -345,8 +345,8 @@ fig3A_2 <- ggplot(vGath %>% filter(tissue=="epidermis")) + facet_wrap(~spc, scal
         legend.title = element_text(face="bold"),
         strip.background = element_rect(fill=alpha("#D95F02", 0.5)),
         strip.text = element_text(size=16),
-        aspect.ratio=2) + ggtitle(paste0("epidermis, sumabsv=", sumabsv_E)) +
-  scale_size(limits = c(NA, NA), range = c(3, 6)) + guides(fill=FALSE)
+        aspect.ratio=1.5) + ggtitle(paste0("epidermis, sumabsv=", sumabsv_E)) +
+  scale_size(limits = c(NA, NA), range = c(4, 7)) + guides(fill=FALSE)
 
 fig3A <- ggpubr::ggarrange(fig3A_1, NULL, fig3A_2, nrow=1, ncol=3, common.legend=TRUE, legend="right", widths=c(1.,0.1,1))
 
@@ -483,8 +483,8 @@ suppfig5C <- plot_grid(NULL, suppfig5C_1, NULL, suppfig5C_2, ncol=4, rel_widths 
 
 # Arrange plots in grid
 # ---------------------
-fig3 <- plot_grid(NULL, fig3A, NULL, fig3B, labels=c("A","","B", ""), ncol=4, nrow=1, rel_widths=c(0.01,1.15,0.04,0.33))
-fig3 %>% ggsave('figures/fig3.pdf', ., width = 11, height = 5.)
+fig3 <- plot_grid(NULL, fig3A, NULL, fig3B, labels=c("A","","B", ""), ncol=4, nrow=1, rel_widths=c(0.01,1.,0.02,.6))
+fig3 %>% ggsave('figures/fig3.pdf', ., width = 11, height = 3.)
 
 sfig5 <- plot_grid(plot_grid(suppfig5A, suppfig5C, nrow=1, rel_widths = c(1,1), labels = c("A", "B")), 
                    plot_grid(suppfig5B_1, NULL, suppfig5B_2, nrow=1, rel_widths = c(1,.1,1), labels = c("C", "", "D")),
