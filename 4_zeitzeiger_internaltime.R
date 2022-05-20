@@ -486,7 +486,7 @@ suppfig5C <- plot_grid(NULL, suppfig5C_1, NULL, suppfig5C_2, ncol=4, rel_widths 
 fig3 <- plot_grid(NULL, fig3A, NULL, fig3B, labels=c("A","","B", ""), ncol=4, nrow=1, rel_widths=c(0.01,1.,0.02,.6))
 fig3 %>% ggsave('figures/fig3.pdf', ., width = 11, height = 3.)
 
-sfig5 <- plot_grid(plot_grid(suppfig5A, suppfig5C, nrow=1, rel_widths = c(1,1), labels = c("A", "B")), 
-                   plot_grid(suppfig5B_1, NULL, suppfig5B_2, nrow=1, rel_widths = c(1,.1,1), labels = c("C", "", "D")),
+sfig5 <- plot_grid(plot_grid(suppfig5A, suppfig5C, nrow=1, rel_widths = c(1,1), labels = c("A", "D")), 
+                   plot_grid(suppfig5B_1, NULL, suppfig5B_2, nrow=1, rel_widths = c(1,.1,1), labels = c("B", "", "C")),
                    rel_heights=c(0.75,1.), nrow=2) %T>%
         ggsave('figures/suppfig5.pdf', ., width = 11, height = 8.5)

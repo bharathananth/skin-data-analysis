@@ -138,7 +138,8 @@ for (i in 1:length(fitList)){
   Jac_phi <- matrix( c(0, (1/(1+(b_i/a_i)^2)) * (-b_i/(a_i^2)), (1/(1+(b_i/a_i)^2)) * (1/a_i)), 
                      nrow=1)
   Jac = matrix( c(0, a_i/A_i, b_i/A_i,
-                  0, (1/(1+(b_i/a_i)^2)) * (-b_i/(a_i^2)), (1/(1+(b_i/a_i)^2)) * (1/a_i)), nrow = 2, byrow = TRUE) 
+                  0, (1/(1+(b_i/a_i)^2)) * (-b_i/(a_i^2)) * (12/pi), (1/(1+(b_i/a_i)^2)) * (1/a_i) * (12/pi)), 
+                nrow = 2, byrow = TRUE) 
   
   # determine variance in amplitude and phase, separating tissue and subject contributions
   var_A_subject <- Jac_A %*% sigma_i_S %*% t(Jac_A)
@@ -165,6 +166,56 @@ df_total <- read.csv("visualize/data/variance_rhythmic_parameters_full.csv") %>%
 hist(df_total$Amp, breaks=100)
 df_total %<>% filter(Amp>.15) # filter out genes with low amp_fit that result in high variability and "mask" variable genes
 hist(df_total$Amp, breaks=100)
+
+#####
+# Scatterplot phase of clock genes -> did chronotype correction work?
+df_additional = data.frame(ProbeName=NULL, tissue=NULL, subject=NULL, phase=NULL)
+
+for (i in 1:length(fitList)){
+  # fixed effects (coefficients)
+  m_i <- fixef(fitList[[i]])[1] %>% as.numeric 
+  a_i <- fixef(fitList[[i]])[2] %>% as.numeric 
+  b_i <- fixef(fitList[[i]])[3] %>% as.numeric
+  
+  # Determine m, a, b for each gene in each subject and each tissue (sum of fixef + ranef) 
+  fixef(fitList[[i]]) + ranef(fitList[[i]])$tissue
+  f = fixef(fitList[[i]]) %>% as.matrix() %>% t
+  f = rbind(f,f)
+  rt = ranef(fitList[[i]])$tissue %>% as.matrix()
+  f_rt <- f+rt
+  rownames(f_rt) <- rownames(rt)
+  f_rDs <- matrix(rep(f_rt[1,],each=11),nrow=11) + ranef(fitList[[i]])$subject %>% as.data.frame()
+  f_rDs$tissue <- "dermis"
+  f_rDs$subject <- rownames(f_rDs)
+  f_rEs <- matrix(rep(f_rt[2,],each=11),nrow=11) + ranef(fitList[[i]])$subject %>% as.data.frame()
+  f_rEs$tissue <- "epidermis"
+  f_rEs$subject <- rownames(f_rEs)
+  df_i <- rbind(f_rDs, f_rEs)
+  
+  # Compute phases of each gene in each subj + tissue
+  df_i$phase = atan2(df_i$outphase, df_i$inphase)*12/pi
+  df_i$ProbeName = names(fitList)[i]
+  df_i %<>% dplyr::select(ProbeName, tissue, subject, phase) 
+
+  df_additional <- rbind(df_additional, df_i)
+}
+df_additional %<>% inner_join(yave$genes %>% dplyr::select(ProbeName, Symbol))
+#df_phases_clockgenes <- df_additional %>% filter(Symbol %in% clock_genes)
+#
+#df_phases_clockgenes <- df_phases_clockgenes %>% dplyr::select(-ProbeName) %>% #filter(Symbol %in% two_CGs) %>% 
+#  spread(Symbol, phase)
+#
+## Open pdf file
+#pdf(file="./figures/phaseCorrelation_clockgenes.pdf")
+## create a 2X2 grid
+#par( mfrow= c(2,1) )
+## draw plots
+#pairs(df_phases_clockgenes %>% dplyr::filter(tissue=="dermis") %>% dplyr::select(-tissue, -subject), 
+#      upper.panel = NULL, col="#1B9E77")
+#pairs(df_phases_clockgenes %>% dplyr::filter(tissue=="epidermis") %>% dplyr::select(-tissue, -subject), 
+#      upper.panel = NULL, col="#D95F02")
+#dev.off() 
+#####
 
 
 # 3. ARRANGE DATA FOR VISUALIZATION
@@ -284,7 +335,8 @@ hist_fixef <- ggplot(variation_full %>% dplyr::select(rhythmic_par, value_fit, e
 DR_genes    <- filter(some_rhy, diff_rhythmic)$Symbol
 nonDR_genes <- filter(some_rhy, diff_rhythmic==FALSE)$Symbol
 clock_genes <- c("PER1","PER2","PER3", "CRY1", "CRY2", "NR1D1", "NR1D2", "ARNTL", "ARNTL2", "CLOCK", 
-                 "NPAS2","RORA","RORB","RORC", "CSNK1D", "CSNK1E", "DBP")
+                 "NPAS2","RORA","RORB","RORC", "CSNK1D", "CSNK1E", "DBP",
+                 "NFIL3", "TEF", "BHLHE40", "BHLHE41")#, "HLF")
 
 variation_full %<>% mutate(Symbol_it = paste0("italic('", Symbol, "')"))
 corr_fixef_var <- ggplot(variation_full) + 
@@ -352,7 +404,7 @@ fig2B <- ggplot(df %>% mutate(clock_gene = ifelse(Symbol %in% clock_genes, TRUE,
   geom_point(aes(x=cv_amp, y=cv_phi), alpha=0.75, color="grey", size=.8) + 
   geom_point(data=filter(df, Symbol %in% DR_genes),      
              aes(x=cv_amp, y=cv_phi, color=variable), alpha=0.5,size=.8) + 
-  facet_wrap(~variable, scales="free") +
+  facet_wrap(~variable, scales="free", nrow = 2, ncol=1) +
   geom_point(data=filter(df, Symbol %in% clock_genes & Symbol %in% nonDR_genes),      
              aes(x=cv_amp, y=cv_phi), alpha=1, shape=21, color="black", size=3, fill="grey20") +
   geom_point(data=filter(df, Symbol %in% clock_genes & Symbol %in% DR_genes),      
@@ -369,7 +421,7 @@ fig2B <- ggplot(df %>% mutate(clock_gene = ifelse(Symbol %in% clock_genes, TRUE,
   scale_fill_manual(values = c("layer" = "#d1495b", "subject" = "#00798c")) +
   #ggtitle(paste(length(which(df_total$ProbeName %in% filter(some_rhy, diff_rhythmic)$ProbeName)),
   #              '/', dim(df_total)[1], ' amp-filtered vP genes are DR')) +
-  labs(x='amplitude coefficient of variation', y='phase coefficient of variation') +
+  labs(x='amplitude coefficient\nof variation', y='phase coefficient of variation') +
   theme(legend.position = "top",
         strip.text = element_blank(),
         panel.spacing = unit(2.5, "lines")) +
@@ -429,7 +481,7 @@ fig2C_1 <- ggplot(df_fraction_variance %>% filter(variable=="subject")) +
   geom_histogram(aes(value, y=..density.., fill=variable), 
                  alpha=0.6, position='identity', colour="white", bins=50) +
   geom_density(aes(value, fill=variable, group=variable), alpha=0.3) + #, position="fill"
-  facet_wrap(~rhythm_par) + 
+  facet_wrap(~rhythm_par, ncol=2, scales="free") + 
   coord_cartesian(ylim=c(0, 3.5)) + 
   scale_fill_manual(values = c("tissue" = "#d1495b", "subject" = "#00798c"), guide="none") +
   labs(x='fraction of variance explained by subject', y='density')  +
@@ -668,6 +720,65 @@ df_total.E$tissue <- "epidermis"
 
 df_total <- rbind(df_total.D, df_total.E)
 
+##### 
+df_additional.D = data.frame(ProbeName=NULL, tissue=NULL, subject=NULL, phi=NULL, deltaphi=NULL)
+for (i in 1:length(fitList.D)){
+  # fixed effect phase
+  f = fixef(fitList.D[[i]]) %>% as.matrix() %>% t %>% as.data.frame()
+  phi_fix = atan2(f$outphase, f$inphase)*12/pi
+  
+  # random effect phase
+  r = ranef(fitList.D[[i]])$subject %>% as.matrix() %>% as.data.frame()
+  df_deltaphi = data.frame(subject=NULL, delta_phi=NULL)
+  for (j in 1:dim(r)[1]){
+    a_i = r$inphase[j]
+    b_i = r$outphase[j]
+    
+    dphi_da <- (1/(1+(b_i/a_i)^2)) * (-b_i/(a_i^2)) * (12/pi)
+    dphi_db <- (1/(1+(b_i/a_i)^2)) * (1/a_i) * (12/pi)
+    
+    df_deltaphi_i = data.frame(subject=rownames(r)[j],
+                               deltaphi=dphi_da*a_i + dphi_db*b_i) ### IS THIS CORRECT?
+    df_deltaphi=rbind(df_deltaphi, df_deltaphi_i)
+  }
+  df_phi = df_deltaphi %>% cbind(phi=rep(phi_fix, dim(r)[1]))
+  df_phi$tissue = "dermis"
+  df_phi$ProbeName = names(fitList)[i]
+  df_additional.D <- rbind(df_additional.D, df_phi)
+}
+df_additional.E = data.frame(ProbeName=NULL, tissue=NULL, subject=NULL, phi=NULL, deltaphi=NULL)
+for (i in 1:length(fitList.E)){
+  # fixed effect phase
+  f = fixef(fitList.E[[i]]) %>% as.matrix() %>% t %>% as.data.frame()
+  phi_fix = atan2(f$outphase, f$inphase)*12/pi
+  
+  # random effect phase
+  r = ranef(fitList.E[[i]])$subject %>% as.matrix() %>% as.data.frame()
+  df_deltaphi = data.frame(subject=NULL, delta_phi=NULL)
+  for (j in 1:dim(r)[1]){
+    a_i = r$inphase[j]
+    b_i = r$outphase[j]
+    
+    dphi_da <- (1/(1+(b_i/a_i)^2)) * (-b_i/(a_i^2)) * (12/pi)
+    dphi_db <- (1/(1+(b_i/a_i)^2)) * (1/a_i) * (12/pi)
+    
+    df_deltaphi_i = data.frame(subject=rownames(r)[j],
+                               deltaphi=dphi_da*a_i + dphi_db*b_i) ### IS THIS CORRECT?
+    df_deltaphi=rbind(df_deltaphi, df_deltaphi_i)
+  }
+  df_phi = df_deltaphi %>% cbind(phi=rep(phi_fix, dim(r)[1]))
+  df_phi$tissue = "epidermis"
+  df_phi$ProbeName = names(fitList)[i]
+  df_additional.E <- rbind(df_additional.E, df_phi)
+}
+df_additional.D %<>% inner_join(yave$genes %>% dplyr::select(ProbeName, Symbol))
+df_additional.E %<>% inner_join(yave$genes %>% dplyr::select(ProbeName, Symbol))
+
+df_additional.DE <- full_join(df_additional.D, df_additional.E)
+ggplot(df_additional.DE) + geom_point(aes(x=phi%%24, y=deltaphi, color=tissue)) +
+  facet_grid(~tissue)
+#####
+
 # Calculate sd and cv from variances, organize results for plots
 variation_A   <- df_total %>% dplyr::select(ProbeName, Amp, var_A_subject, tissue) %>% 
   rename(c("variance"="var_A_subject")) %>%
@@ -705,14 +816,38 @@ fig2D <- ggplot(variation_complete, aes(x=sd, color=tissue)) +
 # Arrange plots in a grid
 # ------------------------
 
-fig2_1 <- plot_grid(fig2A_2, NULL, fig2C,
+fig2_1 <- plot_grid(fig2A_2, NULL, fig2C + facet_wrap(~rhythm_par, ncol=3, scales="free"),
                     #plot_grid(NULL, fig2C, ncol=2, rel_widths=c(.07,1)), 
                     nrow=3, rel_heights=c(.75,.1,1.5), labels = c("A", "", "B"))
-fig2_2 <- plot_grid(plot_grid(NULL, fig2B, rel_heights = c(-0.3,1), nrow=2), 
+fig2_2 <- plot_grid(plot_grid(NULL, fig2B + facet_wrap(~variable, nrow=1, ncol=2), rel_heights = c(-0.3,1), nrow=2), 
                     NULL, fig2D, 
                     nrow=3, rel_heights=c(1,-0.5,.75), labels = c("C", "", "D"))
 fig2 <- plot_grid(fig2_1, NULL, fig2_2, ncol=3, rel_widths=c(1,0.05,.66))
-fig2 %>% ggsave('figures/fig2.pdf', ., width = 11, height = 5.5)
+fig2 %>% ggsave('figures/fig2.pdf', ., width = 11, height = 5.1)
+
+
+fig2A_2 <- ggplot(variation_full %>% dplyr::select(rhythmic_par, sd, Symbol, effect)) +
+  geom_violin(aes(y=effect, x=sd, fill=effect, color=effect), alpha=0.5, width=0.75) +
+  facet_wrap(~rhythmic_par, scales='free_x') + 
+  scale_fill_manual(values = c("layer" = "#d1495b", "subject" = "#00798c"))  +
+  scale_color_manual(values = c("layer" = "#d1495b", "subject" = "#00798c"))  +
+  guides(fill=FALSE) +
+  #scale_x_continuous(breaks=c(0,6,12,18,24)) + 
+  labs(x='standard deviation', y='') +
+  theme( panel.spacing = unit(1., "lines"),
+         legend.position = "top")
+fig2D <- ggplot(variation_complete, aes(x=sd, color=tissue)) +
+  stat_density(size=1.5, geom="line", position="identity") +
+  facet_wrap(~rhythmic_par, scales="free") +
+  labs(x='standard deviation', y='') +
+  theme( panel.spacing = unit(1., "lines"),
+         legend.position = "top")
+fig2_1 <- plot_grid(fig2A_2, NULL, fig2D,
+                    #plot_grid(NULL, fig2C, ncol=2, rel_widths=c(.07,1)), 
+                    nrow=3, rel_heights=c(1, .1, 1), labels = c("A", "", "D"))
+fig2 <- plot_grid(fig2_1, NULL, fig2C,NULL, fig2B, ncol=5, rel_widths=c(1.,0.05,1,.05,.5), labels = c("", "", "B", "", "C"))
+fig2 %>% ggsave('figures/fig2bis.pdf', ., width = 11, height = 5.1)
+
 
 
 sfig3_1 <- suppfig3A

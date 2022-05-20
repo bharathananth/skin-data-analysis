@@ -262,7 +262,7 @@ suppfig1B <- ggplot(toplot, aes(x=2^(2*internal_time), y=2^(2*wall_time), color=
   scale_y_continuous(limits=c(1, 5), breaks=seq(1:4), trans='log2') +
   scale_x_continuous(limits=c(1, 5), breaks=seq(1:4), trans='log2') +
   xlab('Amplitude fold change, internal time') + #xlab(bquote(~log[2]*' (fold amplitude) internal time')) + 
-  xlab('Amplitude fold change, wall time') + #ylab(bquote(~log[2]*' (fold amplitude) wall time')) + 
+  ylab('Amplitude fold change, wall time') + #ylab(bquote(~log[2]*' (fold amplitude) wall time')) + 
   theme_custom() 
 
 amp_dermis <- filter(toplot, tissue=="dermis") %>% na.omit()
@@ -294,8 +294,8 @@ suppfig1C <- ggplot(toplot, aes(x=internal_time, y=wall_time, color=tissue)) +
   facet_wrap(~tissue, scales="free") + 
   scale_y_continuous(limits=c(0,24), breaks = seq(0, 24, by=6)) +
   scale_x_continuous(limits=c(0,24), breaks = seq(0, 24, by=6)) +
-  #xlab(bquote('time after'*~MSF[sc]*' (h), internal time')) +  ylab(bquote('time after'*~MSF[sc]*' (h), wall time'))  + 
-  xlab('Phase (h), internal time') +  ylab('Phase (h), wall time')  + 
+  xlab(bquote('Internal time phase [peak time after'*~MSF[sc]*' (h)]')) + ylab("Wall time phase [peak time (h)]")  + 
+  #xlab('Phase as peak time , internal time') +  ylab('Phase as peak time, wall time')  + 
   theme_custom() 
 
 
@@ -315,8 +315,8 @@ suppfig1D <- ggplot(toplot, aes(x=-log10(internal_time), y=-log10(wall_time), co
   facet_wrap(~tissue, scales="free") + guides(color=FALSE) +
   #scale_y_continuous(limits=c(0.0,0.05), trans='log10') +
   #scale_x_continuous(limits=c(0.26,1.2), trans='log10') +
-  xlab(bquote(~-log[10]*' adjusted'~italic(' p')~'value (internal time)')) + 
-  ylab(bquote(~-log[10]*' adjusted'~italic(' p')~'value (wall time)')) + theme_custom() 
+  xlab(bquote(~-log[10]*' adj.'~italic(' p')~'value (internal time)')) + 
+  ylab(bquote(~-log[10]*' adj.'~italic(' p')~'value (wall time)')) + theme_custom() 
 
 ################
 ################
