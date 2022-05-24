@@ -848,7 +848,72 @@ fig2_1 <- plot_grid(fig2A_2, NULL, fig2D,
 fig2 <- plot_grid(fig2_1, NULL, fig2C,NULL, fig2B, ncol=5, rel_widths=c(1.,0.05,1,.05,.5), labels = c("", "", "B", "", "C"))
 fig2 %>% ggsave('figures/fig2bis.pdf', ., width = 11, height = 5.1)
 
+####
+fig2A_2 <- ggplot(variation_full %>% dplyr::select(rhythmic_par, sd, Symbol, effect)) +
+  geom_violin(aes(y=effect, x=sd, fill=effect, color=effect), alpha=0.5, width=0.75) +
+  facet_wrap(~rhythmic_par, scales='free_x') + 
+  scale_fill_manual(values = c("layer" = "#d1495b", "subject" = "#00798c"))  +
+  scale_color_manual(values = c("layer" = "#d1495b", "subject" = "#00798c"))  +
+  guides(fill=FALSE) +
+  #scale_x_continuous(breaks=c(0,6,12,18,24)) + 
+  labs(x='standard deviation', y='') +
+  theme( panel.spacing = unit(1., "lines"),
+         legend.position = "top")
+fig2D <- ggplot(variation_complete, aes(x=sd, color=tissue)) +
+  stat_density(size=1.5, geom="line", position="identity") +
+  facet_wrap(~rhythmic_par, scales="free") +
+  labs(x='standard deviation', y='') +
+  theme( panel.spacing = unit(1., "lines"),
+         legend.position = "top")
+fig2C_1 <- ggplot(df_fraction_variance %>% filter(variable=="subject")) +
+  geom_histogram(aes(value, y=..density.., fill=variable), 
+                 alpha=0.6, position='identity', colour="white", bins=50) +
+  geom_density(aes(value, fill=variable, group=variable), alpha=0.3) + #, position="fill"
+  facet_wrap(~rhythm_par, ncol=1, scales="free") + 
+  coord_cartesian(ylim=c(0, 3.5)) + 
+  scale_fill_manual(values = c("tissue" = "#d1495b", "subject" = "#00798c"), guide="none") +
+  labs(x='fraction of variance\nexplained by subject', y='density')  +
+  theme(panel.spacing = unit(.4, "lines")) + scale_x_continuous(breaks=c(0, 0.5, 1.0))
+fig2C <- fig2C_1 +   
+  geom_text_repel(data=only_CGs, aes(x = hist_xvalue, y = hist_yvalue, label=Symbol_it), size=2.8, parse = TRUE, 
+                  max.overlaps = Inf, box.padding = 1., force = 2, force_pull   = 0, # do not pull toward data points
+                  nudge_y = 4.5, direction = "x", angle  = 90, hjust = 0.5, segment.size = 0.2, max.iter = 1e4, max.time = 1, 
+                  segment.color="grey50")  
 
+# Fig2B: Correlations of cv_phi vs cv_amp -> where are the DR/non_DR genes located?
+fig2B <- ggplot(df %>% mutate(clock_gene = ifelse(Symbol %in% clock_genes, TRUE, FALSE))) +
+  geom_point(aes(x=cv_amp, y=cv_phi), alpha=0.75, color="grey", size=.8) + 
+  geom_point(data=filter(df, Symbol %in% DR_genes),      
+             aes(x=cv_amp, y=cv_phi, color=variable), alpha=0.5,size=.8) + 
+  facet_wrap(~variable, scales="free", nrow = 2, ncol=1) +
+  geom_point(data=filter(df, Symbol %in% clock_genes & Symbol %in% nonDR_genes),      
+             aes(x=cv_amp, y=cv_phi), alpha=1, shape=21, color="black", size=3, fill="grey20") +
+  geom_point(data=filter(df, Symbol %in% clock_genes & Symbol %in% DR_genes),      
+             aes(x=cv_amp, y=cv_phi, fill=variable), alpha=1, shape=21, color="black", size=3) +
+  geom_text_repel(data=filter(df, Symbol %in% clock_genes), 
+                  aes(x=cv_amp, y=cv_phi, label=Symbol_it), 
+                  force        = 0.5,
+                  nudge_x      = 2.0,
+                  direction    = "y",
+                  hjust        = 0,
+                  segment.size = 0.2, 
+                  parse=TRUE, size=2.8, segment.color="grey50") +
+  scale_color_manual(values = c("layer" = "#d1495b", "subject" = "#00798c"), guide="none") +
+  scale_fill_manual(values = c("layer" = "#d1495b", "subject" = "#00798c")) +
+  labs(x='amplitude coefficient\nof variation', y='phase coefficient of variation') +
+  theme(legend.position = "right",
+        strip.text = element_blank(),
+        panel.spacing = unit(10.5, "lines"),
+        aspect.ratio = .64) +
+  scale_y_continuous(limits=c(0,0.07)) + scale_x_continuous(limits=c(0,2.8), breaks=c(0, 0.5, 1, 1.5))
+
+
+
+fig2_1 <- plot_grid(NULL, NULL, fig2A_2, nrow=3, rel_heights=c(2,.05,1), labels = c("A", "", "B"))
+fig2_3 <- plot_grid(fig2B, NULL, fig2D, nrow=3, rel_heights=c(2,.05, 1), labels = c("D", "E"))
+fig2 <- plot_grid(fig2_1, NULL, fig2C, NULL, fig2_3, ncol=5, rel_widths=c(1.,0.03,.66,.03,1), labels = c("", "", "C", "", ""))
+fig2 %>% ggsave('figures/fig2_1.pdf', ., width = 11, height = 7.5)
+####
 
 sfig3_1 <- suppfig3A
 sfig3_2 <- plot_grid(NULL, suppfig3B, NULL, suppfig3C, nrow=1, ncol=4, labels=c("B", "", "C", ""), rel_widths=c(0.1,1,0.1,1))
