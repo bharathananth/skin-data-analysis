@@ -10,8 +10,10 @@ suppressPackageStartupMessages(library(lubridate))
 suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(ggvenn))
 suppressPackageStartupMessages(library(cowplot))
+suppressPackageStartupMessages(library(ggthemes))
 
-setwd("~/Documents/WORK/POSTDOC/projects/skin-data-analysis")
+dir.create("figures",showWarnings = FALSE)
+dir.create("results",showWarnings = FALSE)
 
 # R graphics stuff
 scale_colour_discrete <- function(...) {
@@ -142,15 +144,15 @@ outliers = "E32_P109"
 
 # 6. Save raw data (annotated, normalized, etc)
 # ---------------------------------------------
-if (!file.exists("visualize/data/rawdata.rds")){ 
-  saveRDS(yave, file = "visualize/data/rawdata.rds")
+if (!file.exists("results/rawdata.rds")){ 
+  saveRDS(yave, file = "results/rawdata.rds")
 } 
   
 
 # 7. Extract sample details from column names
 # -------------------------------------------
-if (!file.exists("visualize/data/experiment.rds")){ 
+if (!file.exists("results/experiment.rds")){ 
   experiment <- data.frame(tissue = character(), time = integer(), subject = character()) %>%
     {strcapture("(\\w)(\\d+)_(\\w+)", colnames(y0$E), ., perl = TRUE)}
-  saveRDS(experiment, "visualize/data/experiment.rds")
+  saveRDS(experiment, "results/experiment.rds")
 } 

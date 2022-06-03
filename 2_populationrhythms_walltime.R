@@ -12,8 +12,7 @@ suppressPackageStartupMessages(library(lubridate))
 suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(ggvenn))
 suppressPackageStartupMessages(library(ggthemes))
-
-setwd("~/Documents/WORK/POSTDOC/projects/skin-data-analysis")
+suppressPackageStartupMessages(library(ggtext))
 
 # R graphics stuff
 scale_colour_discrete <- function(...) {
@@ -64,8 +63,8 @@ PCA_outliers <- "E32_P109" #see PCA analysis in preana.R
 # 2. READ FILES
 # -------------
 info_subjects <- read.csv("resources/info_subjects_short.csv") %>% dplyr::select(-X) # read info of subjects
-experiment <- readRDS("visualize/data/experiment.rds") %>% full_join(info_subjects) # read sample details from column names
-yave <- readRDS("visualize/data/rawdata.rds") # read y gene expression data (without outlier removal)
+experiment <- readRDS("results/experiment.rds") %>% full_join(info_subjects) # read sample details from column names
+yave <- readRDS("results/rawdata.rds") # read y gene expression data (without outlier removal)
 
 # Remove outliers in yave
 ind <- which(colnames(yave) == PCA_outliers)    
@@ -128,8 +127,8 @@ rhy_D_or_E$diff_rhythmic <- rhy_D_or_E$adj_p_val_DR < fdr_cutoff
 results <- full_join(results, rhy_D_or_E) %>% select(-adj_P_Val)
 
 # save results of fits
-if (!file.exists("visualize/data/results_populationrhy_walltime.rds")){
-  saveRDS(results, file = "visualize/data/results_populationrhy_walltime.rds")
+if (!file.exists("results/results_populationrhy_walltime.rds")){
+  saveRDS(results, file = "results/results_populationrhy_walltime.rds")
 }  
 
 #--------------------------------
@@ -138,7 +137,7 @@ if (!file.exists("visualize/data/results_populationrhy_walltime.rds")){
 # 4. READ RESULTS: 
 # ----------------
 # Compare the results from the analysis done with internal time vs. the analysis done with wall time: load results from fig1 
-results_internaltime <- readRDS("visualize/data/results_populationrhy_internaltime.rds") %>%
+results_internaltime <- readRDS("results/results_populationrhy_internaltime.rds") %>%
   dplyr::mutate(A_D = sqrt(tissueD_inphase^2 + tissueD_outphase^2), #note log2 values!
                 A_E = sqrt(tissueE_inphase^2 + tissueE_outphase^2),
                 phaseD = atan2(tissueD_outphase, tissueD_inphase)*12/pi,
@@ -152,7 +151,7 @@ results_internaltime$rhythmic_in_E <- ifelse(results_internaltime$diff_rhythmic=
                                                       results_internaltime$A_E > amp_cutoff, 
                                                     TRUE, FALSE))
 
-results_walltime <- readRDS("visualize/data/results_populationrhy_walltime.rds") %>%
+results_walltime <- readRDS("results/results_populationrhy_walltime.rds") %>%
   dplyr::mutate(A_D = sqrt(tissueD_inphase^2 + tissueD_outphase^2), #note log2 values!
                 A_E = sqrt(tissueE_inphase^2 + tissueE_outphase^2),
                 phaseD = atan2(tissueD_outphase, tissueD_inphase)*12/pi,

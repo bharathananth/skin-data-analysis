@@ -19,8 +19,6 @@ suppressPackageStartupMessages(library(tidytext))
 suppressPackageStartupMessages(library(DOSE))
 suppressPackageStartupMessages(library(ReactomePA))
 
-setwd("~/Documents/WORK/POSTDOC/projects/skin-data-analysis")
-
 # R graphics stuff
 scale_colour_discrete <- function(...) {
   scale_colour_brewer(..., palette="Dark2")
@@ -70,16 +68,16 @@ PCA_outliers <- "E32_P109" #see PCA analysis in preana.R
 # 2. READ FILES
 # -------------
 info_subjects <- read.csv("resources/info_subjects_short.csv") %>% dplyr::select(-X) # read info of subjects
-experiment <- readRDS("visualize/data/experiment.rds") %>% # read sample details from column names
+experiment <- readRDS("results/experiment.rds") %>% # read sample details from column names
   full_join(info_subjects) %>% # we're going to correct wall time (sampling time) to internal time
-  dplyr::mutate(MSF_sc_dec = hms(MSF_sc)) %>% 
+  dplyr::mutate(MSF_sc_dec = lubridate::hms(MSF_sc)) %>% 
   dplyr::mutate(
-    MSF_sc_dec = round((hour(MSF_sc_dec) + minute(MSF_sc_dec) / 60 + second(MSF_sc_dec) / 360),2),
+    MSF_sc_dec = round((hour(MSF_sc_dec) + minute(MSF_sc_dec) / 60 + lubridate::second(MSF_sc_dec) / 360),2),
     diff_to_refsubj = MSF_sc_dec - median(MSF_sc_dec),
     internal_time_ref = time - diff_to_refsubj) %>%
   mutate(internal_time = time - MSF_sc_dec)
-saveRDS(experiment %>% select(-MSF_sc_dec), "visualize/data/experiment.rds")
-yave <- readRDS("visualize/data/rawdata.rds") # read y gene expression data (without outlier removal)
+saveRDS(experiment %>% select(-MSF_sc_dec), "results/experiment.rds")
+yave <- readRDS("results/rawdata.rds") # read y gene expression data (without outlier removal)
 
 # Remove outliers in yave
 ind <- which(colnames(yave) == PCA_outliers)    
@@ -143,8 +141,8 @@ rhy_D_or_E$diff_rhythmic <- rhy_D_or_E$adj_p_val_DR < fdr_cutoff
 results <- full_join(results, rhy_D_or_E) %>% select(-adj_P_Val)
 
 # save results of fits
-if (!file.exists("visualize/data/results_populationrhy_internaltime.rds")){
-  saveRDS(results, file = "visualize/data/results_populationrhy_internaltime.rds")
+if (!file.exists("results/results_populationrhy_internaltime.rds")){
+  saveRDS(results, file = "results/results_populationrhy_internaltime.rds")
 }  
 
 #--------------------------------
@@ -153,7 +151,7 @@ if (!file.exists("visualize/data/results_populationrhy_internaltime.rds")){
 # 4. READ RESULTS:
 # ----------------
 #results <- results %>%
-results <- readRDS("visualize/data/results_populationrhy_internaltime.rds") %>%
+results <- readRDS("results/results_populationrhy_internaltime.rds") %>%
   dplyr::mutate(A_D = sqrt(tissueD_inphase^2 + tissueD_outphase^2), #Amp**2 = cos**2 + sin**2 (note the log2 values)
                 A_E = sqrt(tissueE_inphase^2 + tissueE_outphase^2),
                 phaseD = atan2(tissueD_outphase, tissueD_inphase)*12/pi, #atan2 takes two arguments (y,x), atan takes the angle
@@ -274,7 +272,7 @@ suppfig2A <- ggplot(toplot %>% arrange(phase) %>% as.data.frame(),
                 aes(x=time-8, y=Symbol_ord)) +
   geom_tile(aes(fill=z.score)) + 
   labs(x=bquote('time after'*~MSF[sc]*' (h)'), y="", fill=expression(italic('z')~'score')) + 
-  guides(color = FALSE) +
+  guides(color = "none") +
   facet_wrap(~tissue, scales="free_y", ncol=2, nrow=1) + theme_custom() +
   theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.title.y = element_blank(),
         legend.position = "right", legend.title = element_text(color="black")) + 
@@ -302,7 +300,7 @@ suppfig2B <- ggplot(rhy_results %>% filter(Symbol %in% clock_genes) %>%
                    xend=phase_value%%24, yend=2^(2*amp_value), color=tissue)) +
   geom_text_repel(aes(label=Symbol_it), max.overlaps=Inf, box.padding=1, size=3.5, point.padding=.5,
                   segment.color="grey70", color="grey50", parse=TRUE) +
-  xlab("") + ylab("Amplitude fold change") +  guides(color = FALSE) + 
+  xlab("") + ylab("Amplitude fold change") +  guides(color = "none") + 
   theme_custom() + theme(panel.grid.major = element_line(), panel.grid.minor = element_line())
 
 
@@ -324,7 +322,7 @@ fig1D_1 <- ggplot(toplot, aes(x=phase_value%%24, y=FC_amp, color=tissue, shape=c
   scale_y_continuous(limits=c(1,5), breaks=seq(1:4), trans='log2') +
   ylab("Amplitude fold change") + xlab(bquote('time after'*~MSF[sc]*' (h)')) + 
   theme_custom() + theme(aspect.ratio = 0.7) +
-  guides(color = FALSE) + 
+  guides(color = "none") + 
   ggtitle("\ndermis") +
   annotate(geom='text', label=paste0(' ', no_dermis, ' genes'), x=-Inf, y=Inf, hjust=0, vjust=1, color="#1B9E77")
 fig1D_1 <- ggExtra::ggMarginal(fig1D_1, type = 'histogram', fill="#1B9E77", color="white")
@@ -344,7 +342,7 @@ fig1D_2 <- ggplot(toplot, aes(x=phase_value%%24, y=FC_amp, color=tissue, shape=c
   scale_y_continuous(limits=c(1,5), breaks=seq(1:4), trans='log2')+
   ylab("Amplitude fold change") +xlab(bquote('time after'*~MSF[sc]*' (h)')) + 
   theme_custom() + theme(aspect.ratio = 0.7) +
-  guides(color = FALSE) + 
+  guides(color = "none") + 
   ggtitle("\nepidermis") +
   annotate(geom='text', label=paste0(' ', no_epidermis, ' genes'), x=-Inf, y=Inf, hjust=0, vjust=1, color="#D95F02")
 fig1D_2 <- ggExtra::ggMarginal(fig1D_2, type = 'histogram', color="white", fill="#D95F02")
@@ -439,7 +437,7 @@ fig1H <- ggplot(df_rDE, aes(x=-log10(p.adjust), y=reorder(Description, -log10(p.
   geom_point( color='coral1') +  
   expand_limits(x=c(0,2.0)) + 
   labs(x=bquote(~-log[10]*' adj.'~italic('p')~'value'), y="Pathway", size="Percentage\nof hits") + 
-  guides(color = FALSE) +
+  guides(color = "none") +
   theme_custom() + scale_y_reordered() +
   theme(aspect.ratio=.35, legend.position = "right", legend.title = element_text(color="black"),
         panel.grid.major = element_line(), panel.grid.minor = element_line()) 

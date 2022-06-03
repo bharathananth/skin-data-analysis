@@ -15,8 +15,6 @@ suppressPackageStartupMessages(library(ggrepel))
 suppressPackageStartupMessages(library(lme4))
 suppressPackageStartupMessages(library(ggh4x))
 
-setwd("~/Documents/WORK/POSTDOC/projects/skin-data-analysis")
-
 # R graphics stuff
 scale_colour_discrete <- function(...) {
   scale_colour_brewer(..., palette="Dark2")
@@ -66,14 +64,14 @@ fdr_cutoff <- 0.05
 amp_cutoff <- log2(1 + 0.2) 
 
 # Gene expression data
-yave <- readRDS("visualize/data/rawdata.rds")
+yave <- readRDS("results/rawdata.rds")
 ind <- which(colnames(yave) == PCA_outliers)    
 yave <- yave[, -ind] 
 
 geneExpr <- yave$E
 genes <- yave$genes
 
-results <- readRDS("visualize/data/results_populationrhy_internaltime.rds") %>% 
+results <- readRDS("results/results_populationrhy_internaltime.rds") %>% 
   dplyr::mutate(A_D = sqrt(tissueD_inphase^2 + tissueD_outphase^2), #Amp = cos**2 + sin**2 (note the log2 values)
                 A_E = sqrt(tissueE_inphase^2 + tissueE_outphase^2),
                 phaseD = atan2(tissueD_outphase, tissueD_inphase)*12/pi, #atan2 takes two arguments (y,x), atan takes the angle
@@ -94,13 +92,13 @@ info_exp <- data.frame(experiment2= geneExpr %>% colnames) %>% mutate(experiment
   tidyr::separate(experiment2, c("tissuetime","subject"), sep = "_", convert=TRUE) %>%
   tidyr::separate(tissuetime, c("tissue","time"), convert = TRUE, sep = 1) 
 
-experiment <- readRDS("visualize/data/experiment.rds") %>% full_join(info_subjects) # read sample details from column names
+experiment <- readRDS("results/experiment.rds") %>% full_join(info_subjects) # read sample details from column names
 experiment <- experiment[-ind,] #remove outlier
 info_exp <- info_exp %>% full_join(experiment) %>% 
   mutate(tissue = ifelse(tissue=="D", "dermis", "epidermis"),
          time = as.character(time),
-         MSF_sc_dec = hms(MSF_sc),
-         MSF_sc_dec = round((hour(MSF_sc_dec) + minute(MSF_sc_dec) / 60 + second(MSF_sc_dec) / 360),2),
+         MSF_sc_dec = lubridate::hms(MSF_sc),
+         MSF_sc_dec = round((hour(MSF_sc_dec) + minute(MSF_sc_dec) / 60 + lubridate::second(MSF_sc_dec) / 360),2),
          inphase = cos(2*pi*as.numeric(internal_time)/24),
          outphase = sin(2*pi*as.numeric(internal_time)/24))
 
@@ -157,11 +155,11 @@ for (i in 1:length(fitList)){
 }
 
 # Save results of linear mixed model + variances of amplitude, phase 
-if (!file.exists("visualize/data/variance_rhythmic_parameters_full.csv")){
+if (!file.exists("results/variance_rhythmic_parameters_full.csv")){
   write.csv(df_total %>% inner_join(yave$genes %>% dplyr::select(ProbeName, Symbol)),
-            "visualize/data/variance_rhythmic_parameters_full.csv")
+            "results/variance_rhythmic_parameters_full.csv")
 }
-df_total <- read.csv("visualize/data/variance_rhythmic_parameters_full.csv") %>% dplyr::select(-X)
+df_total <- read.csv("results/variance_rhythmic_parameters_full.csv") %>% dplyr::select(-X)
 hist(df_total$Amp, breaks=100)
 df_total %<>% filter(Amp>.15) # filter out genes with low amp_fit that result in high variability and "mask" variable genes
 hist(df_total$Amp, breaks=100)
@@ -422,11 +420,11 @@ for (i in 1:length(fitList.D)){
   df_total.D <- rbind(df_total.D, df_i)
 }
 # Save results of linear mixed model + variances of amplitude, phase 
-if (!file.exists("visualize/data/variance_rhythmic_parameters_dermis.csv")){
+if (!file.exists("results/variance_rhythmic_parameters_dermis.csv")){
   write.csv(df_total.D %>% inner_join(yave$genes %>% dplyr::select(ProbeName, Symbol)),
-            "visualize/data/variance_rhythmic_parameters_dermis.csv")
+            "results/variance_rhythmic_parameters_dermis.csv")
 }
-df_total.D <- read.csv("visualize/data/variance_rhythmic_parameters_dermis.csv") %>% dplyr::select(-X)
+df_total.D <- read.csv("results/variance_rhythmic_parameters_dermis.csv") %>% dplyr::select(-X)
 hist(df_total.D$Amp, breaks=100)
 df_total.D %<>% filter(Amp>.15) # filter genes with low amp_fit that result in high variability and "mask" variable genes
 hist(df_total.D$Amp, breaks=100)
@@ -468,11 +466,11 @@ for (i in 1:length(fitList.E)){
   df_total.E <- rbind(df_total.E, df_i)
 }
 # Save results of linear mixed model + variances of amplitude, phase 
-if (!file.exists("visualize/data/variance_rhythmic_parameters_epidermis.csv")){
+if (!file.exists("results/variance_rhythmic_parameters_epidermis.csv")){
   write.csv(df_total.E %>% inner_join(yave$genes %>% dplyr::select(ProbeName, Symbol)),
-            "visualize/data/variance_rhythmic_parameters_epidermis.csv")
+            "results/variance_rhythmic_parameters_epidermis.csv")
 }
-df_total.E <- read.csv("visualize/data/variance_rhythmic_parameters_epidermis.csv") %>% dplyr::select(-X)
+df_total.E <- read.csv("results/variance_rhythmic_parameters_epidermis.csv") %>% dplyr::select(-X)
 hist(df_total.E$Amp, breaks=100)
 df_total.E %<>% filter(Amp>.15) # filter genes with low amp_fit that result in high variability and "mask" variable genes
 hist(df_total.E$Amp, breaks=100)

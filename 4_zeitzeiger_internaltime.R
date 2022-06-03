@@ -15,8 +15,6 @@ suppressPackageStartupMessages(library(cowplot))
 suppressPackageStartupMessages(library(variancePartition))
 
 
-setwd("~/Documents/WORK/POSTDOC/projects/skin-data-analysis")
-
 # R graphics stuff
 scale_colour_discrete <- function(...) {
   scale_colour_brewer(..., palette="Dark2")
@@ -57,8 +55,8 @@ update_geom_defaults("line", list(size = 0.8))
 # 1. READ FILES
 # -------------
 info_subjects <- read.csv("resources/info_subjects_short.csv") %>% dplyr::select(-X) # read info of subjects
-experiment <- readRDS("visualize/data/experiment.rds") %>% full_join(info_subjects)  # read sample details from column names
-yave <- readRDS("visualize/data/rawdata.rds") # read y gene expression data (without outlier removal)
+experiment <- readRDS("results/experiment.rds") %>% full_join(info_subjects)  # read sample details from column names
+yave <- readRDS("results/rawdata.rds") # read y gene expression data (without outlier removal)
 
 
 # Remove outliers in yave
@@ -295,7 +293,7 @@ fig3A_1 <- ggplot(vGath %>% filter(tissue=="dermis")) + facet_wrap(~spc, scales=
         strip.background = element_rect(fill=alpha("#1B9E77", 0.5)),
         strip.text = element_text(size=16),
         aspect.ratio=1.5) + ggtitle(paste0("dermis, sumabsv=", sumabsv_D)) +
-  scale_size(limits = c(NA, NA), range = c(4, 7)) + guides(fill=FALSE)
+  scale_size(limits = c(NA, NA), range = c(4, 7)) + guides(fill="none")
 # https://stackoverflow.com/questions/63393553/color-legend-key-labels-with-r-ggplot2-and-remove-the-keys
 
 fig3A_2 <- ggplot(vGath %>% filter(tissue=="epidermis")) + facet_wrap(~spc, scales="free") +
@@ -314,7 +312,7 @@ fig3A_2 <- ggplot(vGath %>% filter(tissue=="epidermis")) + facet_wrap(~spc, scal
         strip.background = element_rect(fill=alpha("#D95F02", 0.5)),
         strip.text = element_text(size=16),
         aspect.ratio=1.5) + ggtitle(paste0("epidermis, sumabsv=", sumabsv_E)) +
-  scale_size(limits = c(NA, NA), range = c(4, 7)) + guides(fill=FALSE)
+  scale_size(limits = c(NA, NA), range = c(4, 7)) + guides(fill="none")
 
 fig3A <- ggpubr::ggarrange(fig3A_1, NULL, fig3A_2, nrow=1, ncol=3, common.legend=TRUE, legend="right", widths=c(1.,0.1,1))
 
@@ -381,7 +379,7 @@ suppfig5B <- ggpubr::ggarrange(suppfig5B_1, NULL, suppfig5B_2, ncol=3, nrow=1,
 
 # Where are the ZeitZeiger genes in the scatterplot of variability in amplitude/magnitude/phase across subjects?
 # --------------------------------------------------------------------------------------------------------------
-vp.full <- read.csv("visualize/data/variance_rhythmic_parameters_full.csv") %>% dplyr::select(-X) 
+vp.full <- read.csv("results/variance_rhythmic_parameters_full.csv") %>% dplyr::select(-X) 
 vp.full %<>% filter(Amp>.15)
 
 # Calculate cv from variances -> this is from the full vP, not D vs E
