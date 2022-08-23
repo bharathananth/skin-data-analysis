@@ -10,7 +10,7 @@ suppressPackageStartupMessages(library(lubridate))
 suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(ggvenn))
 suppressPackageStartupMessages(library(cowplot))
-suppressPackageStartupMessages(library(ggthemes))
+#suppressPackageStartupMessages(library(ggthemes))
 
 dir.create("figures",showWarnings = FALSE)
 dir.create("results",showWarnings = FALSE)
