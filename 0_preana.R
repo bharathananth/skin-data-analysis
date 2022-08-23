@@ -11,6 +11,8 @@ suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(ggvenn))
 suppressPackageStartupMessages(library(cowplot))
 suppressPackageStartupMessages(library(ggthemes))
+suppressPackageStartupMessages(library(PCAtools))
+
 
 dir.create("figures",showWarnings = FALSE)
 dir.create("results",showWarnings = FALSE)
@@ -122,22 +124,18 @@ rownames(yave$E) <- yave$genes$ProbeName
 
 # 5. PCA of raw data -> What separates first? Are there outliers?
 # ---------------------------------------------------------------
-scale_PCA = TRUE
-for_filename <- ifelse(scale_PCA==TRUE, "T", "F")
+metad = data.frame(feature=colnames(yave$E), row.names = colnames(yave$E))
+metad$layer = ifelse(grepl("D", row.names(metad)), "dermis", "epidermis")
+p <- pca(yave$E, metadata=metad, removeVar = 0.1)
+pca_biplot <- biplot(p, showLoadings = FALSE, 
+       labSize = 3, pointSize = 3, sizeLoadingsNames = 3, max.overlaps = 10,
+       colby = 'layer', colkey = c('dermis' = '#1B9E77', 'epidermis' = '#D95F02'),
+       legendPosition = 'right')
+pca_pairsplot <- pairsplot(p, colby = 'layer', colkey = c('dermis' = '#1B9E77', 'epidermis' = '#D95F02'))
 
-yave.pca <- prcomp(yave$E, center = TRUE, scale. = scale_PCA)
-#summary(yave.pca)
-
-df_out_r <- as.data.frame(yave.pca$rotation)
-df_out_r$tissue <- ifelse(grepl("D", row.names(df_out_r)), "dermis", "epidermis")
-df_out_r$feature <- row.names(df_out_r)
-
-plot_PCA_all <- ggplot(df_out_r, aes(x=PC1, y=PC2, label=feature, color=tissue)) +
-  geom_point() + theme_bw() + geom_text(size=3) + ggtitle("PCA all data")
-
-if (!file.exists(paste0("figures/preanalysis_PCA_scale=", for_filename,".pdf"))){ 
-  for_filename <- ifelse(scale_PCA==TRUE, "T", "F")
-  plot_PCA_all %>% ggsave(paste0("figures/preanalysis_PCA_scale=", for_filename,".pdf"), .) 
+if (!file.exists(paste0("figures/preanalysis_PCA_biplot.pdf"))){ 
+  pca_biplot %>% ggsave(paste0("figures/preanalysis_PCA_biplot.pdf"), .) 
+  pca_pairsplot %>% ggsave(paste0("figures/preanalysis_PCA_pairsplot.pdf"), .) 
 } 
 outliers = "E32_P109"  
   
