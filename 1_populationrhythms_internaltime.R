@@ -76,7 +76,7 @@ experiment <- readRDS("results/experiment.rds") %>% # read sample details from c
     diff_to_refsubj = MSF_sc_dec - median(MSF_sc_dec),
     internal_time_ref = time - diff_to_refsubj) %>%
   mutate(internal_time = time - MSF_sc_dec)
-saveRDS(experiment %>% select(-MSF_sc_dec), "results/experiment.rds")
+saveRDS(experiment %>% dplyr::select(-MSF_sc_dec), "results/experiment.rds")
 yave <- readRDS("results/rawdata.rds") # read y gene expression data (without outlier removal)
 
 # Remove outliers in yave
@@ -105,8 +105,8 @@ outphase <- sin(2*pi*time/24) #a*cos(wt) + cos(wt-phi) == A*cos(wt - phi), where
 
 # design matrix
 design <- model.matrix(~ 0 + tissue + tissue:inphase + tissue:outphase) %>% #H0: rhythms are different across tissues
-  as.data.frame() %>% rename(c("tissueD_inphase"="tissueD:inphase", "tissueE_inphase"="tissueE:inphase",
-                               "tissueD_outphase"="tissueD:outphase", "tissueE_outphase"="tissueE:outphase")) %>% 
+  as.data.frame() %>% dplyr::rename(c("tissueD_inphase"="tissueD:inphase", "tissueE_inphase"="tissueE:inphase",
+                                      "tissueD_outphase"="tissueD:outphase", "tissueE_outphase"="tissueE:outphase")) %>% 
   as.matrix()
 
 # duplicate Correlations
@@ -138,7 +138,7 @@ diff_rhy_results <- diff_rhy_results[rhy_D_or_E$ProbeName, ]
 rhy_D_or_E$adj_p_val_DR <- stats::p.adjust(diff_rhy_results$P.Value, method = "BH")
 rhy_D_or_E$diff_rhythmic <- rhy_D_or_E$adj_p_val_DR < fdr_cutoff
 
-results <- full_join(results, rhy_D_or_E) %>% select(-adj_P_Val)
+results <- full_join(results, rhy_D_or_E) %>% dplyr::select(-adj_P_Val)
 
 # save results of fits
 if (!file.exists("results/results_populationrhy_internaltime.rds")){
@@ -264,7 +264,7 @@ toplot <- yave$E %>% transform(ProbeName = yave$genes$ProbeName,
   summarise(z.score=mean(z.score))
 
 toplot %<>% as.data.frame() %>% mutate(tissue=ifelse(tissue=="D", "dermis", "epidermis")) %>%
-  full_join(rhy_results %>% select(Symbol, phase_value, tissue)) %>% 
+  full_join(rhy_results %>% dplyr::select(Symbol, phase_value, tissue)) %>% 
   rename(c("phase"="phase_value")) %>% arrange(phase) 
 toplot$Symbol_ord <- factor(toplot$Symbol, levels = rev(unique(toplot$Symbol)), ordered=TRUE)
 
@@ -458,9 +458,9 @@ fig1_3 <- plot_grid(NULL, fig1G, NULL, fig1H_2, nrow=1, labels=c("G","", "H", ""
 fig1 <- plot_grid(fig1_1, NULL, fig1_2, NULL, fig1_3, align='v', nrow=5, 
                   rel_heights = c(1.5, 0.05,1.6, 0.05, 1.1))
 
-fig1 %>% ggsave('figures/fig1.pdf', ., width = 11, height = 9.5)
+#fig1 %>% ggsave('figures/fig1.pdf', ., width = 11, height = 9.5)
 
 ###
 
-suppfig2 <- plot_grid(suppfig2A, NULL, suppfig2B, ncol=3, nrow=1, labels=c("A", "", "B"), rel_widths = c(1,0.2,1.))
-suppfig2 %>% ggsave('figures/suppfig2.pdf', ., width = 11, height = 3.5)
+#suppfig2 <- plot_grid(suppfig2A, NULL, suppfig2B, ncol=3, nrow=1, labels=c("A", "", "B"), rel_widths = c(1,0.2,1.))
+#suppfig2 %>% ggsave('figures/suppfig2.pdf', ., width = 11, height = 3.5)
