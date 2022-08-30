@@ -1,3 +1,6 @@
+# go to directory of skin-data-analysis-renv and set it as working directory
+renv::activate('../skin-data-analysis-renv/') 
+
 suppressPackageStartupMessages(library(limma))
 suppressPackageStartupMessages(library(magrittr))
 suppressPackageStartupMessages(library(tidyverse))
@@ -15,6 +18,7 @@ suppressPackageStartupMessages(library(ggthemes))
 suppressPackageStartupMessages(library(PCAtools))
 suppressPackageStartupMessages(library(ReactomePA))
 suppressPackageStartupMessages(library(DOSE))
+suppressPackageStartupMessages(library(openxlsx))
 
 
 dir.create("figures",showWarnings = FALSE)
@@ -60,24 +64,24 @@ update_geom_defaults("line", list(size = 0.8))
 # 1. Read info of subjects
 # ------------------------
 info_subjects_long <- read.csv("resources/info_subjects.csv") %>%
-  mutate(Bedtime_Work = Bedtime_Work %>% parse_hms(), Sleeptime_Work =  Sleeptime_Work %>% parse_hms(), 
-         Wakeuptime_Work = Wakeuptime_Work %>% parse_hms(), Bedtime_Free = Bedtime_Free %>% parse_hms(),
-         Sleeptime_Free = Sleeptime_Free %>% parse_hms(), Wakeuptime_Free = Wakeuptime_Free %>% parse_hms(),
-         
-         age = 2011 - Birth_year,
-         Sleepduration_Free = Wakeuptime_Free - Sleeptime_Free,
-         Sleepduration_Free = ifelse(Sleepduration_Free < 0, 24*3600 + Sleepduration_Free, Sleepduration_Free),
-         Sleepduration_Work = Wakeuptime_Work - Sleeptime_Work,
-         Sleepduration_Work = ifelse(Sleepduration_Work < 0, 24*3600 + Sleepduration_Work, Sleepduration_Work),
-         
-         MSF = (Sleeptime_Free + 0.5*(Sleepduration_Free)), #mid sleep free days (Vetter, Roenneberg, Springr Methods Book S. Brown)
-         MSF = ifelse(MSF > 24*3600, MSF-24*3600, MSF) %>% seconds_to_period(),
-         
-         Sleepduration_avg = (Sleepduration_Work * 5 + Sleepduration_Free * 2) / 7,
-         MSF_sc = MSF %>% period_to_seconds() - 0.5*(Sleepduration_Free - Sleepduration_avg), #sleep debt-corrected MSF (Vetter Springr)
-         MSF_sc = MSF_sc %>% seconds_to_period(),
-         MSF_sc = round(MSF_sc %>% time_length(), 0) %>% as_hms,
-         MSF_sc = round_hms(as_hms(MSF_sc), 60)) %>%
+  dplyr::mutate(Bedtime_Work = Bedtime_Work %>% parse_hms(), Sleeptime_Work =  Sleeptime_Work %>% parse_hms(), 
+                Wakeuptime_Work = Wakeuptime_Work %>% parse_hms(), Bedtime_Free = Bedtime_Free %>% parse_hms(),
+                Sleeptime_Free = Sleeptime_Free %>% parse_hms(), Wakeuptime_Free = Wakeuptime_Free %>% parse_hms(),
+                
+                age = 2011 - Birth_year,
+                Sleepduration_Free = Wakeuptime_Free - Sleeptime_Free,
+                Sleepduration_Free = ifelse(Sleepduration_Free < 0, 24*3600 + Sleepduration_Free, Sleepduration_Free),
+                Sleepduration_Work = Wakeuptime_Work - Sleeptime_Work,
+                Sleepduration_Work = ifelse(Sleepduration_Work < 0, 24*3600 + Sleepduration_Work, Sleepduration_Work),
+                
+                MSF = (Sleeptime_Free + 0.5*(Sleepduration_Free)), #mid sleep free days (Vetter, Roenneberg, Springr Methods Book S. Brown)
+                MSF = ifelse(MSF > 24*3600, MSF-24*3600, MSF) %>% seconds_to_period(),
+                
+                Sleepduration_avg = (Sleepduration_Work * 5 + Sleepduration_Free * 2) / 7,
+                MSF_sc = MSF %>% period_to_seconds() - 0.5*(Sleepduration_Free - Sleepduration_avg), #sleep debt-corrected MSF (Vetter Springr)
+                MSF_sc = MSF_sc %>% seconds_to_period(),
+                MSF_sc = round(MSF_sc %>% time_length(), 0) %>% as_hms,
+                MSF_sc = round_hms(as_hms(MSF_sc), 60)) %>%
   dplyr::rename(c("subject"="Subject", "sex"="Sex")) 
 
 info_subjects <- info_subjects_long %>% dplyr::select(subject, sex, Light_condition, age, MSF_sc)
@@ -114,7 +118,7 @@ y <- normalizeBetweenArrays(y, method = "quantile")
 
 # 4. Filter out controls, non-annotated probes and lowly expressed genes from raw data
 # ------------------------------------------------------------------------------------
-Control <- y$genes$ControlType==1L #Control <- y$genes$ControlType==1 would also work
+Control <- y$genes$ControlType==1L 
 NoID    <- is.na(y$genes$ENSEMBL)
 IsExpr  <- rowSums(y$other$gIsWellAboveBG>0) >= 77 
 
@@ -131,16 +135,13 @@ metad = data.frame(feature=colnames(yave$E), row.names = colnames(yave$E))
 metad$layer = ifelse(grepl("D", row.names(metad)), "dermis", "epidermis")
 p <- pca(yave$E, metadata=metad, removeVar = 0.1)
 pca_biplot <- biplot(p, showLoadings = FALSE, 
-       labSize = 3, pointSize = 2, sizeLoadingsNames = 3, max.overlaps = 10,
+       labSize = 3, pointSize = 1, sizeLoadingsNames = 3, max.overlaps = 10,
        colby = 'layer', colkey = c('dermis' = '#1B9E77', 'epidermis' = '#D95F02'),
        legendPosition = 'right')
 pca_pairsplot <- pairsplot(p, colby = 'layer', colkey = c('dermis' = '#1B9E77', 'epidermis' = '#D95F02'))
-fig0A = pca_biplot + theme_custom() + theme(aspect.ratio=.7)
+fig0A = pca_biplot + theme_custom() + theme(aspect.ratio=.7) +
+  guides(color = guide_legend(override.aes = list(size=3)))
 
-#if (!file.exists(paste0("figures/preanalysis_PCA_biplot.pdf"))){ 
-#  pca_biplot %>% ggsave(paste0("figures/preanalysis_PCA_biplot.pdf"), .) 
-#  pca_pairsplot %>% ggsave(paste0("figures/preanalysis_PCA_pairsplot.pdf"), .) 
-#} 
 outliers = "E32_P109"  
   
 
@@ -162,14 +163,15 @@ if (!file.exists("results/experiment.rds")){
 
 # 8. Differential expression analysis
 # ------------------------------------
-experiment <- readRDS("results/experiment.rds") %>% dplyr::select(-MSF_sc) %>% # read sample details from column names
+experiment <- readRDS("results/experiment.rds") %>% # read sample details from column names
+  #dplyr::select(-MSF_sc) %>%
   full_join(info_subjects) %>% # we're going to correct wall time (sampling time) to internal time
   dplyr::mutate(MSF_sc_dec = lubridate::hms(MSF_sc)) %>% 
   dplyr::mutate(
     MSF_sc_dec = round((hour(MSF_sc_dec) + minute(MSF_sc_dec) / 60 + lubridate::second(MSF_sc_dec) / 360),2),
     diff_to_refsubj = MSF_sc_dec - median(MSF_sc_dec),
     internal_time_ref = time - diff_to_refsubj) %>%
-  mutate(internal_time = time - MSF_sc_dec)
+  dplyr::mutate(internal_time = time - MSF_sc_dec)
 
 # Remove outliers in yave
 ind <- which(colnames(yave) == outliers)    
@@ -214,20 +216,24 @@ results_DE$DE_dermis <- ifelse( results_DE$logFC > 0 & results_DE$adj.P.Val < 0.
 results_DE$DE_epidermis <- ifelse( results_DE$logFC < 0 & results_DE$adj.P.Val < 0.05, TRUE, FALSE )
 results_DE$diff_expressed <- ifelse(results_DE$DE_dermis == TRUE, "dermis",
                                     ifelse(results_DE$DE_epidermis == TRUE, "epidermis", "ns") )
-#plotMD(tfit, column=1, status=dt[,1], main="Differential expression dermis vs. epidermis\n(min logFC=1)",
-#                hl.col=c("#D95F02", "#1B9E77"))
 
 tfit %<>% as.data.frame() %>% 
   mutate(DE_binary=ifelse(abs(coefficients) > logfc_cutoff, TRUE, FALSE),
          DE=ifelse(coefficients > logfc_cutoff, "dermis", ifelse(coefficients < -logfc_cutoff, "epidermis", "ns")))
 fig0B <- ggplot(tfit) + 
   geom_point(data = tfit %>% filter(!DE_binary), aes(x=Amean, y=coefficients), size=.1, color="black") +
-  geom_point(data = tfit %>% filter(DE_binary), aes(x=Amean, y=coefficients, color=DE)) +
+  geom_point(data = tfit %>% filter(DE_binary), aes(x=Amean, y=coefficients, color=DE), size=.7) +
   labs(x="Average log-expression", y="log-fold change") +
-  theme_custom() + theme(aspect.ratio=.7)
+  theme_custom() + theme(aspect.ratio=.7) +
+  guides(color = guide_legend(override.aes = list(size=3)))
 
-top25_dermis <- results_DE %>% filter(DE_dermis==TRUE & adj.P.Val < 0.05) %>% arrange(desc(logFC)) %>% head(50)
-top25_epidermis <- results_DE %>% filter(DE_epidermis==TRUE & adj.P.Val < 0.05) %>% arrange(desc(abs(logFC))) %>% head(50)
+top50_dermis <- results_DE %>% dplyr::filter(DE_dermis==TRUE & adj.P.Val<0.05) %>% arrange(desc(logFC)) %>% 
+  head(50) %>% dplyr::select(-ENSEMBL, -EntrezID, -t, -P.Value, -DE_dermis, -DE_epidermis)
+top50_epidermis <- results_DE %>% dplyr::filter(DE_epidermis==TRUE & adj.P.Val<0.05) %>% arrange(desc(abs(logFC))) %>% 
+  head(50) %>% dplyr::select(-ENSEMBL, -EntrezID, -t, -P.Value, -DE_dermis, -DE_epidermis)
+sheets <- list("differential expr. dermis" = top50_dermis, 
+               "differential expr. epidermis" = top50_epidermis)
+openxlsx::write.xlsx(sheets, file = "figures/supp_table2.xlsx")
 
 # Enrichment of DE expressed genes (Reactome pathways)
 rD <- enrichPathway(gene = filter(results_DE, DE_dermis)$EntrezID, 
@@ -259,3 +265,8 @@ fig0_1 <- plot_grid(fig0A, NULL, fig0B, ncol=3, rel_widths=c(1,0.1,1), labels=c(
 fig0_2 <- plot_grid(fig0C, labels=c("C"))
 fig0 = plot_grid(fig0_1, NULL, fig0_2, nrow=3, rel_heights = c(1,0.1,.5))
 fig0 %>% ggsave('figures/suppfig0.pdf', ., width = 11, height = 5.5)
+
+##########
+##########
+
+renv::deactivate()
