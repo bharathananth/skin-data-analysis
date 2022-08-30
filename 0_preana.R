@@ -227,6 +227,7 @@ fig0B <- ggplot(tfit) +
   theme_custom() + theme(aspect.ratio=.7) +
   guides(color = guide_legend(override.aes = list(size=3)))
 
+# Supplementary Table 2: Lists of top differentially expressed genes between dermis and epidermis
 top50_dermis <- results_DE %>% dplyr::filter(DE_dermis==TRUE & adj.P.Val<0.05) %>% arrange(desc(logFC)) %>% 
   head(50) %>% dplyr::select(-ENSEMBL, -EntrezID, -t, -P.Value, -DE_dermis, -DE_epidermis)
 top50_epidermis <- results_DE %>% dplyr::filter(DE_epidermis==TRUE & adj.P.Val<0.05) %>% arrange(desc(abs(logFC))) %>% 
