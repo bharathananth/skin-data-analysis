@@ -1,3 +1,7 @@
+# go to directory of skin-data-analysis-renv and set it as working directory
+# note that 0_preana.R should be run before this file (to pre-process microarray gene expression data)
+renv::activate('../skin-data-analysis-renv/') 
+
 suppressPackageStartupMessages(library(limma))
 suppressPackageStartupMessages(library(magrittr))
 suppressPackageStartupMessages(library(variancePartition))
@@ -95,12 +99,15 @@ info_exp <- data.frame(experiment2= geneExpr %>% colnames) %>% mutate(experiment
 experiment <- readRDS("results/experiment.rds") %>% full_join(info_subjects) # read sample details from column names
 experiment <- experiment[-ind,] #remove outlier
 info_exp <- info_exp %>% full_join(experiment) %>% 
-  mutate(tissue = ifelse(tissue=="D", "dermis", "epidermis"),
-         time = as.character(time),
-         MSF_sc_dec = lubridate::hms(MSF_sc),
-         MSF_sc_dec = round((hour(MSF_sc_dec) + minute(MSF_sc_dec) / 60 + lubridate::second(MSF_sc_dec) / 360),2),
-         inphase = cos(2*pi*as.numeric(internal_time)/24),
-         outphase = sin(2*pi*as.numeric(internal_time)/24))
+  dplyr::mutate(tissue = ifelse(tissue=="D", "dermis", "epidermis"),
+                MSF_sc_dec = lubridate::hms(MSF_sc),
+                MSF_sc_dec = round((hour(MSF_sc_dec) + minute(MSF_sc_dec) / 60 + lubridate::second(MSF_sc_dec) / 360),2),
+                diff_to_refsubj = MSF_sc_dec - median(MSF_sc_dec),
+                internal_time_ref = time - diff_to_refsubj,
+                internal_time = time - MSF_sc_dec,
+                inphase = cos(2*pi*as.numeric(internal_time)/24),
+                outphase = sin(2*pi*as.numeric(internal_time)/24),
+                time = as.character(time))
 
 
 
@@ -155,11 +162,31 @@ for (i in 1:length(fitList)){
 }
 
 # Save results of linear mixed model + variances of amplitude, phase 
+df_total$Symbol <- inner_join(df_total %>% dplyr::select(ProbeName), yave$genes %>% dplyr::select(ProbeName, Symbol))$Symbol
+df_total$sd_A_layer <- sqrt(df_total$var_A_layer)
+df_total$sd_A_subject <- sqrt(df_total$var_A_subject)
+df_total$cv_A_layer <- df_total$sd_A_layer / df_total$Amp
+df_total$cv_A_subject<- df_total$sd_A_subject / df_total$Amp
+
+df_total$sd_phi_layer <- sqrt(df_total$var_phi_layer)
+df_total$sd_phi_subject <- sqrt(df_total$var_phi_subject)
+df_total$cv_phi_layer <- df_total$sd_phi_layer / df_total$phase 
+df_total$cv_phi_subject<- df_total$sd_phi_subject / df_total$phase
+
+df_total$sd_magn_layer <- sqrt(df_total$var_magn_layer)
+df_total$sd_magn_subject <- sqrt(df_total$var_magn_subject)
+df_total$cv_magn_layer <- df_total$sd_magn_layer / df_total$magn 
+df_total$cv_magn_subject<- df_total$sd_magn_subject / df_total$magn
+
+df_total <- df_total[,c(1,11,2,3,12,14,4,13,15, 
+                        5,6,16,18,7,17,19,
+                        8,9,20,22,10,21,23)]
 if (!file.exists("results/variance_rhythmic_parameters_full.csv")){
   write.csv(df_total %>% inner_join(yave$genes %>% dplyr::select(ProbeName, Symbol)),
             "results/variance_rhythmic_parameters_full.csv")
+  openxlsx::write.xlsx(format.data.frame(df_total, digits=3), file = "figures/supp_table4.xlsx")
 }
-df_total <- read.csv("results/variance_rhythmic_parameters_full.csv") %>% dplyr::select(-X)
+
 hist(df_total$Amp, breaks=100)
 df_total %<>% filter(Amp>.15) # filter out genes with low amp_fit that result in high variability and "mask" variable genes
 hist(df_total$Amp, breaks=100)
@@ -214,7 +241,7 @@ fig2A <- ggplot(variation_full %>% dplyr::select(rhythmic_par, sd, Symbol, effec
   facet_wrap(~rhythmic_par, scales='free_x') + 
   scale_fill_manual(values = c("layer" = "#d1495b", "subject" = "#00798c"))  +
   scale_color_manual(values = c("layer" = "#d1495b", "subject" = "#00798c"))  +
-  guides(fill=FALSE) +
+  guides(fill="none", color="none") +
   labs(x='standard deviation', y='') +
   theme( panel.spacing = unit(1., "lines"),
          legend.position = "top")
@@ -419,12 +446,12 @@ for (i in 1:length(fitList.D)){
                      magn=m_i,    var_magn_subject=sigma_i[1,1])
   df_total.D <- rbind(df_total.D, df_i)
 }
-# Save results of linear mixed model + variances of amplitude, phase 
-if (!file.exists("results/variance_rhythmic_parameters_dermis.csv")){
-  write.csv(df_total.D %>% inner_join(yave$genes %>% dplyr::select(ProbeName, Symbol)),
-            "results/variance_rhythmic_parameters_dermis.csv")
-}
-df_total.D <- read.csv("results/variance_rhythmic_parameters_dermis.csv") %>% dplyr::select(-X)
+## Save results of linear mixed model + variances of amplitude, phase 
+#if (!file.exists("results/variance_rhythmic_parameters_dermis.csv")){
+#  write.csv(df_total.D %>% inner_join(yave$genes %>% dplyr::select(ProbeName, Symbol)),
+#            "results/variance_rhythmic_parameters_dermis.csv")
+#}
+#df_total.D <- read.csv("results/variance_rhythmic_parameters_dermis.csv") %>% dplyr::select(-X)
 hist(df_total.D$Amp, breaks=100)
 df_total.D %<>% filter(Amp>.15) # filter genes with low amp_fit that result in high variability and "mask" variable genes
 hist(df_total.D$Amp, breaks=100)
@@ -465,12 +492,12 @@ for (i in 1:length(fitList.E)){
                      magn=m_i,    var_magn_subject=sigma_i[1,1])
   df_total.E <- rbind(df_total.E, df_i)
 }
-# Save results of linear mixed model + variances of amplitude, phase 
-if (!file.exists("results/variance_rhythmic_parameters_epidermis.csv")){
-  write.csv(df_total.E %>% inner_join(yave$genes %>% dplyr::select(ProbeName, Symbol)),
-            "results/variance_rhythmic_parameters_epidermis.csv")
-}
-df_total.E <- read.csv("results/variance_rhythmic_parameters_epidermis.csv") %>% dplyr::select(-X)
+## Save results of linear mixed model + variances of amplitude, phase 
+#if (!file.exists("results/variance_rhythmic_parameters_epidermis.csv")){
+#  write.csv(df_total.E %>% inner_join(yave$genes %>% dplyr::select(ProbeName, Symbol)),
+#            "results/variance_rhythmic_parameters_epidermis.csv")
+#}
+#df_total.E <- read.csv("results/variance_rhythmic_parameters_epidermis.csv") %>% dplyr::select(-X)
 hist(df_total.E$Amp, breaks=100)
 df_total.E %<>% filter(Amp>.15) # filter genes with low amp_fit that result in high variability and "mask" variable genes
 hist(df_total.E$Amp, breaks=100)
@@ -519,3 +546,9 @@ fig2_1 <- plot_grid(NULL, NULL, fig2A, nrow=3, rel_heights=c(2,.05,1), labels = 
 fig2_3 <- plot_grid(fig2B, NULL, fig2D, nrow=3, rel_heights=c(2,.05, 1), labels = c("D", "E"))
 fig2 <- plot_grid(fig2_1, NULL, fig2C, NULL, fig2_3, ncol=5, rel_widths=c(1.,0.03,.66,.03,1), labels = c("", "", "C", "", ""))
 fig2 %>% ggsave('figures/fig2.pdf', ., width = 11, height = 7.5)
+
+
+##########
+##########
+
+renv::deactivate()

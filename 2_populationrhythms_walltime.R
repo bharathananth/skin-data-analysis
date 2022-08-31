@@ -1,3 +1,7 @@
+# go to directory of skin-data-analysis-renv and set it as working directory
+# note that 0_preana.R should be run before this file (to pre-process microarray gene expression data)
+renv::activate('../skin-data-analysis-renv/') 
+
 suppressPackageStartupMessages(library(limma))
 suppressPackageStartupMessages(library(magrittr))
 suppressPackageStartupMessages(library(hgug4112a.db))
@@ -307,9 +311,18 @@ suppfig1D <- ggplot(toplot, aes(x=-log10(internal_time), y=-log10(wall_time), co
 ################
 ################
 
+
+# ARRANGE PLOTS IN GRID
+# ---------------------
 sfig1_1 <- plot_grid(suppfig1A, nrow=1, labels = c("", ""))
 sfig1_2 <- plot_grid(suppfig1B, NULL, suppfig1C, NULL, suppfig1D, nrow=5, 
                      labels = c("B", "", "C", "", "D"), rel_heights = c(1,0.1,1,0.1,1))
 sfig1   <- plot_grid(sfig1_1, sfig1_2, ncol=2)
 
 sfig1 %>% ggsave('figures/suppfig1.pdf', ., width = 11, height = 8.5)
+
+
+##########
+##########
+
+renv::deactivate()

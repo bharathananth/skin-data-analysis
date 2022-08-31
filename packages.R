@@ -1,0 +1,47 @@
+#renv::init('./skin-data-analysis-renv/') #run once to create the environment and then comment
+renv::activate('./skin-data-analysis-renv/')
+
+# Required CRAN packages in this project
+install.packages("dplyr")
+install.packages("magrittr")
+install.packages("dbplyr")
+install.packages("tidyverse")
+install.packages("ggrepel")
+install.packages("hms")
+install.packages("ggforce")
+install.packages("ggExtra")
+install.packages("lubridate")
+install.packages("ggplot2")
+install.packages("ggthemes")
+install.packages("ggvenn")
+install.packages("cowplot")
+install.packages("tibble")
+install.packages("tidyr")
+install.packages("ggtext")
+install.packages("stringr")
+install.packages("doParallel")
+install.packages("tidytext")
+install.packages("ggh4x")
+install.packages("viridis")
+install.packages("openxlsx")
+install.packages("readxl")
+install.packages("msigdbr")
+install.packages("mgsub")
+install.packages("lme4") #if cmake is not found in PATH, install it (inside a terminal) [console will give a warning]
+install.packages("ggpubr")
+
+# Required BioConductor packages in this project
+if (!require("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+BiocManager::install("limma")
+BiocManager::install("hgug4112a.db")
+BiocManager::install("DOSE")
+BiocManager::install("PCAtools")
+BiocManager::install("clusterProfiler")
+BiocManager::install("zeitzeiger", site_repository = 'https://hugheylab.github.io/drat/')
+BiocManager::install("variancePartition")
+BiocManager::install("reactome.db")
+BiocManager::install("ReactomePA")
+
+renv::snapshot() #to save the state of the project (in this case, the installed packages) to the lockfile
+renv::deactivate()

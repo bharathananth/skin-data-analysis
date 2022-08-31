@@ -232,9 +232,11 @@ top50_dermis <- results_DE %>% dplyr::filter(DE_dermis==TRUE & adj.P.Val<0.05) %
   head(50) %>% dplyr::select(-ENSEMBL, -EntrezID, -t, -P.Value, -DE_dermis, -DE_epidermis)
 top50_epidermis <- results_DE %>% dplyr::filter(DE_epidermis==TRUE & adj.P.Val<0.05) %>% arrange(desc(abs(logFC))) %>% 
   head(50) %>% dplyr::select(-ENSEMBL, -EntrezID, -t, -P.Value, -DE_dermis, -DE_epidermis)
-sheets <- list("differential expr. dermis" = top50_dermis, 
-               "differential expr. epidermis" = top50_epidermis)
-openxlsx::write.xlsx(sheets, file = "figures/supp_table2.xlsx")
+sheets <- list("differential expr. dermis" = format.data.frame(top50_dermis, digits=3), 
+               "differential expr. epidermis" = format.data.frame(top50_epidermis, digits=3))
+if (!file.exists("figures/supp_table2.xlsx")){
+  openxlsx::write.xlsx(sheets, file = "figures/supp_table2.xlsx")
+}
 
 # Enrichment of DE expressed genes (Reactome pathways)
 rD <- enrichPathway(gene = filter(results_DE, DE_dermis)$EntrezID, 

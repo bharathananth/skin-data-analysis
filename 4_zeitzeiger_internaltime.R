@@ -1,3 +1,7 @@
+# go to directory of skin-data-analysis-renv and set it as working directory
+# note that 0_preana.R should be run before this file (to pre-process microarray gene expression data)
+renv::activate('../skin-data-analysis-renv/') 
+
 suppressPackageStartupMessages(library(hms))
 suppressPackageStartupMessages(library(lubridate))
 suppressPackageStartupMessages(library(magrittr))
@@ -55,7 +59,11 @@ update_geom_defaults("line", list(size = 0.8))
 # 1. READ FILES
 # -------------
 info_subjects <- read.csv("resources/info_subjects_short.csv") %>% dplyr::select(-X) # read info of subjects
-experiment <- readRDS("results/experiment.rds") %>% full_join(info_subjects)  # read sample details from column names
+experiment <- readRDS("results/experiment.rds") %>% full_join(info_subjects) %>% # read sample details from column names
+  dplyr::mutate(tissue = ifelse(tissue=="D", "dermis", "epidermis"),
+                MSF_sc_dec = lubridate::hms(MSF_sc),
+                MSF_sc_dec = round((hour(MSF_sc_dec) + minute(MSF_sc_dec) / 60 + lubridate::second(MSF_sc_dec) / 360),2),
+                internal_time = time - MSF_sc_dec)
 yave <- readRDS("results/rawdata.rds") # read y gene expression data (without outlier removal)
 
 
@@ -107,9 +115,9 @@ foldid_D <- rep(1:nFolds, each=length(unique(time)))
 foldid_E <- rep(1:nFolds, each=length(unique(time)))[-49] #E32_P109 is outlier so it is removed 
 
 # Zeitzeiger takes time between 0 and 1
-time_D <- (experiment %>% arrange(subject) %>% filter(tissue=="D") %$% internal_time)/24 #rearrange time
+time_D <- (experiment %>% arrange(subject) %>% filter(tissue=="dermis") %$% internal_time)/24 #rearrange time
 time_D <- ifelse(time_D>1, time_D-1, time_D)
-time_E <- (experiment %>% arrange(subject) %>% filter(tissue=="E") %$% internal_time)/24 
+time_E <- (experiment %>% arrange(subject) %>% filter(tissue=="epidermis") %$% internal_time)/24 
 time_E <- ifelse(time_E>1, time_E-1, time_E)
 
 fitResultList_D <- zeitzeigerFitCv(xD, time_D, foldid_D)
@@ -343,10 +351,12 @@ yE <- yave$E %>% as.data.frame() %>% filter(rownames(.) %in% zz.genes_E$ProbeNam
 yGath_D <- yD %>% gather(key, expression, -Symbol) %>%
   tidyr::separate(key, c("tissuetime","subject"), sep = "_", convert = TRUE) %>% 
   tidyr::separate(tissuetime, c("tissue","time"), sep = "(?<=[A-Za-z])(?=[0-9])", convert = TRUE) %>%
+  dplyr::mutate(tissue=ifelse(tissue=="D", "dermis", "epidermis")) %>%
   inner_join(experiment %>% select(tissue, time, subject, internal_time))
 yGath_E <- yE %>% gather(key, expression, -Symbol) %>%
   tidyr::separate(key, c("tissuetime","subject"), sep = "_", convert = TRUE) %>% 
   tidyr::separate(tissuetime, c("tissue","time"), sep = "(?<=[A-Za-z])(?=[0-9])", convert = TRUE) %>%
+  dplyr::mutate(tissue=ifelse(tissue=="D", "dermis", "epidermis")) %>%
   inner_join(experiment %>% select(tissue, time, subject, internal_time))
 
 suppfig5B_1 <- ggplot(yGath_D) + geom_line(aes(x=internal_time, y=expression, color=subject)) + 
@@ -448,3 +458,9 @@ sfig5 <- plot_grid(plot_grid(suppfig5A, suppfig5C, nrow=1, rel_widths = c(1,1), 
                    plot_grid(suppfig5B_1, NULL, suppfig5B_2, nrow=1, rel_widths = c(1,.1,1), labels = c("B", "", "C")),
                    rel_heights=c(0.75,1.), nrow=2) %T>%
         ggsave('figures/suppfig5.pdf', ., width = 11, height = 8.5)
+
+
+##########
+##########
+
+renv::deactivate()
