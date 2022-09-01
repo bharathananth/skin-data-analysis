@@ -164,7 +164,7 @@ if (!file.exists("results/experiment.rds")){
 # 8. Differential expression analysis
 # ------------------------------------
 experiment <- readRDS("results/experiment.rds") %>% # read sample details from column names
-  #dplyr::select(-MSF_sc) %>%
+  dplyr::mutate(MSF_sc = as_hms(MSF_sc)) %>%
   full_join(info_subjects) %>% # we're going to correct wall time (sampling time) to internal time
   dplyr::mutate(MSF_sc_dec = lubridate::hms(MSF_sc)) %>% 
   dplyr::mutate(

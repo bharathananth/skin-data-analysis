@@ -22,6 +22,7 @@ suppressPackageStartupMessages(library(mgsub))
 suppressPackageStartupMessages(library(ReactomePA))
 suppressPackageStartupMessages(library(openxlsx))
 suppressPackageStartupMessages(library(readxl))
+suppressPackageStartupMessages(library(CircStats))
 
 
 # R graphics stuff
@@ -367,6 +368,15 @@ both_rhy_amp <- both_rhy %>% dplyr::select(Symbol, tissue, amp_value) %>% tidyr:
 both_rhy_amp$ampFC_dermis <- 2^(2*both_rhy_amp$dermis)
 both_rhy_amp$ampFC_epidermis <- 2^(2*both_rhy_amp$epidermis)
 
+both_rhy %>% filter(diff_rhythmic) %>% dplyr::select(Symbol, tissue, amp_value) %>% 
+  pivot_wider(id_cols = Symbol, names_from = tissue, values_from = amp_value) %$% 
+  wilcox.test(epidermis, dermis, paired=TRUE, alternative="greater", conf.int=TRUE)
+
+both_rhy %>% dplyr::select(Symbol, tissue, phase_value) %>% 
+        pivot_wider(id_cols = Symbol, names_from = tissue, values_from = phase_value) %>%
+        mutate(epidermis = pi/12*epidermis, dermis = pi/12*dermis) %$%
+        r.test(epidermis-dermis)
+
 # from the genes that are rhythmic in both layers, how many are DIFFERENTIALLY rhythmic?
 both_rhy_DR <- results %>% dplyr::filter(diff_rhythmic==TRUE) %>% dplyr::filter(Symbol %in% both_rhy$Symbol)
 
@@ -490,8 +500,8 @@ PSEA_d <- PSEA_d[PSEA_d[,6] <  q_cutoff, ] %>% mutate(tissue = "dermis")
 PSEA_e <- read.csv("visualize/data/PSEA/epidermis_C2all/results.txt", sep='\t')%>% dplyr::filter(Set.N >= 5)
 PSEA_e <- PSEA_e[PSEA_e[,6] <  q_cutoff, ] %>% mutate(tissue = "epidermis")
 
-PSEA <- full_join(PSEA_d %>% select(Set.ID, Set.N, Vector.average.value, tissue), 
-                  PSEA_e %>% select(Set.ID, Set.N, Vector.average.value, tissue)) %>%
+PSEA <- full_join(PSEA_d %>% dplyr::select(Set.ID, Set.N, Vector.average.value, tissue), 
+                  PSEA_e %>% dplyr::select(Set.ID, Set.N, Vector.average.value, tissue)) %>%
   dplyr::mutate(term = gsub("_", " ", Set.ID)) %>% mutate(term=gsub("REACTOME", "", term)) %>% 
   dplyr::mutate(term = term %>% tolower()) %>%
   dplyr::mutate(term = mgsub::mgsub(term, c("rna ", "rna", "dna ", "tgf ", "nod ", "jak stat ", "ecm ", " i ", "ub ", "ii ",
@@ -501,10 +511,10 @@ PSEA <- full_join(PSEA_d %>% select(Set.ID, Set.N, Vector.average.value, tissue)
 
 m_c2 <- msigdbr(species = "Homo sapiens", category = "C2", subcategory = "CP:REACTOME") #https://www.gsea-msigdb.org/gsea/msigdb/genesets.jsp
 df_PSEA <- m_c2 %>% dplyr::select(gs_name, gene_symbol) %>% as.data.frame() %>% 
-  inner_join(PSEA %>% rename(c("gs_name"="Set.ID"))) %>%
-  inner_join(rhy_results %>% rename(c("gene_symbol"="Symbol"))) %>% #see which rhythmic genes belong to which category
-  select(-gs_name, - ProbeName, -amp_value, -AveExpr) %>%
-  mutate(phase_clock1 = phase_value%%24) %>% select(-phase_value)
+  inner_join(PSEA %>% dplyr::rename(c("gs_name"="Set.ID"))) %>%
+  inner_join(rhy_results %>% dplyr::rename(c("gene_symbol"="Symbol"))) %>% #see which rhythmic genes belong to which category
+  dplyr::select(-gs_name, - ProbeName, -amp_value, -AveExpr) %>%
+  mutate(phase_clock1 = phase_value%%24) %>% dplyr::select(-phase_value)
 
 suppfig2C <- ggplot(df_PSEA) + 
   geom_point(aes(x=phase_clock1, y=reorder(term, Vector.average.value), color=tissue), alpha=0.5, size=1, shape=4) + 
@@ -561,16 +571,16 @@ rhy <- results %>% dplyr::filter(rhythmic_in_D | rhythmic_in_E) %>%
 # lists of rhythmic genes from other publications
 Akashi2010 <- read_excel("visualize/data/Akashi2010.xls") %>% as.data.frame() %>% # hair follicles, 251 rhythmic genes
   dplyr::select(-Locus, -RefSeq, -"Gene Cluster ID", -"Gene Description") %>%
-  rename(c("Symbol"="Gene Symbol"))
+  dplyr::rename(c("Symbol"="Gene Symbol"))
 Wu2018_epidermis <- read.csv("visualize/data/Wu2018_epidermis.csv") %>% #epidermis, 188 rhythmic genes
   dplyr::select(-rsq) %>% 
-  rename(c("Symbol"="Gene.Symbol", "amplitude"="rAMP"))
+  dplyr::rename(c("Symbol"="Gene.Symbol", "amplitude"="rAMP"))
 Wu2020_dermis <- read_excel("visualize/data/Wu2020.xlsx", sheet="Dermis") %>% as.data.frame() %>% #dermis
   dplyr::select(-rsq) %>% 
-  rename(c("Symbol"="geneSymbol", "amplitude"="rAMP"))
+  dplyr::rename(c("Symbol"="geneSymbol", "amplitude"="rAMP"))
 Wu2020_epidermis <- read_excel("visualize/data/Wu2020.xlsx", sheet="Epidermis") %>% as.data.frame() %>% #epidermis
   dplyr::select(-rsq) %>% 
-  rename(c("Symbol"="geneSymbol", "amplitude"="rAMP"))
+  dplyr::rename(c("Symbol"="geneSymbol", "amplitude"="rAMP"))
 
 # Comparison with Akashi
 rhy$Akashi2010 = ifelse(rhy$Symbol %in% Akashi2010$Symbol, TRUE, FALSE) #22 genes from Akashi are rhythmic in our dataset
