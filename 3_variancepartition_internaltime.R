@@ -114,7 +114,8 @@ info_exp <- info_exp %>% full_join(experiment) %>%
 # 2. EXECUTE LINEAR MIXED MODEL WITH VARIANCE PARTITION
 # -----------------------------------------------------
 form <- ~ 1 + inphase + outphase + (1 + inphase + outphase|subject) + (1 + inphase + outphase||tissue)
-fitList <- fitVarPartModel(geneExpr, form, info_exp, showWarnings=FALSE, BPPARAM = bpparam) 
+fitList <- fitVarPartModel(geneExpr, form, info_exp, showWarnings=FALSE, BPPARAM = bpparam)
+convergence <-sapply(fitList, function(l) l@optinfo$conv$opt) %>% as.logical() %>% all
 
 # Calculate variance in amplitude and phase from all rhythmic genes -> Error propagation
 df_total = data.frame(ProbeName=NULL, Amp=NULL, var_A_layer=NULL, var_A_subject=NULL,
@@ -170,8 +171,8 @@ df_total$cv_A_subject<- df_total$sd_A_subject / df_total$Amp
 
 df_total$sd_phi_layer <- sqrt(df_total$var_phi_layer)
 df_total$sd_phi_subject <- sqrt(df_total$var_phi_subject)
-df_total$cv_phi_layer <- df_total$sd_phi_layer / df_total$phase 
-df_total$cv_phi_subject<- df_total$sd_phi_subject / df_total$phase
+df_total$cv_phi_layer <- df_total$sd_phi_layer / 24
+df_total$cv_phi_subject<- df_total$sd_phi_subject / 24
 
 df_total$sd_magn_layer <- sqrt(df_total$var_magn_layer)
 df_total$sd_magn_subject <- sqrt(df_total$var_magn_subject)
@@ -190,6 +191,29 @@ if (!file.exists("results/variance_rhythmic_parameters_full.csv")){
 hist(df_total$Amp, breaks=100)
 df_total %<>% filter(Amp>.15) # filter out genes with low amp_fit that result in high variability and "mask" variable genes
 hist(df_total$Amp, breaks=100)
+
+# Comparing variability across layer and subject
+wilcox.test(df_total$var_magn_layer, df_total$var_magn_subject, paired = TRUE, alternative = "greater")
+wilcox.test(df_total$var_A_layer, df_total$var_A_subject, paired = TRUE, alternative = "less")
+wilcox.test(df_total$var_phi_layer, df_total$var_phi_subject, paired = TRUE, alternative = "less")
+
+wilcox.test(df_total$cv_A_layer, df_total$cv_phi_layer, paired = TRUE, alternative = "greater")
+wilcox.test(df_total$cv_A_subject, df_total$cv_phi_subject, paired = TRUE, alternative = "greater")
+
+core_clock <- c("ARNTL","PER1","PER2","PER3","NR1D1","NR1D2","TEF","DBP","NPAS2","CRY1","CRY2","NFIL3")
+df_clock <- df_total %>% filter(Symbol %in% core_clock)
+wilcox.test(df_clock$cv_A_layer, df_clock$cv_A_subject, paired = TRUE, alternative = "two.sided")
+wilcox.test(df_clock$cv_phi_layer, df_clock$cv_phi_subject, paired = TRUE, alternative = "less")
+
+# Comparing variability between DR and non-DR genes
+rhy_DR <- filter(results, diff_rhythmic & A_D>amp_cutoff & A_E > amp_cutoff) %$% ProbeName
+rhy_both <- filter(results, !diff_rhythmic) %$% ProbeName
+
+test <- results %>%
+        filter((diff_rhythmic & rhythmic_in_E & rhythmic_in_D ) | !diff_rhythmic) %>%
+        left_join(df_total, by=c("ProbeName","Symbol"))
+
+fligner.test(cv_A_subject ~ diff_rhythmic, data=test)
 
 
 # 3. ARRANGE DATA FOR VISUALIZATION
@@ -508,17 +532,17 @@ df_total <- rbind(df_total.D, df_total.E)
 
 # Calculate sd and cv from variances, organize results for plots
 variation_A   <- df_total %>% dplyr::select(ProbeName, Amp, var_A_subject, tissue) %>% 
-  rename(c("variance"="var_A_subject")) %>%
+  dplyr::rename(c("variance"="var_A_subject")) %>%
   mutate(sd = sqrt(variance),
          cv = sd/Amp,
          rhythmic_par = "amplitude") %>% arrange(desc(cv)) %>% inner_join(yave$genes %>% dplyr::select(ProbeName, Symbol))
 variation_phi <- df_total %>% dplyr::select(ProbeName, phase, var_phi_subject, tissue) %>%
-  rename(c("variance"="var_phi_subject")) %>%
+  dplyr::rename(c("variance"="var_phi_subject")) %>%
   mutate(sd = sqrt(variance),
          cv = sd/24,
          rhythmic_par = "phase") %>% arrange(desc(cv)) %>% inner_join(yave$genes %>% dplyr::select(ProbeName, Symbol))
 variation_magn <- df_total %>% dplyr::select(ProbeName, magn, var_magn_subject, tissue) %>%
-  rename(c("variance"="var_magn_subject")) %>%
+  dplyr::rename(c("variance"="var_magn_subject")) %>%
   mutate(sd = sqrt(variance),
          cv = sd/magn,
          rhythmic_par = "magnitude") %>% arrange(desc(cv)) %>% inner_join(yave$genes %>% dplyr::select(ProbeName, Symbol))
@@ -552,3 +576,4 @@ fig2 %>% ggsave('figures/fig2.pdf', ., width = 11, height = 7.5)
 ##########
 
 renv::deactivate()
+
