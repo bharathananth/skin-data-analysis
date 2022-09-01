@@ -164,7 +164,6 @@ if (!file.exists("results/experiment.rds")){
 # 8. Differential expression analysis
 # ------------------------------------
 experiment <- readRDS("results/experiment.rds") %>% # read sample details from column names
-  dplyr::mutate(MSF_sc = as_hms(MSF_sc)) %>%
   full_join(info_subjects) %>% # we're going to correct wall time (sampling time) to internal time
   dplyr::mutate(MSF_sc_dec = lubridate::hms(MSF_sc)) %>% 
   dplyr::mutate(
@@ -228,12 +227,12 @@ fig0B <- ggplot(tfit) +
   guides(color = guide_legend(override.aes = list(size=3)))
 
 # Supplementary Table 2: Lists of top differentially expressed genes between dermis and epidermis
-top50_dermis <- results_DE %>% dplyr::filter(DE_dermis==TRUE & adj.P.Val<0.05) %>% arrange(desc(logFC)) %>% 
-  head(50) %>% dplyr::select(-ENSEMBL, -EntrezID, -t, -P.Value, -DE_dermis, -DE_epidermis)
-top50_epidermis <- results_DE %>% dplyr::filter(DE_epidermis==TRUE & adj.P.Val<0.05) %>% arrange(desc(abs(logFC))) %>% 
-  head(50) %>% dplyr::select(-ENSEMBL, -EntrezID, -t, -P.Value, -DE_dermis, -DE_epidermis)
-sheets <- list("differential expr. dermis" = format.data.frame(top50_dermis, digits=3), 
-               "differential expr. epidermis" = format.data.frame(top50_epidermis, digits=3))
+rank_dermis <- results_DE %>% dplyr::filter(DE_dermis==TRUE & adj.P.Val<0.05) %>% arrange(desc(logFC)) %>% 
+  dplyr::select(-ENSEMBL, -EntrezID, -t, -P.Value, -DE_dermis, -DE_epidermis)
+rank_epidermis <- results_DE %>% dplyr::filter(DE_epidermis==TRUE & adj.P.Val<0.05) %>% arrange(desc(abs(logFC))) %>% 
+  dplyr::select(-ENSEMBL, -EntrezID, -t, -P.Value, -DE_dermis, -DE_epidermis)
+sheets <- list("differential expr. dermis" = format.data.frame(rank_dermis, digits=3), 
+               "differential expr. epidermis" = format.data.frame(rank_epidermis, digits=3))
 if (!file.exists("figures/supp_table2.xlsx")){
   openxlsx::write.xlsx(sheets, file = "figures/supp_table2.xlsx")
 }
