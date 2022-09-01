@@ -1,12 +1,9 @@
 # go to directory of skin-data-analysis-renv and set it as working directory
 # note that 0_preana.R should be run before this file (to pre-process microarray gene expression data)
-renv::activate('../skin-data-analysis-renv/') 
+#renv::activate('../skin-data-analysis-renv/') 
 
 suppressPackageStartupMessages(library(limma))
-suppressPackageStartupMessages(library(magrittr))
 suppressPackageStartupMessages(library(hgug4112a.db))
-suppressPackageStartupMessages(library(ggrepel))
-suppressPackageStartupMessages(library(tibble))
 suppressPackageStartupMessages(library(tidyr))
 suppressPackageStartupMessages(library(dplyr)) 
 suppressPackageStartupMessages(library(ggplot2))
@@ -23,6 +20,9 @@ suppressPackageStartupMessages(library(ReactomePA))
 suppressPackageStartupMessages(library(openxlsx))
 suppressPackageStartupMessages(library(readxl))
 suppressPackageStartupMessages(library(CircStats))
+suppressPackageStartupMessages(library(magrittr))
+suppressPackageStartupMessages(library(ggrepel))
+suppressPackageStartupMessages(library(tibble))
 
 
 # R graphics stuff
@@ -441,15 +441,17 @@ fig1G <- cnetplot(df_rD, color_gene = "#1B9E77", cex_label_gene = .7,layout="kk"
 fig1G <- fig1G + theme(legend.position = "none")
 
 
-rDE <- enrichPathway(gene = filter(results, !is.na(adj_p_val_DR) & diff_rhythmic)$EntrezID, 
+# Figure 1H: Reactome pathway analysis of the 522 differentially rhythmic genes vs. background of rhythmic genes
+rDR <- enrichPathway(gene = filter(results, !is.na(adj_p_val_DR) & diff_rhythmic)$EntrezID, 
                      universe = filter(results, !is.na(adj_p_val_DR))$EntrezID, minGSSize = 20, 
                      pvalueCutoff = 0.05, qvalueCutoff = 1.0)
-df_rDE <- setReadable(rDE, 'org.Hs.eg.db', 'ENTREZID') %>% as.data.frame() %>%
+df_rDR <- setReadable(rDR, 'org.Hs.eg.db', 'ENTREZID') %>% as.data.frame() %>%
   tidyr::separate(GeneRatio, c("DE","junk"), convert = TRUE, sep = "/") %>% 
   tidyr::separate(BgRatio, c("N","junk"), convert = TRUE, sep = "/") %>%
   dplyr::mutate(hits=DE*100/N) %>%
-  dplyr::mutate(Description = Description %>% tolower())
-fig1H <- ggplot(df_rDE, aes(x=-log10(p.adjust), y=reorder(Description, -log10(p.adjust)), size=DE)) + 
+  dplyr::mutate(Description = Description %>% tolower()) %>%
+  dplyr::mutate(Description = mgsub::mgsub(Description, c("signaling and"), c("signaling\nand")))
+fig1H <- ggplot(df_rDR, aes(x=-log10(p.adjust), y=reorder(Description, -log10(p.adjust)), size=DE)) + 
   geom_point( color='coral1') +  
   expand_limits(x=c(0,2.0)) + 
   labs(x=bquote(~-log[10]*' adj.'~italic('p')~'value'), y="Pathway", size="Percentage\nof hits") + 
@@ -458,6 +460,24 @@ fig1H <- ggplot(df_rDE, aes(x=-log10(p.adjust), y=reorder(Description, -log10(p.
   theme(aspect.ratio=.35, legend.position = "right", legend.title = element_text(color="black"),
         panel.grid.major = element_line(), panel.grid.minor = element_line()) 
 
+# Figure 1I: Reactome pathway analysis of the 917 indistinguishable rhythmic genes vs. background of rhythmic genes
+rnonDR <- enrichPathway(gene = filter(results, !is.na(adj_p_val_DR) & !diff_rhythmic)$EntrezID, 
+                        universe = filter(results, !is.na(adj_p_val_DR))$EntrezID, minGSSize = 20, 
+                        pvalueCutoff = 0.05, qvalueCutoff = 1.0)
+df_rnonDR <- setReadable(rnonDR, 'org.Hs.eg.db', 'ENTREZID') %>% as.data.frame() %>%
+  tidyr::separate(GeneRatio, c("DE","junk"), convert = TRUE, sep = "/") %>% 
+  tidyr::separate(BgRatio, c("N","junk"), convert = TRUE, sep = "/") %>%
+  dplyr::mutate(hits=DE*100/N) %>%
+  dplyr::mutate(Description = Description %>% tolower()) %>%
+  dplyr::mutate(Description = mgsub::mgsub(Description, c("rna", "m p" ), c("RNA", "M p")))
+fig1I <- ggplot(df_rnonDR, aes(x=-log10(p.adjust), y=reorder(Description, -log10(p.adjust)), size=DE)) + 
+  geom_point( color="#7570B3") +  
+  expand_limits(x=c(0,2.0)) + 
+  labs(x=bquote(~-log[10]*' adj.'~italic('p')~'value'), y="Pathway", size="") + 
+  guides(color = "none") +
+  theme_custom() + scale_y_reordered() +
+  theme(aspect.ratio=.35, legend.position = "right", legend.title = element_text(color="black"),
+        panel.grid.major = element_line(), panel.grid.minor = element_line()) 
 
 #####
 
@@ -545,10 +565,12 @@ fig1_1 <- plot_grid(NULL, fig1B, fig1C, ncol=3, nrow=1, labels=c("A", "B", "C"),
 fig1_2 <- plot_grid(fig1D, NULL, 
                     fig1E + ggtitle("\n"), NULL, fig1F + ggtitle("\n"), 
                     ncol=5, labels=c("D", "", "E", "", "F"), rel_widths = c(2.7, 0.02, 0.9, 0.02, 0.86))
-fig1H_2 <- plot_grid(fig1H, NULL, nrow=2, ncol=1, rel_heights = c(1,0.8))
-fig1_3 <- plot_grid(NULL, fig1G, NULL, fig1H_2, nrow=1, labels=c("G","", "H", ""), rel_widths = c(.05,.8,.05,1))
-fig1 <- plot_grid(fig1_1, NULL, fig1_2, NULL, fig1_3, align='v', nrow=5, 
-                  rel_heights = c(1.5, 0.05,1.6, 0.05, 1.1))
+fig1_31 <- plot_grid(NULL, NULL, NULL, NULL,   nrow=4, ncol=1, rel_heights = c(0.1,1,0.05,1), labels=c("H","","","I"))
+fig1_32 <- plot_grid(NULL, fig1H, NULL, fig1I, nrow=4, ncol=1, rel_heights = c(0.1,1,0.05,1), labels=c("","","",""))
+fig1_3 <- plot_grid(fig1_31, fig1_32, ncol=2, rel_widths=c(0.1,1))
+fig1_4 <- plot_grid(NULL, fig1G, NULL, fig1_3, nrow=1, labels=c("G","", "", ""), rel_widths = c(.05,.8,.05,1))
+fig1 <- plot_grid(fig1_1, NULL, fig1_2, NULL, fig1_4, align='v', nrow=5, 
+                  rel_heights = c(1.5, 0.05,1.6, 0.05, 1.3))
 
 fig1 %>% ggsave('figures/fig1.pdf', ., width = 11, height = 9.5)
 
@@ -641,41 +663,21 @@ rhy$Wu2020_phase_epidermis = ifelse(rhy$Symbol %in% Wu2020_epidermis$Symbol & rh
 rhy$Wu2020_amplitude_epidermis = ifelse(rhy$Symbol %in% Wu2020_epidermis$Symbol& rhy$rhythmic_in_E, 
                                         Wu2020_epidermis$amplitude, NA)
 
-# organize dataframe
-toplot <- rhy %>% filter(Wu2020_dermis | Wu2020_epidermis) 
-toplot_amp_our <- toplot %>% dplyr::select(Symbol, A_D, A_E) %>%
-  dplyr::rename(c("A_dermis"="A_D", "A_epidermis"="A_E")) %>%
-  tidyr::gather(key, value, -Symbol) %>% 
-  dplyr::mutate(layer=ifelse(grepl("epidermis", key), "epidermis", "dermis"),
-                rhythmic_par = "amplitude") %>%
-  dplyr::select(-key)
-toplot_amp_Wu <- toplot %>% dplyr::select(Symbol, Wu2020_amplitude_dermis, Wu2020_amplitude_epidermis) %>%
-  tidyr::gather(key, Wu_value, -Symbol) %>% 
-  dplyr::mutate(layer=ifelse(grepl("epidermis", key), "epidermis", "dermis"),
-                rhythmic_par = "amplitude") %>%
-  dplyr::select(-key)
-toplot_amp <- full_join(toplot_amp_our, toplot_amp_Wu)
-
-toplot_phi_our <- toplot %>% dplyr::select(Symbol, phase_D, phase_E) %>%
-  dplyr::rename(c("phase_dermis"="phase_D", "phase_epidermis"="phase_E")) %>%
-  tidyr::gather(key, value, -Symbol) %>% 
-  dplyr::mutate(layer=ifelse(grepl("epidermis", key), "epidermis", "dermis"),
-                rhythmic_par = "phase",
-                value=value%%24) %>%
-  dplyr::select(-key)
-toplot_phi_Wu <- toplot %>% dplyr::select(Symbol, Wu2020_phase_dermis, Wu2020_phase_epidermis) %>%
-  tidyr::gather(key, Wu_value, -Symbol) %>% 
-  dplyr::mutate(layer=ifelse(grepl("epidermis", key), "epidermis", "dermis"),
-                rhythmic_par = "phase") %>%
-  dplyr::select(-key)
-toplot_phi <- full_join(toplot_phi_our, toplot_phi_Wu)
-toplot <- full_join(toplot_amp, toplot_phi)
-
-Wu2020_comparison <- ggplot(toplot, aes(x=value, y=Wu_value, label=Symbol, color=layer)) +
-  geom_point(size=3) + 
-  facet_wrap(rhythmic_par~layer, scales="free") + 
-  #geom_text_repel(max.overlaps=Inf, box.padding=1.1, point.padding=.5,  size=3, segment.color="black", color="black") + 
-  theme_custom() #+
+Wu2020_comparison <- plot_grid(ggplot(rhy, aes(x=A_D, y=Wu2020_amplitude_dermis)) + geom_point(color="#1B9E77", size=2) +
+                                 labs(x="amplitude", y="amplitude Wu2020") + theme_custom() +
+                                 scale_x_continuous(limits=c(0,1), breaks=c(0, 0.25, 0.5, 0.75, 1)) + 
+                                 scale_y_continuous(limits=c(0,1), breaks=c(0, 0.25, 0.5, 0.75, 1)),
+                               ggplot(rhy, aes(x=A_E, y=Wu2020_amplitude_epidermis)) + geom_point(color="#D95F02", size=2) + 
+                                 labs(x="amplitude", y="amplitude Wu2020") + theme_custom() +
+                                 scale_x_continuous(limits=c(0,1), breaks=c(0, 0.25, 0.5, 0.75, 1)) + 
+                                 scale_y_continuous(limits=c(0,1), breaks=c(0, 0.25, 0.5, 0.75, 1)),
+                               ggplot(rhy, aes(x=phase_D%%24, y=Wu2020_phase_dermis)) + geom_point(color="#1B9E77", size=2) + 
+                                 labs(x="phase (h)", y="phase Wu2020 (h)") +  theme_custom() +
+                                 scale_x_continuous(breaks=c(0,6,12,18,24)) + scale_y_continuous(breaks=c(0,6,12,18,24)),
+                               ggplot(rhy, aes(x=phase_E%%24, y=Wu2020_phase_epidermis)) + geom_point(color="#D95F02", size=2) + 
+                                 labs(x="phase (h)", y="phase Wu2020 (h)") + theme_custom() +
+                                 scale_x_continuous(breaks=c(0,6,12,18,24)) + scale_y_continuous(breaks=c(0,6,12,18,24)),
+                               ncol=2, nrow=2)
 
 
 # Save lists of rhythmic genes and comparison to prior analyses
@@ -687,4 +689,4 @@ if (!file.exists("figures/supp_table3.xlsx")){
 ##########
 ##########
 
-renv::deactivate()
+#renv::deactivate()
