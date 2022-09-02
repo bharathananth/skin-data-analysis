@@ -91,12 +91,12 @@ internal_time <- experiment$internal_time
 # 2. ZEITZEIGER (https://zeitzeiger.hugheylab.org/articles/introduction.html#load-the-necessary-packages-1)
 # -------------
 # Dataframe preparation for Zeitzeiger: cols = genes, rows = all observations (across all subjs), separately for each tissue
-xD <- yave$E %>% as.data.frame() %>% select(contains("D")) %>% t()
+xD <- yave$E %>% as.data.frame() %>% dplyr::select(contains("D")) %>% t()
 rownames_ord <- paste0(sapply(strsplit(rownames(xD), split="_"), "[", 2), '_', sapply(strsplit(rownames(xD), split="_"), "[", 1)) 
 rownames(xD) <- rownames_ord
 xD <- xD[order(rownames(xD)), ] %>% as.matrix() #ZeitZeiger takes input in this form
 
-xE <- yave$E %>% as.data.frame() %>% select(contains("E")) %>% t()
+xE <- yave$E %>% as.data.frame() %>% dplyr::select(contains("E")) %>% t()
 rownames_ord <- paste0(sapply(strsplit(rownames(xE), split="_"), "[", 2), '_', sapply(strsplit(rownames(xE), split="_"), "[", 1)) 
 rownames(xE) <- rownames_ord
 xE <- xE[order(rownames(xE)), ]%>% as.matrix()
@@ -207,10 +207,10 @@ zD <- xD %*% spcResultFinal_D$v[, 1:2]
 zE <- xE %*% spcResultFinal_E$v[, 1:2]
 colnames(zD) <- c('SPC1', 'SPC2'); colnames(zE) <- colnames(zD)
 
-zD <- data.frame(zD, obs=1:nObs_D, Time=time_D, check.names=FALSE) %>% mutate(tissue="dermis") %>% 
-  tibble::rownames_to_column() %>% tidyr::separate(rowname, c("subject","junk"), sep = "_", convert = TRUE) %>% select(-junk)
-zE <- data.frame(zE, obs=1:nObs_E, Time=time_E, check.names=FALSE) %>% mutate(tissue="epidermis") %>% 
-  tibble::rownames_to_column() %>% tidyr::separate(rowname, c("subject","junk"), sep = "_", convert = TRUE) %>% select(-junk)
+zD <- data.frame(zD, obs=1:nObs_D, Time=time_D, check.names=FALSE) %>% dplyr::mutate(tissue="dermis") %>% 
+  tibble::rownames_to_column() %>% tidyr::separate(rowname, c("subject","junk"), sep = "_", convert = TRUE) %>% dplyr::select(-junk)
+zE <- data.frame(zE, obs=1:nObs_E, Time=time_E, check.names=FALSE) %>% dplyr::mutate(tissue="epidermis") %>% 
+  tibble::rownames_to_column() %>% tidyr::separate(rowname, c("subject","junk"), sep = "_", convert = TRUE) %>% dplyr::select(-junk)
 z <- rbind(zD, zE)
 
 data.arrow <- data.frame(SPC1_start = max(z %>% filter(tissue=="dermis") %$% SPC1),
@@ -269,8 +269,8 @@ vD[vD == 0] <- NA; vE[vE == 0] <- NA
 vD <- vD[do.call(order, vD), ]; vE <- vE[do.call(order, vE), ]
 vD$feature <- rownames(vD); vE$feature <- rownames(vE)
 
-vD <- inner_join(vD, yave$genes %>% as.data.frame() %>% select(Symbol) %>% mutate(feature=as.character(1:n())))
-vE <- inner_join(vE, yave$genes %>% as.data.frame() %>% select(Symbol) %>% mutate(feature=as.character(1:n())))
+vD <- inner_join(vD, yave$genes %>% as.data.frame() %>% dplyr::select(Symbol) %>% dplyr::mutate(feature=as.character(1:n())))
+vE <- inner_join(vE, yave$genes %>% as.data.frame() %>% dplyr::select(Symbol) %>% dplyr::mutate(feature=as.character(1:n())))
 
 vGath_D = gather(vD, key=spc, value=Coefficient, -feature, -Symbol) %>%
   dplyr::mutate(feature = factor(feature, levels = rev(vD$feature)),
@@ -281,8 +281,8 @@ vGath_E = gather(vE, key=spc, value=Coefficient, -feature, -Symbol) %>%
                 Symbol = factor(Symbol, levels = rev(vE$Symbol)), 
                 tissue = "epidermis")
 vGath = rbind(vGath_D, vGath_E)
-vGath <- vGath %>% mutate(sign = ifelse(Coefficient < 0, "-", "+"),
-                          Symbol_it = paste0("italic('", Symbol, "')")) %>% filter(!is.na(Coefficient))
+vGath <- vGath %>% dplyr::mutate(sign = ifelse(Coefficient < 0, "-", "+"),
+                                 Symbol_it = paste0("italic('", Symbol, "')")) %>% filter(!is.na(Coefficient))
 vGath$Coefficient <- abs(vGath$Coefficient)
 
 fig3A_1 <- ggplot(vGath %>% filter(tissue=="dermis")) + facet_wrap(~spc, scales="free") +
@@ -339,25 +339,25 @@ ourZZgenes_inWu2020.D <- vGath %>% filter(tissue=="dermis") %>% filter(Symbol %i
 # Plot timeseries of time-telling genes: Supplementary figure 5B
 # --------------------------------------------------------------
 zz.genes_D <- data.frame(Symbol = vGath %>% filter(tissue=="dermis") %$% Symbol %>% unique())
-zz.genes_D <- zz.genes_D %>% inner_join(yave$genes %>% as.data.frame()) %>% select(-EntrezID, -ENSEMBL)
+zz.genes_D <- zz.genes_D %>% inner_join(yave$genes %>% as.data.frame()) %>% dplyr::select(-EntrezID, -ENSEMBL)
 zz.genes_E <- data.frame(Symbol = vGath %>% filter(tissue=="epidermis") %$% Symbol %>% unique())
-zz.genes_E <- zz.genes_E %>% inner_join(yave$genes %>% as.data.frame()) %>% select(-EntrezID, -ENSEMBL)
+zz.genes_E <- zz.genes_E %>% inner_join(yave$genes %>% as.data.frame()) %>% dplyr::select(-EntrezID, -ENSEMBL)
 
-yD <- yave$E %>% as.data.frame() %>% filter(rownames(.) %in% zz.genes_D$ProbeName) %>% select(contains("D")) %>%
-  tibble::rownames_to_column("ProbeName") %>% full_join(zz.genes_D) %>% select(-ProbeName)
-yE <- yave$E %>% as.data.frame() %>% filter(rownames(.) %in% zz.genes_E$ProbeName) %>% select(contains("E"))%>%
-  tibble::rownames_to_column("ProbeName") %>% full_join(zz.genes_E) %>% select(-ProbeName)
+yD <- yave$E %>% as.data.frame() %>% filter(rownames(.) %in% zz.genes_D$ProbeName) %>% dplyr::select(contains("D")) %>%
+  tibble::rownames_to_column("ProbeName") %>% full_join(zz.genes_D) %>% dplyr::select(-ProbeName)
+yE <- yave$E %>% as.data.frame() %>% filter(rownames(.) %in% zz.genes_E$ProbeName) %>% dplyr::select(contains("E"))%>%
+  tibble::rownames_to_column("ProbeName") %>% full_join(zz.genes_E) %>% dplyr::select(-ProbeName)
 
 yGath_D <- yD %>% gather(key, expression, -Symbol) %>%
   tidyr::separate(key, c("tissuetime","subject"), sep = "_", convert = TRUE) %>% 
   tidyr::separate(tissuetime, c("tissue","time"), sep = "(?<=[A-Za-z])(?=[0-9])", convert = TRUE) %>%
   dplyr::mutate(tissue=ifelse(tissue=="D", "dermis", "epidermis")) %>%
-  inner_join(experiment %>% select(tissue, time, subject, internal_time))
+  inner_join(experiment %>% dplyr::select(tissue, time, subject, internal_time))
 yGath_E <- yE %>% gather(key, expression, -Symbol) %>%
   tidyr::separate(key, c("tissuetime","subject"), sep = "_", convert = TRUE) %>% 
   tidyr::separate(tissuetime, c("tissue","time"), sep = "(?<=[A-Za-z])(?=[0-9])", convert = TRUE) %>%
   dplyr::mutate(tissue=ifelse(tissue=="D", "dermis", "epidermis")) %>%
-  inner_join(experiment %>% select(tissue, time, subject, internal_time))
+  inner_join(experiment %>% dplyr::select(tissue, time, subject, internal_time))
 
 suppfig5B_1 <- ggplot(yGath_D) + geom_line(aes(x=internal_time, y=expression, color=subject)) + 
   facet_wrap(~Symbol, scales="free", ncol=4, nrow=5) + 
@@ -395,28 +395,28 @@ vp.full %<>% filter(Amp>.15)
 # Calculate cv from variances -> this is from the full vP, not D vs E
 variation_A   <- vp.full %>% dplyr::select(ProbeName, Amp, var_A_subject, var_A_layer) %>% 
   gather(variable, variance, -ProbeName, -Amp) %>%
-  mutate(variable = ifelse(variable=="var_A_subject", "A_S", "A_T"),
-         sd = sqrt(variance),
-         cv = sd/Amp) %>% arrange(desc(cv)) %>% inner_join(yave$genes %>% dplyr::select(ProbeName, Symbol))
+  dplyr::mutate(variable = ifelse(variable=="var_A_subject", "A_S", "A_T"),
+                sd = sqrt(variance),
+                cv = sd/Amp) %>% arrange(desc(cv)) %>% inner_join(yave$genes %>% dplyr::select(ProbeName, Symbol))
 variation_phi <- vp.full %>% dplyr::select(ProbeName, phase, var_phi_subject, var_phi_layer) %>%
   gather(variable, variance, -ProbeName, -phase) %>%
-  mutate(variable = ifelse(variable=="var_phi_subject", "phi_S", "phi_T"),
-         sd = sqrt(variance),
-         cv = sd/24) %>% arrange(desc(cv)) %>% inner_join(yave$genes %>% dplyr::select(ProbeName, Symbol))
+  dplyr::mutate(variable = ifelse(variable=="var_phi_subject", "phi_S", "phi_T"),
+                sd = sqrt(variance),
+                cv = sd/24) %>% arrange(desc(cv)) %>% inner_join(yave$genes %>% dplyr::select(ProbeName, Symbol))
 variation_magn <- vp.full %>% dplyr::select(ProbeName, magn, var_magn_subject, var_magn_layer) %>%
   gather(variable, variance, -ProbeName, -magn) %>%
-  mutate(variable = ifelse(variable=="var_magn_subject", "magn_S", "magn_T"),
-         sd = sqrt(variance),
-         cv = sd/magn) %>% arrange(desc(cv)) %>% inner_join(yave$genes %>% dplyr::select(ProbeName, Symbol))
+  dplyr::mutate(variable = ifelse(variable=="var_magn_subject", "magn_S", "magn_T"),
+                sd = sqrt(variance),
+                cv = sd/magn) %>% arrange(desc(cv)) %>% inner_join(yave$genes %>% dplyr::select(ProbeName, Symbol))
 
 variation_full <- rbind(variation_A %>% dplyr::rename(c("value_fit"="Amp")), 
                         variation_phi %>% dplyr::rename(c("value_fit"="phase")) %>%
-                          mutate(value_fit = ifelse(value_fit < 0, value_fit + 24, value_fit))) %>% 
+                          dplyr::mutate(value_fit = ifelse(value_fit < 0, value_fit + 24, value_fit))) %>% 
   rbind(variation_magn %>% dplyr::rename(c("value_fit"="magn"))) %>%
   tidyr::separate(variable, c("rhythmic_par","variable"), sep = "_", convert = TRUE) %>%
-  mutate(rhythmic_par=ifelse(rhythmic_par == "A", "amplitude", 
-                             ifelse(rhythmic_par=="phi", "phase", "magnitude")),
-         variable=ifelse(variable == "S", "subject", "tissue")) 
+  dplyr::mutate(rhythmic_par=ifelse(rhythmic_par == "A", "amplitude", 
+                                    ifelse(rhythmic_par=="phi", "phase", "magnitude")),
+                variable=ifelse(variable == "S", "subject", "tissue")) 
 
 variation_full$rhythmic_par <- factor(variation_full$rhythmic_par, levels=c("magnitude", "amplitude", "phase"))
 variation_full$effect <- ifelse(variation_full$variable=="tissue", "layer", "subject")

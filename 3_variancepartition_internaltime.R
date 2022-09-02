@@ -3,7 +3,7 @@
 renv::activate('../skin-data-analysis-renv/') 
 
 suppressPackageStartupMessages(library(limma))
-suppressPackageStartupMessages(library(magrittr))
+suppressPackageStartupMessages(library(ggplot2))
 suppressPackageStartupMessages(library(variancePartition))
 suppressPackageStartupMessages(library(tidyr))
 suppressPackageStartupMessages(library(dplyr) )
@@ -470,12 +470,6 @@ for (i in 1:length(fitList.D)){
                      magn=m_i,    var_magn_subject=sigma_i[1,1])
   df_total.D <- rbind(df_total.D, df_i)
 }
-## Save results of linear mixed model + variances of amplitude, phase 
-#if (!file.exists("results/variance_rhythmic_parameters_dermis.csv")){
-#  write.csv(df_total.D %>% inner_join(yave$genes %>% dplyr::select(ProbeName, Symbol)),
-#            "results/variance_rhythmic_parameters_dermis.csv")
-#}
-#df_total.D <- read.csv("results/variance_rhythmic_parameters_dermis.csv") %>% dplyr::select(-X)
 hist(df_total.D$Amp, breaks=100)
 df_total.D %<>% filter(Amp>.15) # filter genes with low amp_fit that result in high variability and "mask" variable genes
 hist(df_total.D$Amp, breaks=100)
@@ -516,12 +510,6 @@ for (i in 1:length(fitList.E)){
                      magn=m_i,    var_magn_subject=sigma_i[1,1])
   df_total.E <- rbind(df_total.E, df_i)
 }
-## Save results of linear mixed model + variances of amplitude, phase 
-#if (!file.exists("results/variance_rhythmic_parameters_epidermis.csv")){
-#  write.csv(df_total.E %>% inner_join(yave$genes %>% dplyr::select(ProbeName, Symbol)),
-#            "results/variance_rhythmic_parameters_epidermis.csv")
-#}
-#df_total.E <- read.csv("results/variance_rhythmic_parameters_epidermis.csv") %>% dplyr::select(-X)
 hist(df_total.E$Amp, breaks=100)
 df_total.E %<>% filter(Amp>.15) # filter genes with low amp_fit that result in high variability and "mask" variable genes
 hist(df_total.E$Amp, breaks=100)

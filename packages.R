@@ -1,5 +1,5 @@
 #renv::init('./skin-data-analysis-renv/') #run once to create the environment and then comment
-renv::activate('./skin-data-analysis-renv/')
+renv::activate('../skin-data-analysis-renv/')
 
 # Required CRAN packages in this project
 install.packages("dplyr")
@@ -30,6 +30,7 @@ install.packages("mgsub")
 install.packages("lme4") #if cmake is not found in PATH, install it (inside a terminal) [console will give a warning]
 install.packages("ggpubr")
 install.packages("CircStats")
+install.packages("Matrix")
 
 # Required BioConductor packages in this project
 if (!require("BiocManager", quietly = TRUE))
