@@ -1,6 +1,8 @@
 # go to directory of skin-data-analysis-renv and set it as working directory
 # note that 0_preana.R should be run before this file (to pre-process microarray gene expression data)
-renv::activate('../skin-data-analysis-renv/') 
+#renv::activate('../skin-data-analysis-renv/') 
+renv::activate('./renv/') 
+
 
 suppressPackageStartupMessages(library(limma))
 suppressPackageStartupMessages(library(hgug4112a.db))
@@ -689,4 +691,4 @@ if (!file.exists("figures/supp_table3.xlsx")){
 ##########
 ##########
 
-renv::deactivate()
+renv::deactivate('./renv')

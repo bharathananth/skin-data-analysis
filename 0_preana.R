@@ -1,5 +1,7 @@
 # go to directory of skin-data-analysis-renv and set it as working directory
-renv::activate('../skin-data-analysis-renv/') 
+setwd("~/Documents/WORK/POSTDOC/projects/skin-data-analysis")
+#renv::activate('../skin-data-analysis-renv/') 
+#renv::activate('./renv/') 
 
 suppressPackageStartupMessages(library(limma))
 suppressPackageStartupMessages(library(magrittr))
@@ -19,6 +21,7 @@ suppressPackageStartupMessages(library(PCAtools))
 suppressPackageStartupMessages(library(ReactomePA))
 suppressPackageStartupMessages(library(DOSE))
 suppressPackageStartupMessages(library(openxlsx))
+suppressPackageStartupMessages(library(viridis))
 
 
 dir.create("figures",showWarnings = FALSE)
@@ -268,7 +271,43 @@ fig0_2 <- plot_grid(fig0C, labels=c("C"))
 fig0 = plot_grid(fig0_1, NULL, fig0_2, nrow=3, rel_heights = c(1,0.1,.5))
 fig0 %>% ggsave('figures/suppfig0.pdf', ., width = 11, height = 5.5)
 
+
+# 9. Melatonin and cortisol profiles
+# ----------------------------------
+melatonin <- read.csv("./visualize/data/melatonin.csv") %>%
+  tidyr::gather(subject, value, -Zeit) %>%
+  dplyr::mutate(mutate(across('subject', str_replace, 'X', 'P'))) %>%
+  dplyr::rename(c("Time"="Zeit")) %>% 
+  dplyr::filter(subject %in% experiment$subject) %>%
+  dplyr::mutate(Time = rep(c(8,12,16,20,24,28,32), 11),
+                hormone = "melatonin")
+cortisol <- read.csv("./visualize/data/cortisol.csv") %>%
+  tidyr::gather(subject, value, -Zeit) %>%
+  dplyr::mutate(mutate(across('subject', str_replace, 'X', 'P'))) %>%
+  dplyr::rename(c("Time"="Zeit")) %>% 
+  dplyr::filter(subject %in% experiment$subject) %>%
+  dplyr::mutate(Time = rep(c(8,12,16,20,24,28,32), 11),
+                hormone = "cortisol")
+
+suppfig6A <- ggplot(melatonin, aes(x=Time, y=value)) + geom_line() + geom_point(size=1) +
+  facet_wrap(~subject, ncol=3, scales="free") + 
+  theme_custom() + 
+  scale_x_continuous(breaks=c(8,16,24,32), labels=c("8:00", "16:00", "00:00", "8:00")) + 
+  scale_y_continuous(limits = c(0,50)) +
+  labs(x="wall time (h)", y="Melatonin (pg/mL)") +
+  theme(axis.text.x = element_text(angle = 45, vjust =1, hjust=1))
+suppfig6B <- ggplot(cortisol, aes(x=Time, y=value)) + geom_line() + geom_point(size=1) +
+  facet_wrap(~subject, ncol=3, scales="free") + 
+  theme_custom() + 
+  scale_x_continuous(breaks=c(8,16,24,32), labels=c("8:00", "16:00", "00:00", "8:00")) + 
+  scale_y_continuous(limits = c(0,1.25)) +
+  labs(x="wall time (h)", y="Cortisol (µg/dL)") +
+  theme(axis.text.x = element_text(angle = 45, vjust =1, hjust=1))
+
+suppfig6 <- plot_grid(suppfig6A, NULL, suppfig6B, ncol=3, labels=c("A","", "B"), rel_widths=c(1,0.05,1))
+suppfig6 %>% ggsave('./figures/suppfig6.pdf', ., width = 11, height = 8.5)
+
 ##########
 ##########
 
-renv::deactivate()
+renv::deactivate('./renv')

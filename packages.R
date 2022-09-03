@@ -1,5 +1,6 @@
 #renv::init('./skin-data-analysis-renv/') #run once to create the environment and then comment
-renv::activate('../skin-data-analysis-renv/')
+#renv::activate('../skin-data-analysis-renv/')
+renv::activate('./renv/') 
 
 # Required CRAN packages in this project
 install.packages("dplyr")
