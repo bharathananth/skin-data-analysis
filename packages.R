@@ -1,6 +1,6 @@
-#renv::init('./skin-data-analysis-renv/') #run once to create the environment and then comment
-#renv::activate('../skin-data-analysis-renv/')
+#renv::init('./renv/') #run once to create the environment and then comment
 renv::activate('./renv/') 
+options(timeout=900)
 
 # Required CRAN packages in this project
 install.packages("dplyr")
@@ -32,6 +32,7 @@ install.packages("lme4") #if cmake is not found in PATH, install it (inside a te
 install.packages("ggpubr")
 install.packages("CircStats")
 install.packages("Matrix")
+install.packages("statmod")
 
 # Required BioConductor packages in this project
 if (!require("BiocManager", quietly = TRUE))
@@ -43,6 +44,7 @@ BiocManager::install("PCAtools")
 BiocManager::install("clusterProfiler")
 BiocManager::install("zeitzeiger", site_repository = 'https://hugheylab.github.io/drat/')
 BiocManager::install("variancePartition")
+BiocManager::install("AnnotationDbi")
 BiocManager::install("reactome.db")
 BiocManager::install("ReactomePA")
 

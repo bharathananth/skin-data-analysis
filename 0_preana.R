@@ -1,7 +1,6 @@
 # go to directory of skin-data-analysis-renv and set it as working directory
 setwd("~/Documents/WORK/POSTDOC/projects/skin-data-analysis")
-#renv::activate('../skin-data-analysis-renv/') 
-#renv::activate('./renv/') 
+renv::activate('./renv/') 
 
 suppressPackageStartupMessages(library(limma))
 suppressPackageStartupMessages(library(magrittr))
