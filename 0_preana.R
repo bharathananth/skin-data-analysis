@@ -1,6 +1,5 @@
-# go to directory of skin-data-analysis-renv and set it as working directory
-setwd("~/Documents/WORK/POSTDOC/projects/skin-data-analysis")
-renv::activate('./renv/') 
+# go to directory where the renv is located and set it as working directory
+#renv::activate('./renv/') 
 
 suppressPackageStartupMessages(library(limma))
 suppressPackageStartupMessages(library(magrittr))
@@ -65,7 +64,7 @@ update_geom_defaults("line", list(size = 0.8))
 
 # 1. Read info of subjects
 # ------------------------
-info_subjects_long <- read.csv("resources/info_subjects.csv") %>%
+info_subjects_long <- read.csv("data/info_subjects.csv") %>%
   dplyr::mutate(Bedtime_Work = Bedtime_Work %>% parse_hms(), Sleeptime_Work =  Sleeptime_Work %>% parse_hms(), 
                 Wakeuptime_Work = Wakeuptime_Work %>% parse_hms(), Bedtime_Free = Bedtime_Free %>% parse_hms(),
                 Sleeptime_Free = Sleeptime_Free %>% parse_hms(), Wakeuptime_Free = Wakeuptime_Free %>% parse_hms(),
@@ -87,8 +86,8 @@ info_subjects_long <- read.csv("resources/info_subjects.csv") %>%
   dplyr::rename(c("subject"="Subject", "sex"="Sex")) 
 
 info_subjects <- info_subjects_long %>% dplyr::select(subject, sex, Light_condition, age, MSF_sc)
-if (!file.exists('resources/info_subjects_short.csv')){
-  write.csv(info_subjects, 'resources/info_subjects_short.csv')
+if (!file.exists('data/info_subjects_short.csv')){
+  write.csv(info_subjects, 'data/info_subjects_short.csv')
 }
 
 
@@ -141,7 +140,7 @@ pca_biplot <- biplot(p, showLoadings = FALSE,
        colby = 'layer', colkey = c('dermis' = '#1B9E77', 'epidermis' = '#D95F02'),
        legendPosition = 'right')
 pca_pairsplot <- pairsplot(p, colby = 'layer', colkey = c('dermis' = '#1B9E77', 'epidermis' = '#D95F02'))
-fig0A = pca_biplot + theme_custom() + theme(aspect.ratio=.7) +
+suppfig1A = pca_biplot + theme_custom() + theme(aspect.ratio=.7) +
   guides(color = guide_legend(override.aes = list(size=3)))
 
 outliers = "E32_P109"  
@@ -149,23 +148,23 @@ outliers = "E32_P109"
 
 # 6. Save raw data (annotated, normalized, etc)
 # ---------------------------------------------
-if (!file.exists("results/rawdata.rds")){ 
-  saveRDS(yave, file = "results/rawdata.rds")
+if (!file.exists("data/rawdata.rds")){ 
+  saveRDS(yave, file = "data/rawdata.rds")
 } 
   
 
 # 7. Extract sample details from column names
 # -------------------------------------------
-if (!file.exists("results/experiment.rds")){ 
-  experiment <- data.frame(tissue = character(), time = integer(), subject = character()) %>%
+if (!file.exists("data/experiment.rds")){ 
+  experiment <- data.frame(layer = character(), time = integer(), subject = character()) %>%
     {strcapture("(\\w)(\\d+)_(\\w+)", colnames(y0$E), ., perl = TRUE)}
-  saveRDS(experiment, "results/experiment.rds")
+  saveRDS(experiment, "data/experiment.rds")
 } 
 
 
 # 8. Differential expression analysis
 # ------------------------------------
-experiment <- readRDS("results/experiment.rds") %>% # read sample details from column names
+experiment <- readRDS("data/experiment.rds") %>% # read sample details from column names
   full_join(info_subjects) %>% # we're going to correct wall time (sampling time) to internal time
   dplyr::mutate(MSF_sc_dec = lubridate::hms(MSF_sc)) %>% 
   dplyr::mutate(
@@ -182,7 +181,7 @@ nrow(experiment) == ncol(yave)
 wts = NULL #since we remove PCA outliers, weights is set to NULL
 
 # Prepare sample details for design matrix
-tissue  <- factor(experiment$tissue)
+layer  <- factor(experiment$layer)
 time    <- experiment$internal_time
 subject <- factor(experiment$subject)
 sex     <- factor(experiment$sex)
@@ -192,11 +191,11 @@ inphase  <- cos(2*pi*time/24)
 outphase <- sin(2*pi*time/24) #a*cos(wt) + cos(wt-phi) == A*cos(wt - phi), where A=sqrt(a**2 + b**2), phi = atan2(b,a)
 
 # design and contrast matrices
-design <- model.matrix(~ 0 + tissue + tissue:inphase + tissue:outphase) %>% #H0: rhythms are different across tissues
-  as.data.frame() %>% dplyr::rename(c("tissueD_inphase"="tissueD:inphase", "tissueE_inphase"="tissueE:inphase",
-                                      "tissueD_outphase"="tissueD:outphase", "tissueE_outphase"="tissueE:outphase")) %>% 
+design <- model.matrix(~ 0 + layer + layer:inphase + layer:outphase) %>% #H0: rhythms are different across layers
+  as.data.frame() %>% dplyr::rename(c("layerD_inphase"="layerD:inphase", "layerE_inphase"="layerE:inphase",
+                                      "layerD_outphase"="layerD:outphase", "layerE_outphase"="layerE:outphase")) %>% 
   as.matrix()
-contr_matrix <- makeContrasts(DvsE = tissueD - tissueE, levels=design)
+contr_matrix <- makeContrasts(DvsE = layerD - layerE, levels=design)
 
 # duplicate Correlations
 dupcor <- duplicateCorrelation(yave, design, block=subject)
@@ -221,7 +220,7 @@ results_DE$diff_expressed <- ifelse(results_DE$DE_dermis == TRUE, "dermis",
 tfit %<>% as.data.frame() %>% 
   mutate(DE_binary=ifelse(abs(coefficients) > logfc_cutoff, TRUE, FALSE),
          DE=ifelse(coefficients > logfc_cutoff, "dermis", ifelse(coefficients < -logfc_cutoff, "epidermis", "ns")))
-fig0B <- ggplot(tfit) + 
+suppfig1B <- ggplot(tfit) + 
   geom_point(data = tfit %>% filter(!DE_binary), aes(x=Amean, y=coefficients), size=.1, color="black") +
   geom_point(data = tfit %>% filter(DE_binary), aes(x=Amean, y=coefficients, color=DE), size=.7) +
   labs(x="Average log-expression", y="log-fold change") +
@@ -253,34 +252,34 @@ df_rE <- setReadable(rE, 'org.Hs.eg.db', 'ENTREZID') %>% as.data.frame() %>%
   tidyr::separate(BgRatio, c("N","junk"), convert = TRUE, sep = "/") %>%
   mutate(hits=DE*100/N) 
 
-df_rDE <- df_rD %>% mutate(tissue="dermis") %>% arrange(desc(-log10(p.adjust))) %>% head(5) %>% 
-  full_join(df_rE %>% mutate(tissue="epidermis") %>% arrange(desc(-log10(p.adjust))) %>% head(5))
+df_rDE <- df_rD %>% mutate(layer="dermis") %>% arrange(desc(-log10(p.adjust))) %>% head(5) %>% 
+  full_join(df_rE %>% mutate(layer="epidermis") %>% arrange(desc(-log10(p.adjust))) %>% head(5))
 
-fig0C <- ggplot(df_rDE, aes(x=-log10(p.adjust), y=reorder(Description, -log10(p.adjust)), size=DE, color=tissue)) + 
+suppfig1C <- ggplot(df_rDE, aes(x=-log10(p.adjust), y=reorder(Description, -log10(p.adjust)), size=DE, color=layer)) + 
   geom_point() +  
-  facet_wrap(~tissue, scales='free_y') + expand_limits(x=c(2.0,5)) + 
+  facet_wrap(~layer, scales='free_y') + expand_limits(x=c(2.0,5)) + 
   labs(x=bquote(~-log[10]*' adj.'~italic('p')~'value'), y="Pathway", size="Percentage\nof hits") + 
   guides(color = "none") + 
   theme_custom() + tidytext::scale_y_reordered() +
   theme(aspect.ratio=.5, legend.position = "right", legend.title = element_text(color="black"),
         panel.grid.major = element_line(), panel.grid.minor = element_line()) 
 
-fig0_1 <- plot_grid(fig0A, NULL, fig0B, ncol=3, rel_widths=c(1,0.1,1), labels=c("A", "", "B"))
-fig0_2 <- plot_grid(fig0C, labels=c("C"))
-fig0 = plot_grid(fig0_1, NULL, fig0_2, nrow=3, rel_heights = c(1,0.1,.5))
-fig0 %>% ggsave('figures/suppfig0.pdf', ., width = 11, height = 5.5)
+sfig1_1 <- plot_grid(suppfig1A, NULL, suppfig1B, ncol=3, rel_widths=c(1,0.1,1), labels=c("A", "", "B"))
+sfig1_2 <- plot_grid(suppfig1C, labels=c("C"))
+sfig1 = plot_grid(sfig1_1, NULL, sfig1_2, nrow=3, rel_heights = c(1,0.1,.5))
+sfig1 %>% ggsave('figures/suppfig1.pdf', ., width = 11, height = 5.5)
 
 
 # 9. Melatonin and cortisol profiles
 # ----------------------------------
-melatonin <- read.csv("./visualize/data/melatonin.csv") %>%
+melatonin <- read.csv("./data/hormones/melatonin.csv") %>%
   tidyr::gather(subject, value, -Zeit) %>%
   dplyr::mutate(mutate(across('subject', str_replace, 'X', 'P'))) %>%
   dplyr::rename(c("Time"="Zeit")) %>% 
   dplyr::filter(subject %in% experiment$subject) %>%
   dplyr::mutate(Time = rep(c(8,12,16,20,24,28,32), 11),
                 hormone = "melatonin")
-cortisol <- read.csv("./visualize/data/cortisol.csv") %>%
+cortisol <- read.csv("./data/hormones/cortisol.csv") %>%
   tidyr::gather(subject, value, -Zeit) %>%
   dplyr::mutate(mutate(across('subject', str_replace, 'X', 'P'))) %>%
   dplyr::rename(c("Time"="Zeit")) %>% 
@@ -288,14 +287,14 @@ cortisol <- read.csv("./visualize/data/cortisol.csv") %>%
   dplyr::mutate(Time = rep(c(8,12,16,20,24,28,32), 11),
                 hormone = "cortisol")
 
-suppfig6A <- ggplot(melatonin, aes(x=Time, y=value)) + geom_line() + geom_point(size=1) +
+suppfig5A <- ggplot(melatonin, aes(x=Time, y=value)) + geom_line() + geom_point(size=1) +
   facet_wrap(~subject, ncol=3, scales="free") + 
   theme_custom() + 
   scale_x_continuous(breaks=c(8,16,24,32), labels=c("8:00", "16:00", "00:00", "8:00")) + 
   scale_y_continuous(limits = c(0,50)) +
   labs(x="wall time (h)", y="Melatonin (pg/mL)") +
   theme(axis.text.x = element_text(angle = 45, vjust =1, hjust=1))
-suppfig6B <- ggplot(cortisol, aes(x=Time, y=value)) + geom_line() + geom_point(size=1) +
+suppfig5B <- ggplot(cortisol, aes(x=Time, y=value)) + geom_line() + geom_point(size=1) +
   facet_wrap(~subject, ncol=3, scales="free") + 
   theme_custom() + 
   scale_x_continuous(breaks=c(8,16,24,32), labels=c("8:00", "16:00", "00:00", "8:00")) + 
@@ -303,8 +302,8 @@ suppfig6B <- ggplot(cortisol, aes(x=Time, y=value)) + geom_line() + geom_point(s
   labs(x="wall time (h)", y="Cortisol (µg/dL)") +
   theme(axis.text.x = element_text(angle = 45, vjust =1, hjust=1))
 
-suppfig6 <- plot_grid(suppfig6A, NULL, suppfig6B, ncol=3, labels=c("A","", "B"), rel_widths=c(1,0.05,1))
-suppfig6 %>% ggsave('./figures/suppfig6.pdf', ., width = 11, height = 8.5)
+suppfig5 <- plot_grid(suppfig5A, NULL, suppfig5B, ncol=3, labels=c("A","", "B"), rel_widths=c(1,0.05,1))
+suppfig5 %>% ggsave('./figures/suppfig5.pdf', ., width = 11, height = 8.5)
 
 ##########
 ##########

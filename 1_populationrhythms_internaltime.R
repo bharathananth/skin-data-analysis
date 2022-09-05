@@ -1,4 +1,4 @@
-# go to directory of skin-data-analysis-renv and set it as working directory
+# go to directory where the renv is located and set it as working directory
 # note that 0_preana.R should be run before this file (to pre-process microarray gene expression data)
 renv::activate('./renv/') 
 
@@ -74,8 +74,8 @@ PCA_outliers <- "E32_P109" #see PCA analysis in preana.R
 
 # 2. READ FILES
 # -------------
-info_subjects <- read.csv("resources/info_subjects_short.csv") %>% dplyr::select(-X) # read info of subjects
-experiment <- readRDS("results/experiment.rds") %>% # read sample details from column names
+info_subjects <- read.csv("data/info_subjects_short.csv") %>% dplyr::select(-X) # read info of subjects
+experiment <- readRDS("data/experiment.rds") %>% # read sample details from column names
   full_join(info_subjects) %>% # we're going to correct wall time (sampling time) to internal time
   dplyr::mutate(MSF_sc_dec = lubridate::hms(MSF_sc)) %>% 
   dplyr::mutate(
@@ -83,7 +83,7 @@ experiment <- readRDS("results/experiment.rds") %>% # read sample details from c
     diff_to_refsubj = MSF_sc_dec - median(MSF_sc_dec),
     internal_time_ref = time - diff_to_refsubj) %>%
   dplyr::mutate(internal_time = time - MSF_sc_dec)
-yave <- readRDS("results/rawdata.rds") # read y gene expression data (without outlier removal)
+yave <- readRDS("data/rawdata.rds") # read y gene expression data (without outlier removal)
 
 # Remove outliers in yave
 ind <- which(colnames(yave) == PCA_outliers)    
@@ -100,7 +100,7 @@ wts <- NULL #since we are removing PCA-outliers, weights from lmFit (performed l
 # ------------------------------------------------
 
 # Prepare sample details for design matrix
-tissue  <- factor(experiment$tissue)
+layer  <- factor(experiment$layer)
 time    <- experiment$internal_time
 subject <- factor(experiment$subject)
 sex     <- factor(experiment$sex)
@@ -110,9 +110,9 @@ inphase  <- cos(2*pi*time/24)
 outphase <- sin(2*pi*time/24) #a*cos(wt) + cos(wt-phi) == A*cos(wt - phi), where A=sqrt(a**2 + b**2), phi = atan2(b,a)
 
 # design matrix
-design <- model.matrix(~ 0 + tissue + tissue:inphase + tissue:outphase) %>% #H0: rhythms are different across tissues
-  as.data.frame() %>% dplyr::rename(c("tissueD_inphase"="tissueD:inphase", "tissueE_inphase"="tissueE:inphase",
-                                      "tissueD_outphase"="tissueD:outphase", "tissueE_outphase"="tissueE:outphase")) %>% 
+design <- model.matrix(~ 0 + layer + layer:inphase + layer:outphase) %>% #H0: rhythms are different across layers
+  as.data.frame() %>% dplyr::rename(c("layerD_inphase"="layerD:inphase", "layerE_inphase"="layerE:inphase",
+                                      "layerD_outphase"="layerD:outphase", "layerE_outphase"="layerE:outphase")) %>% 
   as.matrix()
 
 # duplicate Correlations
@@ -129,11 +129,11 @@ results <- limma::topTable(fit2, coef = rhy_indices, number = Inf, sort.by = "no
 results$adj_P_Val_D_or_E <- results$adj_P_Val
 rhy_D_or_E <- results[(results$adj_P_Val_D_or_E < fdr_cutoff) & # fdr < cutoff
                         # minimum amplitude requirement: amplitude_D or amplitude_E > cutoff:
-                        (pmax(sqrt(results$tissueD_inphase^2 + results$tissueD_outphase^2), 
-                              sqrt(results$tissueE_inphase^2 + results$tissueE_outphase^2)) > amp_cutoff),]
+                        (pmax(sqrt(results$layerD_inphase^2 + results$layerD_outphase^2), 
+                              sqrt(results$layerE_inphase^2 + results$layerE_outphase^2)) > amp_cutoff),]
 
 # analysis of differentially rhythmic genes
-diff_rhy_contrast <- limma::makeContrasts(tissueD_inphase - tissueE_inphase, tissueD_outphase - tissueE_outphase, 
+diff_rhy_contrast <- limma::makeContrasts(layerD_inphase - layerE_inphase, layerD_outphase - layerE_outphase, 
                                           levels = design)
 diff_rhy_fit <- limma::contrasts.fit(fit, diff_rhy_contrast)
 diff_rhy_fit <- limma::eBayes(diff_rhy_fit, robust = TRUE, trend = TRUE)
@@ -147,8 +147,8 @@ rhy_D_or_E$diff_rhythmic <- rhy_D_or_E$adj_p_val_DR < fdr_cutoff
 results <- full_join(results, rhy_D_or_E) %>% dplyr::select(-adj_P_Val)
 
 # save results of fits
-if (!file.exists("results/results_populationrhy_internaltime.rds")){
-  saveRDS(results, file = "results/results_populationrhy_internaltime.rds")
+if (!file.exists("data/results_populationrhy_internaltime.rds")){
+  saveRDS(results, file = "data/results_populationrhy_internaltime.rds")
 }  
 
 #--------------------------------
@@ -156,11 +156,11 @@ if (!file.exists("results/results_populationrhy_internaltime.rds")){
 
 # 4. READ RESULTS:
 # ----------------
-results <- readRDS("results/results_populationrhy_internaltime.rds") %>%
-  dplyr::mutate(A_D = sqrt(tissueD_inphase^2 + tissueD_outphase^2), #Amp**2 = cos**2 + sin**2 (note the log2 values)
-                A_E = sqrt(tissueE_inphase^2 + tissueE_outphase^2),
-                phaseD = atan2(tissueD_outphase, tissueD_inphase)*12/pi, #atan2 takes two arguments (y,x), atan takes the angle
-                phaseE = atan2(tissueE_outphase, tissueE_inphase)*12/pi)
+results <- readRDS("data/results_populationrhy_internaltime.rds") %>%
+  dplyr::mutate(A_D = sqrt(layerD_inphase^2 + layerD_outphase^2), #Amp**2 = cos**2 + sin**2 (note the log2 values)
+                A_E = sqrt(layerE_inphase^2 + layerE_outphase^2),
+                phaseD = atan2(layerD_outphase, layerD_inphase)*12/pi, #atan2 takes two arguments (y,x), atan takes the angle
+                phaseE = atan2(layerE_outphase, layerE_inphase)*12/pi)
 
 results$rhythmic_in_D <- ifelse(results$diff_rhythmic==FALSE, TRUE, # if DR=FALSE, the gene is rhythmic in both layers 
                                 ifelse(results$diff_rhythmic==TRUE & results$A_D > amp_cutoff, TRUE, FALSE)) 
@@ -190,26 +190,26 @@ fig1B <- ggplot(experiment) +
 # Fig1C: How does number of rhythmic genes in dermis and epidermis change with FDR
 results_dermis <- results %>% 
   dplyr::select(Symbol, adj_P_Val_D_or_E, rhythmic_in_D, ProbeName) %>%
-  tidyr::gather(tissue, rhythmic, -adj_P_Val_D_or_E, -Symbol, -ProbeName) %>%
-  dplyr::mutate(tissue = ifelse(tissue=="rhythmic_in_D", "dermis", "epidermis"))
+  tidyr::gather(layer, rhythmic, -adj_P_Val_D_or_E, -Symbol, -ProbeName) %>%
+  dplyr::mutate(layer = ifelse(layer=="rhythmic_in_D", "dermis", "epidermis"))
 results_epidermis <- results %>% 
   dplyr::select(Symbol, rhythmic_in_E, adj_P_Val_D_or_E, ProbeName) %>%
-  tidyr::gather(tissue, rhythmic, -adj_P_Val_D_or_E, -Symbol, -ProbeName) %>%
-  dplyr::mutate(tissue = ifelse(tissue=="rhythmic_in_D", "dermis", "epidermis"))
+  tidyr::gather(layer, rhythmic, -adj_P_Val_D_or_E, -Symbol, -ProbeName) %>%
+  dplyr::mutate(layer = ifelse(layer=="rhythmic_in_D", "dermis", "epidermis"))
 results_org <- rbind(results_epidermis, results_dermis)
-no_dermis <- dim(results_org %>% filter(rhythmic == TRUE & tissue =="dermis"))[1] # #of genes rhythmic in dermis
-no_epidermis <- dim(results_org %>% filter(rhythmic == TRUE & tissue =="epidermis"))[1]
+no_dermis <- dim(results_org %>% filter(rhythmic == TRUE & layer =="dermis"))[1] # #of genes rhythmic in dermis
+no_epidermis <- dim(results_org %>% filter(rhythmic == TRUE & layer =="epidermis"))[1]
 no_common <- dim(results_org %>% filter(rhythmic) %>% group_by(Symbol) %>% filter(n()>1) %>% as.data.frame())[1] / 2
 no_common_DR <- dim(results %>% filter(rhythmic_in_D, rhythmic_in_E, diff_rhythmic))[1]
 
 fig1C <- ggplot() + 
   geom_vline(aes(xintercept=fdr_cutoff), color="grey", linetype="dashed") +
-  stat_ecdf(data = results_org %>% mutate(len = ifelse(tissue=="dermis", no_dermis, no_epidermis)) %>% 
+  stat_ecdf(data = results_org %>% mutate(len = ifelse(layer=="dermis", no_dermis, no_epidermis)) %>% 
               filter(rhythmic),
-            aes(x = ifelse(rhythmic, adj_P_Val_D_or_E), len=len, y = ..y..*len, color=tissue), geom = "step") +  
+            aes(x = ifelse(rhythmic, adj_P_Val_D_or_E), len=len, y = ..y..*len, color=layer), geom = "step") +  
   stat_ecdf(data = results_org %>% filter(rhythmic) %>% group_by(Symbol) %>% filter(n()>1) %>% 
-              as.data.frame() %>% mutate(len = no_common, tissue="both"),
-            aes(x = ifelse(rhythmic, adj_P_Val_D_or_E), len=len, y = ..y..*len, color=tissue), 
+              as.data.frame() %>% mutate(len = no_common, layer="both"),
+            aes(x = ifelse(rhythmic, adj_P_Val_D_or_E), len=len, y = ..y..*len, color=layer), 
             geom = "step") + # #8491B4B2  
   scale_x_continuous(breaks = seq(0.00, 0.10, by=0.05)) + 
   coord_cartesian(xlim = c(-0.0005, 0.103), ylim = c(-0.02,1500), expand=FALSE)  +
@@ -244,32 +244,32 @@ fig1C <- ggdraw() + draw_plot(fig1C) + draw_plot(fig1C_inset, x = 0.5722, y = .1
 # Supplementary figure 2A: Heatmap of circadian rhythmic genes: z scores, acropase-ordered
 rhy_results %<>% #arrange dataframe to be used later on
   dplyr::select(Symbol, adj_P_Val_D_or_E, diff_rhythmic, AveExpr, ProbeName, rhythmic_in_D, rhythmic_in_E) %>% 
-  tidyr::gather(tissue, rhythmic, -Symbol, -diff_rhythmic, -adj_P_Val_D_or_E, -AveExpr,-ProbeName,) %>% 
-  dplyr::mutate(tissue = ifelse(tissue=="rhythmic_in_D", "dermis", "epidermis")) %>%
+  tidyr::gather(layer, rhythmic, -Symbol, -diff_rhythmic, -adj_P_Val_D_or_E, -AveExpr,-ProbeName,) %>% 
+  dplyr::mutate(layer = ifelse(layer=="rhythmic_in_D", "dermis", "epidermis")) %>%
   full_join(results %>% dplyr::filter(rhythmic_in_D | rhythmic_in_E) %>% 
               dplyr::select(Symbol, adj_P_Val_D_or_E, diff_rhythmic, AveExpr, ProbeName, A_D, A_E) %>% 
-              tidyr::gather(tissue, amp_value, -Symbol, -diff_rhythmic, -adj_P_Val_D_or_E, -AveExpr,-ProbeName) %>% 
-              dplyr::mutate(tissue = ifelse(tissue=="A_D", "dermis", "epidermis"))) %>%
+              tidyr::gather(layer, amp_value, -Symbol, -diff_rhythmic, -adj_P_Val_D_or_E, -AveExpr,-ProbeName) %>% 
+              dplyr::mutate(layer = ifelse(layer=="A_D", "dermis", "epidermis"))) %>%
   full_join(results %>% filter(rhythmic_in_D | rhythmic_in_E) %>% 
               dplyr::select(Symbol, adj_P_Val_D_or_E, diff_rhythmic, AveExpr, ProbeName, phaseD, phaseE) %>% 
-              tidyr::gather(tissue, phase_value, -Symbol, -diff_rhythmic, -adj_P_Val_D_or_E, -AveExpr,-ProbeName) %>% 
-              dplyr::mutate(tissue = ifelse(tissue=="phaseD", "dermis", "epidermis"))) 
+              tidyr::gather(layer, phase_value, -Symbol, -diff_rhythmic, -adj_P_Val_D_or_E, -AveExpr,-ProbeName) %>% 
+              dplyr::mutate(layer = ifelse(layer=="phaseD", "dermis", "epidermis"))) 
 rhy_results <- rhy_results %>% anti_join( rhy_results %>% filter(rhythmic == FALSE & diff_rhythmic==TRUE) ) #remove non_rhy genes
 
 toplot <- yave$E %>% transform(ProbeName = yave$genes$ProbeName, 
                                Symbol = yave$genes$Symbol) %>% as_tibble() %>%
   tidyr::gather(junk, value, -ProbeName, -Symbol) %>%
-  tidyr::separate(junk, c("tissuetime","subject"), sep = "_", convert = TRUE) %>%
-  tidyr::separate(tissuetime, c("tissue","time"), convert = TRUE, sep = 1) %>%
+  tidyr::separate(junk, c("layertime","subject"), sep = "_", convert = TRUE) %>%
+  tidyr::separate(layertime, c("layer","time"), convert = TRUE, sep = 1) %>%
   full_join(experiment %>% dplyr::select(subject, time, internal_time)) %>%
-  inner_join(rhy_results %>% mutate(tissue=ifelse(tissue=="dermis", "D", "E")) ) %>%
-  group_by(ProbeName, Symbol, tissue, subject) %>%
+  inner_join(rhy_results %>% mutate(layer=ifelse(layer=="dermis", "D", "E")) ) %>%
+  group_by(ProbeName, Symbol, layer, subject) %>%
   dplyr::mutate(z.score=(value-mean(value)) / sd(value)) %>% as.data.frame() %>%
-  dplyr::group_by(time, Symbol, tissue) %>%
+  dplyr::group_by(time, Symbol, layer) %>%
   summarise(z.score=mean(z.score))
 
-toplot %<>% as.data.frame() %>% dplyr::mutate(tissue=ifelse(tissue=="D", "dermis", "epidermis")) %>%
-  full_join(rhy_results %>% dplyr::select(Symbol, phase_value, tissue)) %>% 
+toplot %<>% as.data.frame() %>% dplyr::mutate(layer=ifelse(layer=="D", "dermis", "epidermis")) %>%
+  full_join(rhy_results %>% dplyr::select(Symbol, phase_value, layer)) %>% 
   dplyr::rename(c("phase"="phase_value")) %>% arrange(phase) 
 toplot$Symbol_ord <- factor(toplot$Symbol, levels = rev(unique(toplot$Symbol)), ordered=TRUE)
 
@@ -278,7 +278,7 @@ suppfig2A <- ggplot(toplot %>% arrange(phase) %>% as.data.frame(),
   geom_tile(aes(fill=z.score)) + 
   labs(x=bquote('time after'*~MSF[sc]*' (h)'), y="", fill=expression(italic('z')~'score')) + 
   guides(color = "none") +
-  facet_wrap(~tissue, scales="free_y", ncol=2, nrow=1) + theme_custom() +
+  facet_wrap(~layer, scales="free_y", ncol=2, nrow=1) + theme_custom() +
   theme(axis.text.y = element_blank(), axis.ticks.y = element_blank(), axis.title.y = element_blank(),
         legend.position = "right", legend.title = element_text(color="black")) + 
   scale_fill_distiller(palette = "RdBu", limits=c(-1.75,1.75), breaks = c(1.5, 0, -1.5)) + 
@@ -297,12 +297,12 @@ exps <- as.POSIXct(strptime(c("1969-12-31 23:50:00","1970-01-02 00:10:00"), form
 suppfig2B <- ggplot(rhy_results %>% dplyr::filter(Symbol %in% clock_genes) %>%
                       dplyr::mutate(Symbol_it = paste0("italic('", Symbol, "')")),                  
                 aes(x=phase_value%%24, y=2^(2*amp_value))) +
-  geom_point(aes(color=tissue)) +
+  geom_point(aes(color=layer)) +
   coord_polar(start = 0, direction=1) + 
   scale_x_continuous(limits=c(0,24), breaks = c(0, 6, 12, 18), labels = c(0, 6, 12, 18)) +
-  facet_wrap(~tissue, ncol=2, nrow=1) +
+  facet_wrap(~layer, ncol=2, nrow=1) +
   geom_segment(aes(x=phase_value%%24, y=0, 
-                   xend=phase_value%%24, yend=2^(2*amp_value), color=tissue)) +
+                   xend=phase_value%%24, yend=2^(2*amp_value), color=layer)) +
   geom_text_repel(aes(label=Symbol_it), max.overlaps=Inf, box.padding=1, size=3.5, point.padding=.5,
                   segment.color="grey70", color="grey50", parse=TRUE) +
   xlab("") + ylab("Amplitude fold change") +  guides(color = "none") + 
@@ -312,10 +312,10 @@ suppfig2B <- ggplot(rhy_results %>% dplyr::filter(Symbol %in% clock_genes) %>%
 #####
 
 # Figure 1D: Scatterplot of FC Amp vs acrophase and histograms: all rhythmic genes in D (left) & E (right)
-toplot <- rhy_results %>% dplyr::filter(tissue=="dermis") %>% dplyr::mutate(FC_amp = 2^(2*amp_value)) %>%
+toplot <- rhy_results %>% dplyr::filter(layer=="dermis") %>% dplyr::mutate(FC_amp = 2^(2*amp_value)) %>%
   dplyr::mutate(Symbol_it = paste0("italic('", Symbol, "')"),
                 clock_gene=ifelse(Symbol %in% clock_genes, TRUE, FALSE))
-fig1D_1 <- ggplot(toplot, aes(x=phase_value%%24, y=FC_amp, color=tissue, shape=clock_gene)) +
+fig1D_1 <- ggplot(toplot, aes(x=phase_value%%24, y=FC_amp, color=layer, shape=clock_gene)) +
   geom_hline(yintercept=2^(2*amp_cutoff), linetype="dashed", "grey30") +
   geom_point(alpha=0.3) +
   geom_point(data = dplyr::filter(toplot, Symbol %in% clock_genes), 
@@ -333,10 +333,10 @@ fig1D_1 <- ggplot(toplot, aes(x=phase_value%%24, y=FC_amp, color=tissue, shape=c
   annotate(geom='text', label=paste0(' ', no_dermis, ' genes'), x=-Inf, y=Inf, hjust=0, vjust=1, color="#1B9E77")
 fig1D_1 <- ggExtra::ggMarginal(fig1D_1, type = 'histogram', fill="#1B9E77", color="white")
 
-toplot <- rhy_results %>% dplyr::filter(tissue=="epidermis") %>% dplyr::mutate(FC_amp = 2^(2*amp_value)) %>%
+toplot <- rhy_results %>% dplyr::filter(layer=="epidermis") %>% dplyr::mutate(FC_amp = 2^(2*amp_value)) %>%
   dplyr::mutate(Symbol_it = paste0("italic('", Symbol, "')"),
                 clock_gene=ifelse(Symbol %in% clock_genes, TRUE, FALSE))
-fig1D_2 <- ggplot(toplot, aes(x=phase_value%%24, y=FC_amp, color=tissue, shape=clock_gene)) +
+fig1D_2 <- ggplot(toplot, aes(x=phase_value%%24, y=FC_amp, color=layer, shape=clock_gene)) +
   geom_hline(yintercept=2^(2*amp_cutoff), linetype="dashed", "grey30") +
   geom_point(alpha=0.3, color="#D95F02") +
   geom_point(data = dplyr::filter(toplot, Symbol %in% clock_genes), 
@@ -359,22 +359,22 @@ fig1D <- plot_grid(fig1D_1, fig1D_2, ncol=2, nrow=1)
 
 #####
 
-# Figure 1E: Correlation of amplitudes of genes rhythmic in BOTH tissues
+# Figure 1E: Correlation of amplitudes of genes rhythmic in BOTH layers
 both_rhy <- rhy_results[which(rhy_results$Symbol %in% rhy_results[duplicated(rhy_results$Symbol),"Symbol"]),] %>% 
   arrange(desc(amp_value)) 
   #check for which symbols are duplicated in the rhy_results dataframe -> that means they are rhythmic in both layers
-both_rhy_amp <- both_rhy %>% dplyr::select(Symbol, tissue, amp_value) %>% tidyr::spread(tissue, amp_value) %>% 
+both_rhy_amp <- both_rhy %>% dplyr::select(Symbol, layer, amp_value) %>% tidyr::spread(layer, amp_value) %>% 
   dplyr::mutate(Symbol_it = paste0("italic('", Symbol, "')")) %>% arrange(desc(dermis)) %>%
   dplyr::mutate(clock_gene=ifelse(Symbol %in% clock_genes, TRUE, FALSE))
 both_rhy_amp$ampFC_dermis <- 2^(2*both_rhy_amp$dermis)
 both_rhy_amp$ampFC_epidermis <- 2^(2*both_rhy_amp$epidermis)
 
-both_rhy %>% filter(diff_rhythmic) %>% dplyr::select(Symbol, tissue, amp_value) %>% 
-  pivot_wider(id_cols = Symbol, names_from = tissue, values_from = amp_value) %$% 
+both_rhy %>% filter(diff_rhythmic) %>% dplyr::select(Symbol, layer, amp_value) %>% 
+  pivot_wider(id_cols = Symbol, names_from = layer, values_from = amp_value) %$% 
   wilcox.test(epidermis, dermis, paired=TRUE, alternative="greater", conf.int=TRUE)
 
-both_rhy %>% dplyr::select(Symbol, tissue, phase_value) %>% 
-        pivot_wider(id_cols = Symbol, names_from = tissue, values_from = phase_value) %>%
+both_rhy %>% dplyr::select(Symbol, layer, phase_value) %>% 
+        pivot_wider(id_cols = Symbol, names_from = layer, values_from = phase_value) %>%
         mutate(epidermis = pi/12*epidermis, dermis = pi/12*dermis) %$%
         r.test(epidermis-dermis)
 
@@ -403,10 +403,10 @@ fig1E <- ggplot(both_rhy_amp, aes(x=ampFC_dermis, y=ampFC_epidermis, shape=clock
 
 #####
 
-# Figure 1F: Correlation of phases of genes rhythmic in BOTH tissues
-both_rhy_phase <- both_rhy %>% dplyr::select(Symbol, tissue, phase_value) %>% 
+# Figure 1F: Correlation of phases of genes rhythmic in BOTH layers
+both_rhy_phase <- both_rhy %>% dplyr::select(Symbol, layer, phase_value) %>% 
   dplyr::mutate(phase_value = phase_value%%24) %>%
-  tidyr::spread(tissue, phase_value) %>%
+  tidyr::spread(layer, phase_value) %>%
   dplyr::mutate(Symbol_it = paste0("italic('", Symbol, "')"),
          clock_gene=ifelse(Symbol %in% clock_genes, TRUE, FALSE))
 
@@ -431,10 +431,10 @@ fig1F <- ggplot(both_rhy_phase, aes(x=dermis, y=epidermis, shape=clock_gene)) +
 
 # Figure 1G: Reactome pathway analysis  
 # with ReactomePA (but results confirmed with limma, msigdbr, clusterProfiler and other online tools)
-rE <- enrichPathway(yave[yave$genes$Symbol %in% filter(rhy_results, tissue=="epidermis")$Symbol,]$genes$EntrezID,
+rE <- enrichPathway(yave[yave$genes$Symbol %in% filter(rhy_results, layer=="epidermis")$Symbol,]$genes$EntrezID,
                     universe = yave$genes$EntrezID, pvalueCutoff = 0.05, qvalueCutoff = 1.0, minGSSize = 20)
 
-rD <- enrichPathway(yave[yave$genes$Symbol %in% filter(rhy_results, tissue=="dermis")$Symbol,]$genes$EntrezID,
+rD <- enrichPathway(yave[yave$genes$Symbol %in% filter(rhy_results, layer=="dermis")$Symbol,]$genes$EntrezID,
                     universe = yave$genes$EntrezID, pvalueCutoff = 0.05, qvalueCutoff = 1.0, minGSSize = 20)
 
 df_rD <- setReadable(rD, 'org.Hs.eg.db', 'ENTREZID') 
@@ -516,13 +516,13 @@ if (!file.exists("visualize/data/PSEA/phasesforPSEA_fig1_E.txt")){
 q_cutoff <- 0.05 
 
 PSEA_d <- read.csv("visualize/data/PSEA/dermis_C2all/results.txt", sep='\t') %>% dplyr::filter(Set.N >= 5)
-PSEA_d <- PSEA_d[PSEA_d[,6] <  q_cutoff, ] %>% mutate(tissue = "dermis")
+PSEA_d <- PSEA_d[PSEA_d[,6] <  q_cutoff, ] %>% mutate(layer = "dermis")
 
 PSEA_e <- read.csv("visualize/data/PSEA/epidermis_C2all/results.txt", sep='\t')%>% dplyr::filter(Set.N >= 5)
-PSEA_e <- PSEA_e[PSEA_e[,6] <  q_cutoff, ] %>% mutate(tissue = "epidermis")
+PSEA_e <- PSEA_e[PSEA_e[,6] <  q_cutoff, ] %>% mutate(layer = "epidermis")
 
-PSEA <- full_join(PSEA_d %>% dplyr::select(Set.ID, Set.N, Vector.average.value, tissue), 
-                  PSEA_e %>% dplyr::select(Set.ID, Set.N, Vector.average.value, tissue)) %>%
+PSEA <- full_join(PSEA_d %>% dplyr::select(Set.ID, Set.N, Vector.average.value, layer), 
+                  PSEA_e %>% dplyr::select(Set.ID, Set.N, Vector.average.value, layer)) %>%
   dplyr::mutate(term = gsub("_", " ", Set.ID)) %>% mutate(term=gsub("REACTOME", "", term)) %>% 
   dplyr::mutate(term = term %>% tolower()) %>%
   dplyr::mutate(term = mgsub::mgsub(term, c("rna ", "rna", "dna ", "tgf ", "nod ", "jak stat ", "ecm ", " i ", "ub ", "ii ",
@@ -538,10 +538,10 @@ df_PSEA <- m_c2 %>% dplyr::select(gs_name, gene_symbol) %>% as.data.frame() %>%
   mutate(phase_clock1 = phase_value%%24) %>% dplyr::select(-phase_value)
 
 suppfig2C <- ggplot(df_PSEA) + 
-  geom_point(aes(x=phase_clock1, y=reorder(term, Vector.average.value), color=tissue), alpha=0.5, size=1, shape=4) + 
+  geom_point(aes(x=phase_clock1, y=reorder(term, Vector.average.value), color=layer), alpha=0.5, size=1, shape=4) + 
   geom_point(aes(x=Vector.average.value, y=reorder(term, Vector.average.value), 
-                 fill=tissue, size=Set.N), color="black", shape=21) + 
-  facet_grid(scales="free_y", space="free",rows=vars(tissue), switch="y") +
+                 fill=layer, size=Set.N), color="black", shape=21) + 
+  facet_grid(scales="free_y", space="free",rows=vars(layer), switch="y") +
   xlab("Phase (h)") + ylab("Reactome pathway") + labs(size='# of genes') + guides(color=FALSE, fill=FALSE) +
   theme_bw() + theme(axis.line = element_line(colour = "black"),
                      panel.border = element_blank(),

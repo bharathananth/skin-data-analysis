@@ -1,4 +1,4 @@
-#renv::init('./renv/') #run once to create the environment and then comment
+#renv::init('./renv/') #run once in desired working directory to create the environment and then comment
 renv::activate('./renv/') 
 options(timeout=900)
 

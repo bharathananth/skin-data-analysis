@@ -1,4 +1,4 @@
-# go to directory of skin-data-analysis-renv and set it as working directory
+# go to directory where the renv is located and set it as working directory
 # note that 0_preana.R should be run before this file (to pre-process microarray gene expression data)
 renv::activate('./renv/') 
 
@@ -68,18 +68,18 @@ fdr_cutoff <- 0.05
 amp_cutoff <- log2(1 + 0.2) 
 
 # Gene expression data
-yave <- readRDS("results/rawdata.rds")
+yave <- readRDS("data/rawdata.rds")
 ind <- which(colnames(yave) == PCA_outliers)    
 yave <- yave[, -ind] 
 
 geneExpr <- yave$E
 genes <- yave$genes
 
-results <- readRDS("results/results_populationrhy_internaltime.rds") %>% 
-  dplyr::mutate(A_D = sqrt(tissueD_inphase^2 + tissueD_outphase^2), #Amp = cos**2 + sin**2 (note the log2 values)
-                A_E = sqrt(tissueE_inphase^2 + tissueE_outphase^2),
-                phaseD = atan2(tissueD_outphase, tissueD_inphase)*12/pi, #atan2 takes two arguments (y,x), atan takes the angle
-                phaseE = atan2(tissueE_outphase, tissueE_inphase)*12/pi)
+results <- readRDS("data/results_populationrhy_internaltime.rds") %>% 
+  dplyr::mutate(A_D = sqrt(layerD_inphase^2 + layerD_outphase^2), #Amp = cos**2 + sin**2 (note the log2 values)
+                A_E = sqrt(layerE_inphase^2 + layerE_outphase^2),
+                phaseD = atan2(layerD_outphase, layerD_inphase)*12/pi, #atan2 takes two arguments (y,x), atan takes the angle
+                phaseE = atan2(layerE_outphase, layerE_inphase)*12/pi)
 
 results$rhythmic_in_D <- ifelse(results$diff_rhythmic==FALSE, TRUE,
                                 ifelse(results$diff_rhythmic==TRUE & results$A_D > amp_cutoff, TRUE, FALSE)) 
@@ -90,16 +90,16 @@ some_rhy <- dplyr::filter(results, rhythmic_in_D | rhythmic_in_E) #some_rhy as i
 geneExpr <- geneExpr %>% as.data.frame %>% filter(rownames(.) %in% some_rhy$ProbeName)
 
 # Metadata
-info_subjects <- read.csv("resources/info_subjects_short.csv") %>% dplyr::select(-X) #read info of subjects
+info_subjects <- read.csv("data/info_subjects_short.csv") %>% dplyr::select(-X) #read info of subjects
 
 info_exp <- data.frame(experiment2= geneExpr %>% colnames) %>% mutate(experiment=experiment2) %>%
-  tidyr::separate(experiment2, c("tissuetime","subject"), sep = "_", convert=TRUE) %>%
-  tidyr::separate(tissuetime, c("tissue","time"), convert = TRUE, sep = 1) 
+  tidyr::separate(experiment2, c("layertime","subject"), sep = "_", convert=TRUE) %>%
+  tidyr::separate(layertime, c("layer","time"), convert = TRUE, sep = 1) 
 
-experiment <- readRDS("results/experiment.rds") %>% full_join(info_subjects) # read sample details from column names
+experiment <- readRDS("data/experiment.rds") %>% full_join(info_subjects) # read sample details from column names
 experiment <- experiment[-ind,] #remove outlier
 info_exp <- info_exp %>% full_join(experiment) %>% 
-  dplyr::mutate(tissue = ifelse(tissue=="D", "dermis", "epidermis"),
+  dplyr::mutate(layer = ifelse(layer=="D", "dermis", "epidermis"),
                 MSF_sc_dec = lubridate::hms(MSF_sc),
                 MSF_sc_dec = round((hour(MSF_sc_dec) + minute(MSF_sc_dec) / 60 + lubridate::second(MSF_sc_dec) / 360),2),
                 diff_to_refsubj = MSF_sc_dec - median(MSF_sc_dec),
@@ -113,7 +113,7 @@ info_exp <- info_exp %>% full_join(experiment) %>%
 
 # 2. EXECUTE LINEAR MIXED MODEL WITH VARIANCE PARTITION
 # -----------------------------------------------------
-form <- ~ 1 + inphase + outphase + (1 + inphase + outphase|subject) + (1 + inphase + outphase||tissue)
+form <- ~ 1 + inphase + outphase + (1 + inphase + outphase|subject) + (1 + inphase + outphase||layer)
 fitList <- fitVarPartModel(geneExpr, form, info_exp, showWarnings=FALSE, BPPARAM = bpparam)
 convergence <-sapply(fitList, function(l) l@optinfo$conv$opt) %>% as.logical() %>% all
 
@@ -128,14 +128,14 @@ for (i in 1:length(fitList)){
   a_i <- fixef(fitList[[i]])[2] %>% as.numeric 
   b_i <- fixef(fitList[[i]])[3] %>% as.numeric
   
-  # amplitude and phase (fixed effects) of the fit for gene i across subjects and tissues
+  # amplitude and phase (fixed effects) of the fit for gene i across subjects and layers
   A_i   <- sqrt(a_i^2 + b_i^2) 
   phi_i <- atan2(b_i, a_i)*12/pi
   
-  # with estimation of coefficients comes a covariance matrix Sigma (because there are >1 subject/tissue to do fits)
+  # with estimation of coefficients comes a covariance matrix Sigma (because there are >1 subject/layer to do fits)
   sigma_i <-  as.matrix(Matrix::bdiag(VarCorr(fitList[[i]])))
   sigma_i_S <- sigma_i[1:3,1:3] #covariance_subject
-  sigma_i_T <- sigma_i[4:6,4:6] #covariance_tissue
+  sigma_i_T <- sigma_i[4:6,4:6] #covariance_layer
   
   # define Jacobian
   Jac_A <- matrix( c(0, a_i/A_i, b_i/A_i), # dA/dm, dA/da, dA/db
@@ -146,7 +146,7 @@ for (i in 1:length(fitList)){
                   0, (1/(1+(b_i/a_i)^2)) * (-b_i/(a_i^2)) * (12/pi), (1/(1+(b_i/a_i)^2)) * (1/a_i) * (12/pi)), 
                 nrow = 2, byrow = TRUE) 
   
-  # determine variance in amplitude and phase, separating tissue and subject contributions
+  # determine variance in amplitude and phase, separating layer and subject contributions
   var_A_subject <- Jac_A %*% sigma_i_S %*% t(Jac_A)
   var_A_layer <- Jac_A %*% sigma_i_T %*% t(Jac_A)
   var_phi_subject <- Jac_phi %*% sigma_i_S %*% t(Jac_phi)
@@ -182,9 +182,9 @@ df_total$cv_magn_subject<- df_total$sd_magn_subject / df_total$magn
 df_total <- df_total[,c(1,11,2,3,12,14,4,13,15, 
                         5,6,16,18,7,17,19,
                         8,9,20,22,10,21,23)]
-if (!file.exists("results/variance_rhythmic_parameters_full.csv")){
+if (!file.exists("data/variance_rhythmic_parameters_full.csv")){
   write.csv(df_total %>% inner_join(yave$genes %>% dplyr::select(ProbeName, Symbol)),
-            "results/variance_rhythmic_parameters_full.csv")
+            "data/variance_rhythmic_parameters_full.csv")
   openxlsx::write.xlsx(format.data.frame(df_total, digits=3), file = "figures/supp_table4.xlsx")
 }
 
@@ -242,10 +242,10 @@ variation_full <- rbind(variation_A %>% dplyr::rename(c("value_fit"="Amp")),
   tidyr::separate(variable, c("rhythmic_par","variable"), sep = "_", convert = TRUE) %>%
   mutate(rhythmic_par=ifelse(rhythmic_par == "A", "amplitude", 
                              ifelse(rhythmic_par=="phi", "phase", "magnitude")),
-         variable=ifelse(variable == "S", "subject", "tissue")) 
+         variable=ifelse(variable == "S", "subject", "layer")) 
 
 variation_full$rhythmic_par <- factor(variation_full$rhythmic_par, levels=c("magnitude", "amplitude", "phase"))
-variation_full$effect <- ifelse(variation_full$variable=="tissue", "layer", "subject")
+variation_full$effect <- ifelse(variation_full$variable=="layer", "layer", "subject")
 variation_full$effect <- factor(variation_full$effect, levels=c("layer", "subject"))
 
 
@@ -274,14 +274,14 @@ fig2A <- ggplot(variation_full %>% dplyr::select(rhythmic_par, sd, Symbol, effec
 # 4. COEFFICIENT OF VARIATION -> Normalization of variability to the fixed effect: Where are the clock genes?
 # -----------------------------------------------------------------------------------------------------------
 # Fig2B: Correlations of cv_phi vs cv_amp -> where are the DR/non_DR genes located?
-df <- variation_A %>% mutate(variable=ifelse(variable=="A_T", "tissue", "subject")) %>% 
+df <- variation_A %>% mutate(variable=ifelse(variable=="A_T", "layer", "subject")) %>% 
   dplyr::select(Symbol, variable, cv) %>% dplyr::rename(c("cv_amp"="cv")) %>% 
-  full_join(variation_phi %>% mutate(variable=ifelse(variable=="phi_T", "tissue", "subject")) %>% 
+  full_join(variation_phi %>% mutate(variable=ifelse(variable=="phi_T", "layer", "subject")) %>% 
               dplyr::select(Symbol, variable, cv) %>% dplyr::rename(c("cv_phi"="cv"))) %>%
-  full_join(variation_magn %>% mutate(variable=ifelse(variable=="magn_T", "tissue", "subject")) %>% 
+  full_join(variation_magn %>% mutate(variable=ifelse(variable=="magn_T", "layer", "subject")) %>% 
               dplyr::select(Symbol, variable, cv) %>% dplyr::rename(c("cv_magn"="cv"))) %>%
   mutate(Symbol_it = paste0("italic('", Symbol, "')"))
-df$variable <- factor(df$variable, levels=c("tissue", "subject")) %>% forcats::fct_recode(layer="tissue")
+df$variable <- factor(df$variable, levels=c("layer", "subject")) %>% forcats::fct_recode(layer="layer")
 
 fig2B <- ggplot(df %>% dplyr::mutate(clock_gene = ifelse(Symbol %in% clock_genes, TRUE, FALSE))) +
   geom_point(aes(x=cv_amp, y=cv_phi), alpha=0.75, color="grey", size=.8) + 
@@ -359,7 +359,7 @@ fig2C_1 <- ggplot(df_fraction_variance %>% filter(variable=="subject")) +
   geom_density(aes(value, fill=variable, group=variable), alpha=0.3) +
   facet_wrap(~rhythm_par, ncol=1, scales="free") + 
   coord_cartesian(ylim=c(0, 3.5)) + 
-  scale_fill_manual(values = c("tissue" = "#d1495b", "subject" = "#00798c"), guide="none") +
+  scale_fill_manual(values = c("layer" = "#d1495b", "subject" = "#00798c"), guide="none") +
   labs(x='fraction of variance\nexplained by subject', y='density')  +
   theme(panel.spacing = unit(.4, "lines")) + scale_x_continuous(breaks=c(0, 0.5, 1.0))
 #https://ggrepel.slowkow.com/articles/examples.html#align-labels-on-the-left-or-right-edge-1
@@ -432,8 +432,8 @@ geneExpr.D <- yave$E %>% as.data.frame() %>% dplyr::select(contains("D")) %>%   
 geneExpr.E <- yave$E %>% as.data.frame() %>% dplyr::select(contains("E")) %>%   #rhy genes in epidermis
   filter(rownames(.) %in% filter(some_rhy, rhythmic_in_E)$ProbeName)
 
-fitList.D <- fitVarPartModel(geneExpr.D, form, info_exp %>% filter(tissue=="dermis"), showWarnings=TRUE, BPPARAM = bpparam) 
-fitList.E <- fitVarPartModel(geneExpr.E, form, info_exp %>% filter(tissue=="epidermis"), showWarnings=TRUE, BPPARAM = bpparam) 
+fitList.D <- fitVarPartModel(geneExpr.D, form, info_exp %>% filter(layer=="dermis"), showWarnings=TRUE, BPPARAM = bpparam) 
+fitList.E <- fitVarPartModel(geneExpr.E, form, info_exp %>% filter(layer=="epidermis"), showWarnings=TRUE, BPPARAM = bpparam) 
 
 # Calculate variance in amplitude and phase from all rhythmic genes in D -> Error propagation
 df_total.D = data.frame(ProbeName=NULL, Amp=NULL, var_A_subject=NULL,
@@ -446,7 +446,7 @@ for (i in 1:length(fitList.D)){
   a_i <- fixef(fitList.D[[i]])[2] %>% as.numeric 
   b_i <- fixef(fitList.D[[i]])[3] %>% as.numeric
   
-  # amplitude and phase of the fit for gene i across subjects and tissues
+  # amplitude and phase of the fit for gene i across subjects and layers
   A_i   <- sqrt(a_i^2 + b_i^2) 
   phi_i <- atan2(b_i, a_i)*12/pi
   
@@ -459,7 +459,7 @@ for (i in 1:length(fitList.D)){
   Jac = matrix( c(0, a_i/A_i, b_i/A_i,
                   0, (1/(1+(b_i/a_i)^2)) * (-b_i/(a_i^2)), (1/(1+(b_i/a_i)^2)) * (1/a_i)), nrow = 2, byrow = TRUE)
   
-  # determine variance in amplitude and phase, separating tissue and subject contributions
+  # determine variance in amplitude and phase, separating layer and subject contributions
   var_A_subject <- Jac_A %*% sigma_i %*% t(Jac_A)
   var_phi_subject <- Jac_phi %*% sigma_i %*% t(Jac_phi)
   var_S <- Jac %*% sigma_i %*% t(Jac) 
@@ -473,7 +473,7 @@ for (i in 1:length(fitList.D)){
 hist(df_total.D$Amp, breaks=100)
 df_total.D %<>% filter(Amp>.15) # filter genes with low amp_fit that result in high variability and "mask" variable genes
 hist(df_total.D$Amp, breaks=100)
-df_total.D$tissue <- "dermis"
+df_total.D$layer <- "dermis"
 
 # Calculate variance in amplitude and phase from all rhythmic genes in E -> Error propagation
 df_total.E = data.frame(ProbeName=NULL, Amp=NULL, var_A_subject=NULL,
@@ -486,7 +486,7 @@ for (i in 1:length(fitList.E)){
   a_i <- fixef(fitList.E[[i]])[2] %>% as.numeric 
   b_i <- fixef(fitList.E[[i]])[3] %>% as.numeric
   
-  # amplitude and phase of the fit for gene i across subjects and tissues
+  # amplitude and phase of the fit for gene i across subjects and layers
   A_i   <- sqrt(a_i^2 + b_i^2) 
   phi_i <- atan2(b_i, a_i)*12/pi
   
@@ -499,7 +499,7 @@ for (i in 1:length(fitList.E)){
   Jac = matrix( c(0, a_i/A_i, b_i/A_i,
                   0, (1/(1+(b_i/a_i)^2)) * (-b_i/(a_i^2)), (1/(1+(b_i/a_i)^2)) * (1/a_i)), nrow = 2, byrow = TRUE)
   
-  # determine variance in amplitude and phase, separating tissue and subject contributions
+  # determine variance in amplitude and phase, separating layer and subject contributions
   var_A_subject <- Jac_A %*% sigma_i %*% t(Jac_A)
   var_phi_subject <- Jac_phi %*% sigma_i %*% t(Jac_phi)
   var_S <- Jac %*% sigma_i %*% t(Jac) 
@@ -513,23 +513,23 @@ for (i in 1:length(fitList.E)){
 hist(df_total.E$Amp, breaks=100)
 df_total.E %<>% filter(Amp>.15) # filter genes with low amp_fit that result in high variability and "mask" variable genes
 hist(df_total.E$Amp, breaks=100)
-df_total.E$tissue <- "epidermis"
+df_total.E$layer <- "epidermis"
 
 df_total <- rbind(df_total.D, df_total.E)
 
 
 # Calculate sd and cv from variances, organize results for plots
-variation_A   <- df_total %>% dplyr::select(ProbeName, Amp, var_A_subject, tissue) %>% 
+variation_A   <- df_total %>% dplyr::select(ProbeName, Amp, var_A_subject, layer) %>% 
   dplyr::rename(c("variance"="var_A_subject")) %>%
   mutate(sd = sqrt(variance),
          cv = sd/Amp,
          rhythmic_par = "amplitude") %>% arrange(desc(cv)) %>% inner_join(yave$genes %>% dplyr::select(ProbeName, Symbol))
-variation_phi <- df_total %>% dplyr::select(ProbeName, phase, var_phi_subject, tissue) %>%
+variation_phi <- df_total %>% dplyr::select(ProbeName, phase, var_phi_subject, layer) %>%
   dplyr::rename(c("variance"="var_phi_subject")) %>%
   mutate(sd = sqrt(variance),
          cv = sd/24,
          rhythmic_par = "phase") %>% arrange(desc(cv)) %>% inner_join(yave$genes %>% dplyr::select(ProbeName, Symbol))
-variation_magn <- df_total %>% dplyr::select(ProbeName, magn, var_magn_subject, tissue) %>%
+variation_magn <- df_total %>% dplyr::select(ProbeName, magn, var_magn_subject, layer) %>%
   dplyr::rename(c("variance"="var_magn_subject")) %>%
   mutate(sd = sqrt(variance),
          cv = sd/magn,
@@ -541,7 +541,7 @@ variation_complete <- rbind(variation_A %>% dplyr::rename(c("value_fit"="Amp")),
   rbind(variation_magn %>% dplyr::rename(c("value_fit"="magn"))) 
 variation_complete$rhythmic_par <- factor(variation_complete$rhythmic_par, levels=c("magnitude", "amplitude", "phase"))
 
-fig2D <- ggplot(variation_complete, aes(x=sd, color=tissue)) +
+fig2D <- ggplot(variation_complete, aes(x=sd, color=layer)) +
   stat_density(size=1.5, geom="line", position="identity") +
   facet_wrap(~rhythmic_par, scales="free") +
   labs(x='standard deviation', y='') +
