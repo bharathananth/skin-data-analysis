@@ -494,20 +494,18 @@ rhy_D_or_E$rhythmic_in_E <- ifelse(rhy_D_or_E$diff_rhythmic==FALSE, TRUE,
                                    ifelse(rhy_D_or_E$diff_rhythmic==TRUE & rhy_D_or_E$A_E > amp_cutoff, TRUE, FALSE))
 
 # save for PSEA analysis
-dir.create("visualize/data/PSEA",showWarnings = FALSE)
-
-if (!file.exists("visualize/data/PSEA/phasesforPSEA_fig1_D.txt")){ 
+if (!file.exists("./data/PSEA/phasesforPSEA_fig1_D.txt")){ 
   rhy_D_or_E %>% dplyr::filter(rhythmic_in_D) %>%
     dplyr::mutate(phase_value = phaseD%%24) %>% 
     dplyr::select(Symbol, phase_value) %>% dplyr::mutate(phase_value=round(phase_value, 0) %>% as.numeric()) %>%
-    write.table(file = "visualize/data/PSEA/phasesforPSEA_fig1_D.txt", 
+    write.table(file = "./data/PSEA/phasesforPSEA_fig1_D.txt", 
                 row.names=FALSE, col.names=FALSE, sep='\t', quote=FALSE)
 }
-if (!file.exists("visualize/data/PSEA/phasesforPSEA_fig1_E.txt")){ 
+if (!file.exists("./data/PSEA/phasesforPSEA_fig1_E.txt")){ 
   rhy_D_or_E %>% dplyr::filter(rhythmic_in_E) %>%
     dplyr::mutate(phase_value = phaseE%%24) %>% 
     dplyr::select(Symbol, phase_value) %>% dplyr::mutate(phase_value=round(phase_value, 0) %>% as.numeric()) %>%
-    write.table(file = "visualize/data/PSEA/phasesforPSEA_fig1_E.txt", 
+    write.table(file = "./data/PSEA/phasesforPSEA_fig1_E.txt", 
                 row.names=FALSE, col.names=FALSE, sep='\t', quote=FALSE)
 }
 
@@ -515,10 +513,10 @@ if (!file.exists("visualize/data/PSEA/phasesforPSEA_fig1_E.txt")){
 # PSEA with Reactome pathways
 q_cutoff <- 0.05 
 
-PSEA_d <- read.csv("visualize/data/PSEA/dermis_C2all/results.txt", sep='\t') %>% dplyr::filter(Set.N >= 5)
+PSEA_d <- read.csv("./data/PSEA/dermis_C2all/results.txt", sep='\t') %>% dplyr::filter(Set.N >= 5)
 PSEA_d <- PSEA_d[PSEA_d[,6] <  q_cutoff, ] %>% mutate(layer = "dermis")
 
-PSEA_e <- read.csv("visualize/data/PSEA/epidermis_C2all/results.txt", sep='\t')%>% dplyr::filter(Set.N >= 5)
+PSEA_e <- read.csv("./data/PSEA/epidermis_C2all/results.txt", sep='\t')%>% dplyr::filter(Set.N >= 5)
 PSEA_e <- PSEA_e[PSEA_e[,6] <  q_cutoff, ] %>% mutate(layer = "epidermis")
 
 PSEA <- full_join(PSEA_d %>% dplyr::select(Set.ID, Set.N, Vector.average.value, layer), 
@@ -592,16 +590,13 @@ rhy <- results %>% dplyr::filter(rhythmic_in_D | rhythmic_in_E) %>%
   dplyr::rename(c("phase_D" = "phaseD", "phase_E"="phaseE")) 
 
 # lists of rhythmic genes from other publications
-Akashi2010 <- read_excel("visualize/data/Akashi2010.xls") %>% as.data.frame() %>% # hair follicles, 251 rhythmic genes
+Akashi2010 <- read_excel("./data/skin_studies/Akashi2010.xls") %>% as.data.frame() %>% # hair follicles, 251 rhythmic genes
   dplyr::select(-Locus, -RefSeq, -"Gene Cluster ID", -"Gene Description") %>%
   dplyr::rename(c("Symbol"="Gene Symbol"))
-Wu2018_epidermis <- read.csv("visualize/data/Wu2018_epidermis.csv") %>% #epidermis, 188 rhythmic genes
+Wu2018_epidermis <- read.csv("./data/skin_studies/Wu2018_epidermis.csv") %>% #epidermis, 188 rhythmic genes
   dplyr::select(-rsq) %>% 
   dplyr::rename(c("Symbol"="Gene.Symbol", "amplitude"="rAMP"))
-Wu2020_dermis <- read_excel("visualize/data/Wu2020.xlsx", sheet="Dermis") %>% as.data.frame() %>% #dermis
-  dplyr::select(-rsq) %>% 
-  dplyr::rename(c("Symbol"="geneSymbol", "amplitude"="rAMP"))
-Wu2020_epidermis <- read_excel("visualize/data/Wu2020.xlsx", sheet="Epidermis") %>% as.data.frame() %>% #epidermis
+Wu2020_dermis <- read_excel("./data/skin_studies/Wu2020.xlsx", sheet="Dermis") %>% as.data.frame() %>% #dermis
   dplyr::select(-rsq) %>% 
   dplyr::rename(c("Symbol"="geneSymbol", "amplitude"="rAMP"))
 
@@ -632,8 +627,6 @@ Wu2018_comparison_phase = ggplot(data = rhy %>% dplyr::filter(rhythmic_in_E & Wu
                                    dplyr::mutate(layer="epidermis"), 
                                  aes(x=phase_E%%24, y=Wu2018_phase_epidermis, label=Symbol)) +
   geom_point(color="#D95F02", size=4) + 
-  #geom_text_repel(max.overlaps=Inf, box.padding=1.1, point.padding=.5,  size=3,
-  #                                                       segment.color="black", color="black") + 
   theme_custom() +
   scale_x_continuous(limits=c(0,24), breaks = c(0, 6, 12, 18, 24) ) +
   scale_y_continuous(limits=c(0,24), breaks = c(0, 6, 12, 18, 24) ) +
@@ -643,42 +636,27 @@ Wu2018_comparison_amplitude = ggplot(data = rhy %>% dplyr::filter(rhythmic_in_E 
                                        dplyr::mutate(layer="epidermis"),  
                                      aes(x=A_E, y=Wu2018_amplitude_epidermis, label=Symbol)) +
   geom_point(color="#D95F02", size=4) + 
-  #geom_text_repel(max.overlaps=Inf, box.padding=1.1, point.padding=.5,  size=3,
-  #                                                       segment.color="black", color="black") + 
   theme_custom() +
   scale_x_continuous(limits=c(0,1)) +
   scale_y_continuous(limits=c(0,1)) +
   labs(x="rel. amplitude", y="rel. amplitude from Wu 2018")
 Wu2018_comparison = plot_grid(Wu2018_comparison_amplitude, NULL, Wu2018_comparison_phase, ncol=3, rel_widths = c(1,0.2,1))
 
-# comparison with Wu2020
+# comparison with Wu2020 - dermis
 rhy$Wu2020_dermis = ifelse(rhy$Symbol %in% Wu2020_dermis$Symbol & rhy$rhythmic_in_D, TRUE, FALSE) 
 #24 genes from Wu2020_dermis are rhythmic in our dermis
 rhy$Wu2020_phase_dermis = ifelse(rhy$Symbol %in% Wu2020_dermis$Symbol & rhy$rhythmic_in_D, Wu2020_dermis$phase*12/pi, NA)
 rhy$Wu2020_amplitude_dermis = ifelse(rhy$Symbol %in% Wu2020_dermis$Symbol& rhy$rhythmic_in_D, Wu2020_dermis$amplitude, NA)
 
-rhy$Wu2020_epidermis = ifelse(rhy$Symbol %in% Wu2020_epidermis$Symbol & rhy$rhythmic_in_E, TRUE, FALSE) 
-#47 genes from Wu2020_epidermis are rhythmic in our epidermis
-rhy$Wu2020_phase_epidermis = ifelse(rhy$Symbol %in% Wu2020_epidermis$Symbol & rhy$rhythmic_in_E, 
-                                    Wu2020_epidermis$phase*12/pi, NA)
-rhy$Wu2020_amplitude_epidermis = ifelse(rhy$Symbol %in% Wu2020_epidermis$Symbol& rhy$rhythmic_in_E, 
-                                        Wu2020_epidermis$amplitude, NA)
-
+# plot comparison
 Wu2020_comparison <- plot_grid(ggplot(rhy, aes(x=A_D, y=Wu2020_amplitude_dermis)) + geom_point(color="#1B9E77", size=2) +
-                                 labs(x="amplitude", y="amplitude Wu2020") + theme_custom() +
-                                 scale_x_continuous(limits=c(0,1), breaks=c(0, 0.25, 0.5, 0.75, 1)) + 
-                                 scale_y_continuous(limits=c(0,1), breaks=c(0, 0.25, 0.5, 0.75, 1)),
-                               ggplot(rhy, aes(x=A_E, y=Wu2020_amplitude_epidermis)) + geom_point(color="#D95F02", size=2) + 
                                  labs(x="amplitude", y="amplitude Wu2020") + theme_custom() +
                                  scale_x_continuous(limits=c(0,1), breaks=c(0, 0.25, 0.5, 0.75, 1)) + 
                                  scale_y_continuous(limits=c(0,1), breaks=c(0, 0.25, 0.5, 0.75, 1)),
                                ggplot(rhy, aes(x=phase_D%%24, y=Wu2020_phase_dermis)) + geom_point(color="#1B9E77", size=2) + 
                                  labs(x="phase (h)", y="phase Wu2020 (h)") +  theme_custom() +
                                  scale_x_continuous(breaks=c(0,6,12,18,24)) + scale_y_continuous(breaks=c(0,6,12,18,24)),
-                               ggplot(rhy, aes(x=phase_E%%24, y=Wu2020_phase_epidermis)) + geom_point(color="#D95F02", size=2) + 
-                                 labs(x="phase (h)", y="phase Wu2020 (h)") + theme_custom() +
-                                 scale_x_continuous(breaks=c(0,6,12,18,24)) + scale_y_continuous(breaks=c(0,6,12,18,24)),
-                               ncol=2, nrow=2)
+                               ncol=2, nrow=1)
 
 
 # Save lists of rhythmic genes and comparison to prior analyses
