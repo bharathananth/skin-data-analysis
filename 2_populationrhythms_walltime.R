@@ -1,6 +1,5 @@
 # go to directory where the renv is located and set it as working directory
 # note that 0_preana.R should be run before this file (to pre-process microarray gene expression data)
-renv::activate('./renv/') 
 
 suppressPackageStartupMessages(library(limma))
 suppressPackageStartupMessages(library(magrittr))
@@ -324,5 +323,3 @@ sfig3 %>% ggsave('figures/suppfig3.pdf', ., width = 11, height = 8.5)
 
 ##########
 ##########
-
-renv::deactivate()

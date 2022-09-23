@@ -1,5 +1,4 @@
-# go to directory where the renv is located and set it as working directory
-#renv::activate('./renv/') 
+# open Project 'skin-data-analysis.Rproj'
 
 suppressPackageStartupMessages(library(limma))
 suppressPackageStartupMessages(library(magrittr))
@@ -307,5 +306,3 @@ suppfig5 %>% ggsave('./figures/suppfig5.pdf', ., width = 11, height = 8.5)
 
 ##########
 ##########
-
-renv::deactivate('./renv')
