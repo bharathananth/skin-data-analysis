@@ -22,7 +22,6 @@ suppressPackageStartupMessages(library(viridis))
 
 
 dir.create("figures",showWarnings = FALSE)
-dir.create("results",showWarnings = FALSE)
 
 # R graphics stuff
 scale_colour_discrete <- function(...) {
@@ -297,7 +296,7 @@ suppfig5B <- ggplot(cortisol, aes(x=Time, y=value)) + geom_line() + geom_point(s
   facet_wrap(~subject, ncol=3, scales="free") + 
   theme_custom() + 
   scale_x_continuous(breaks=c(8,16,24,32), labels=c("8:00", "16:00", "00:00", "8:00")) + 
-  scale_y_continuous(limits = c(0,1.25)) +
+  scale_y_continuous(limits = c(0,1.35), breaks=c(0, 0.3, 0.6, 0.9, 1.2)) +
   labs(x="wall time (h)", y="Cortisol (µg/dL)") +
   theme(axis.text.x = element_text(angle = 45, vjust =1, hjust=1))
 
