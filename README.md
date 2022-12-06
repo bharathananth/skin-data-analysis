@@ -1,12 +1,13 @@
 <!-- badges: start -->
 <a href="https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE205155"><img src="https://img.shields.io/badge/Data-GSE205155-green.svg?style=plastic" alt="" /></a>
 [![](https://img.shields.io/badge/doi-10.1101/2022.06.03.494693-yellow.svg)](https://doi.org/10.1101/2022.06.03.494693)
+[![DOI](https://zenodo.org/badge/541140885.svg)](https://zenodo.org/badge/latestdoi/541140885)
  <!-- badges: end -->
 
 # Skin-data-analysis
 
 
-This repository contains the reproducible code for the analysis and figures in the manuscript "Inter-layer and inter-subject variability of circadian gene expression in human skin" ([preprint doi](https://doi.org/10.1101/2022.06.03.494693)) . The dependencies of the code are handled using the package `renv`.
+This repository contains the reproducible code for the analysis and figures in the manuscript "Inter-layer and inter-subject variability of circadian gene expression in human skin" ([preprint](https://doi.org/10.1101/2022.06.03.494693)) . The dependencies of the code are handled using the package `renv`.
 
 To execute this code:
 
